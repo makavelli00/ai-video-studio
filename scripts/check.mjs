@@ -8,6 +8,8 @@ import { ROOT, slugArg, loadVideo, openPlayer } from "./lib/common.mjs";
 const { SCENE_TYPES, parseRich } = await import(pathToFileURL(path.join(ROOT, "engine", "engine.js")).href);
 const slug = slugArg();
 const errors = [], warnings = [];
+// Los 6 contadores del smoke test: todos deben quedar en 0.
+const counters = { runtimeErrors: 0, outOfBounds: 0, overlaps: 0, invalidColors: 0, nonDeterministic: 0, seam: 0 };
 let v;
 try { v = loadVideo(slug); } catch (e) { console.error("✖ " + e.message); process.exit(1); }
 const { dir, outDir, timeline: tl } = v;
@@ -62,20 +64,53 @@ if (!errors.length) {
     const p = await openPlayer(v.timeline, v.style);
     const rep = await p.page.evaluate(() => window.studio.layoutReport());
     const S = rep.safe, tol = 2;
+    // textos que se pisan dentro de la misma escena
+    for (const sc of rep.scenes) {
+      const bx = sc.boxes;
+      for (let i = 0; i < bx.length; i++) for (let j = i + 1; j < bx.length; j++) {
+        const a = bx[i], b = bx[j];
+        const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        const inside = (p, q) => p.x >= q.x - tol && p.y >= q.y - tol && p.x + p.w <= q.x + q.w + tol && p.y + p.h <= q.y + q.h + tol;
+        if (ix > 4 && iy > 4 && !inside(a, b) && !inside(b, a)) {
+          counters.overlaps++;
+          errors.push(`Escena ${sc.scene} (${sc.type}): "${a.label}" y "${b.label}" se solapan (${Math.round(ix)}×${Math.round(iy)}px)`);
+        }
+      }
+    }
+    // determinismo: el mismo fotograma, pedido directamente y después de otros, tiene que salir idéntico
+    const det = await p.page.evaluate(() => {
+      const st = window.studio, cv = window.studioCanvas, n = st.totalFrames;
+      const shot = (f) => { st.renderFrame(f); return cv.toDataURL("image/png"); };
+      const probes = [Math.floor(n * 0.37), Math.floor(n * 0.81)];
+      const first = probes.map(shot);
+      shot(0); shot(n - 1);
+      const bad = probes.filter((f, i) => shot(f) !== first[i]);
+      return { bad, seam: shot(0) === shot(n - 1) };
+    });
+    for (const f of det.bad) { counters.nonDeterministic++; errors.push(`El fotograma ${f} no sale igual dos veces: hay algo no determinista (Math.random, Date.now, timers…)`); }
+    if (v.timeline.loop && !det.seam) { counters.seam++; errors.push("Bucle: el primer y el último fotograma no coinciden píxel a píxel"); }
     for (const sc of rep.scenes) for (const b of sc.boxes) {
       const where = `Escena ${sc.scene} (${sc.type}) · ${b.label}`;
+      const before = errors.length;
       if (b.y < S.top - tol) errors.push(`${where}: invade la zona superior (${Math.round(S.top - b.y)}px)`);
       if (b.y + b.h > S.bottom + tol) errors.push(`${where}: invade la zona inferior de la interfaz (${Math.round(b.y + b.h - S.bottom)}px). Recorta texto o baja "size".`);
       if (b.x < S.left - tol || b.x + b.w > S.right + tol) errors.push(`${where}: se sale por los lados. ¿Una palabra demasiado larga?`);
       if (b.maxWidth && b.w > b.maxWidth + tol) errors.push(`${where}: una palabra no cabe en el ancho disponible`);
+      if (errors.length > before) counters.outOfBounds++;
     }
-    if (p.errors.length) errors.push(...p.errors.map((e) => "Error del motor: " + e));
+    if (p.errors.length) { counters.runtimeErrors += p.errors.length; errors.push(...p.errors.map((e) => "Error del motor: " + e)); }
     await p.close();
-  } catch (e) { errors.push(e.message); }
+  } catch (e) { counters.runtimeErrors++; errors.push(e.message); }
 }
 
-fs.writeFileSync(path.join(outDir, "check.json"), JSON.stringify({ slug, total, errors, warnings, at: new Date().toISOString() }, null, 2));
+// ---- colores válidos ----
+for (const [k, c] of Object.entries(v.style.colors || {})) {
+  if (!/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(c))) { counters.invalidColors++; errors.push(`Color no válido en style.colors.${k}: "${c}" (usa #RRGGBB)`); }
+}
+fs.writeFileSync(path.join(outDir, "check.json"), JSON.stringify({ slug, total, counters, errors, warnings, at: new Date().toISOString() }, null, 2));
 console.log(`\nCheck · ${slug} · ${tl.scenes?.length || 0} escenas · ${total.toFixed(1)} s`);
+const names = { runtimeErrors: "errores de ejecución", outOfBounds: "fuera de la zona segura", overlaps: "textos solapados", invalidColors: "colores no válidos", nonDeterministic: "no determinista", seam: tl.loop ? "costura del bucle" : "costura (solo con loop: true)" };
+console.log("  Smoke test: " + Object.entries(counters).map(([k, n]) => `${n === 0 ? "✓" : "✖"} ${names[k]} ${n}`).join(" · "));
 warnings.forEach((w) => console.log("  ⚠ " + w));
 errors.forEach((e) => console.log("  ✖ " + e));
 if (errors.length) { console.log(`\n✖ ${errors.length} error(es). Corrige antes de seguir.`); process.exit(1); }

@@ -49,6 +49,29 @@ repetir (máx. 4 vueltas):
 
 Nunca des por buena la primera versión sin haber mirado la hoja de contactos.
 
+### Los dos sensores
+
+1. **Computacional (`npm run check`):** el smoke test tiene 6 contadores y todos deben quedar en 0: errores de ejecución, texto fuera de la zona segura, textos solapados, colores no válidos, fotogramas no deterministas y costura del bucle (solo si el timeline tiene `"loop": true`). Además avisa de tiempos de lectura y datos sin fuente.
+2. **Inferencial (tú, con visión):** `npm run sheet` saca la hoja de contactos y los keyframes. Míralos con la herramienta de lectura de imágenes y evalúalos con `studio/05-critic/CHECKLIST.md`: legibilidad en móvil, jerarquía, guía de estilo, defaults prohibidos.
+
+### Bucle autónomo (cuando el usuario lo pide "sin parar")
+
+Usa este objetivo, con `/goal` si tu Claude Code lo tiene o como instrucción normal:
+
+```
+Lee videos/<v>/brief.md. Escribe o corrige videos/<v>/timeline.json.
+Repite: npm run check (los 6 contadores a 0) → npm run sheet → revisa la hoja
+de contactos y corrige los 3 mayores defectos → anota la vuelta en review.md.
+Para cuando check esté a 0 y el CHECKLIST se cumpla. Aborta si tras 2 vueltas
+no hay progreso. Máximo 5 vueltas. Luego npm run render.
+```
+
+Los gates del usuario siguen valiendo: el bucle autónomo sustituye a las vueltas de crítica, no a su aprobación del brief ni de la exportación (salvo que diga "del tirón").
+
+### Registro de fallos (spine) y regla de oro
+
+Cada fallo que detecten los sensores o el usuario se apunta en `studio/05-critic/SPINE.md` (fecha, vídeo, fallo, arreglo). **Si el mismo fallo aparece dos veces, no lo corrijas otra vez a mano:** añade una regla a este `CLAUDE.md` o un sensor nuevo a `scripts/check.mjs`, y anótalo en el spine.
+
 ## Reglas (guías)
 
 - Una idea por escena. Hook en ≤ 3 s. Último beat = `cta` al ebook.
@@ -57,7 +80,10 @@ Nunca des por buena la primera versión sin haber mirado la hoja de contactos.
 - Texto para leer sin sonido: el vídeo se tiene que entender en silencio.
 - Español de España, tono cercano, frases cortas.
 - **Prohibido:** inventar cifras o estudios; escena `number` sin `source` real; promesas exageradas; emojis dentro del vídeo; texto fuera de la zona segura; tocar `style.json` sin permiso.
-- El motor debe seguir siendo puro: sin `Math.random()`, `Date.now()`, timers, CSS animations ni recursos remotos.
+- El motor debe seguir siendo puro: sin `Math.random()`, `Date.now()`, timers, CSS animations ni recursos remotos. Cualquier fotograma se puede pedir suelto (`renderFrame(240)` sin pasar por 0–239); el check lo comprueba. Para "aleatoriedad" usa `hash(n)` del motor.
+- Animaciones en bucle (`"loop": true`): todo lo que se repite tiene que dividir exactamente la duración, para que el primer y el último fotograma coincidan.
+- **Solo material real:** textos, datos e imágenes salen del `brief.md` del vídeo o de `videos/<v>/assets/`. Nada inventado.
+- **Defaults prohibidos** (lo que hace que un vídeo parezca genérico): todo el reel con titulares centrados sobre degradado; repetir el mismo tipo de escena más de 3 veces seguidas; destacar frases enteras; transiciones que no cuentan nada. Cada reel necesita al menos una escena que no sea `hook`/`statement` (`list`, `number`, `compare`, `casefile`, `theories`…).
 - Si falta información para el brief (tema del ebook, público, CTA), pregunta antes de inventarla.
 
 ## Reels de misterio
@@ -77,6 +103,8 @@ Si trabajas en la nube (claude.ai/code), el usuario no puede abrir `npm run prev
 
 ## Revisión semanal (métricas)
 
+Para que sea automática, el usuario puede usar `/loop` (por ejemplo, una vez por semana) con: "revisión semanal de métricas del estudio".
+
 Cuando el usuario pida "revisión semanal" o pegue datos:
 1. Añade las filas a `studio/06-metrics/metrics.csv`.
 2. Compara ganchos, duraciones y temas: retención 3 s, visionado medio, guardados, comentarios del CTA, ventas.
@@ -87,7 +115,7 @@ Cuando el usuario pida "revisión semanal" o pegue datos:
 
 ```
 npm run new     -- <video>   # crea videos/<video>/ con brief y timeline
-npm run check   -- <video>   # sensores: estructura, tiempos de lectura, zonas seguras
+npm run check   -- <video>   # smoke test (6 contadores a 0) + tiempos de lectura y fuentes
 npm run sheet   -- <video>   # hoja de contactos + keyframes en out/
 npm run preview -- <video>   # vista previa en el navegador con recarga automática
 npm run ambient -- <video>   # ambiente de suspense (dron + golpes) en ambient.wav

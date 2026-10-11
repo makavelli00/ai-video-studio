@@ -3,8 +3,8 @@
 Antes de exportar, el crítico mira `out/contact-sheet.png` y `out/keyframes/`. No se da por buena la primera versión.
 
 ## Automático (`npm run check`)
+- [ ] Smoke test con los 6 contadores a 0 (ejecución, zona segura, solapes, colores, determinismo, costura).
 - [ ] Sin errores de estructura ni asteriscos sin cerrar.
-- [ ] Ningún texto fuera de la zona segura.
 - [ ] Tiempo suficiente para leer cada escena.
 - [ ] Empieza con hook y termina con cta.
 
@@ -17,9 +17,12 @@ Antes de exportar, el crítico mira `out/contact-sheet.png` y `out/keyframes/`. 
 - [ ] **Coherencia** con `STYLE_GUIDE.md` (color de acento, tipografía, tono).
 - [ ] **CTA:** queda claro qué hacer y qué se consigue (el ebook).
 - [ ] **Verdad:** ninguna cifra sin fuente, ninguna promesa exagerada.
+- [ ] **Nada genérico:** no es todo titulares centrados; hay al menos una escena con forma propia (lista, número, comparación, expediente, teorías).
 
 ## Resultado
 Escribe en `videos/<video>/review.md`:
 - Qué está bien.
 - Qué cambiar (concreto: escena, campo, nuevo valor).
 - Veredicto: ✅ exportar · 🔁 otra vuelta.
+
+Y apunta en `studio/05-critic/SPINE.md` cualquier fallo que hayas tenido que corregir.
