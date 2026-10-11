@@ -1,0 +1,12 @@
+{
+  "title": "Nuevo reel",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "scenes": [
+    { "type": "hook", "duration": 2.8, "text": "Tu gancho con una *palabra* destacada", "sub": "Frase de apoyo opcional" },
+    { "type": "statement", "duration": 3.5, "kicker": "Punto 1", "text": "La idea principal en *pocas palabras*", "note": "Explicación breve o consejo práctico" },
+    { "type": "list", "duration": 4.5, "title": "Título de la lista", "items": ["Primero", "Segundo", "Tercero"] },
+    { "type": "cta", "duration": 4, "text": "Te lo explico todo en mi *ebook*", "button": "Comenta GUÍA", "sub": "y te lo envío por privado" }
+  ]
+}
