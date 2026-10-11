@@ -1,0 +1,93 @@
+{
+  "title": "El misterio del Paso Dyatlov",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "scenes": [
+    {
+      "type": "hook",
+      "duration": 3.5,
+      "text": "9 excursionistas *huyeron* de su tienda. Descalzos.",
+      "sub": "Montes Urales, 1959"
+    },
+    {
+      "type": "casefile",
+      "duration": 6.8,
+      "title": "Expediente · Paso Dyatlov",
+      "rows": [
+        {
+          "k": "Fecha",
+          "v": "1-2 de febrero de 1959"
+        },
+        {
+          "k": "Lugar",
+          "v": "Montes Urales, URSS"
+        },
+        {
+          "k": "Víctimas",
+          "v": "9 de 9",
+          "hl": true
+        }
+      ],
+      "stamp": "Archivado",
+      "source": "Investigación soviética de 1959 (cerrada en mayo de 1959); en.wikipedia.org/wiki/Dyatlov_Pass_incident"
+    },
+    {
+      "type": "statement",
+      "duration": 4.8,
+      "kicker": "Pista 1",
+      "text": "La tienda estaba rajada *desde dentro*",
+      "note": "Así lo concluyeron los investigadores"
+    },
+    {
+      "type": "statement",
+      "duration": 5.6,
+      "kicker": "Pista 2",
+      "text": "Salieron a la nieve *sin botas*",
+      "note": "Algunos, en ropa interior, a unos −25 °C"
+    },
+    {
+      "type": "statement",
+      "duration": 5.3,
+      "kicker": "Pista 3",
+      "text": "Informe oficial: una *fuerza natural irresistible*",
+      "note": "Y el caso se archivó sin culpables"
+    },
+    {
+      "type": "theories",
+      "duration": 5.8,
+      "title": "¿Qué los hizo huir?",
+      "items": [
+        {
+          "text": "Un *ataque*",
+          "ruled": true
+        },
+        {
+          "text": "Pruebas *militares* secretas",
+          "ruled": true
+        },
+        {
+          "text": "Una *avalancha*",
+          "ruled": false
+        }
+      ]
+    },
+    {
+      "type": "statement",
+      "duration": 5.6,
+      "kicker": "2020",
+      "text": "Rusia reabre el caso y culpa a una *avalancha*",
+      "note": "No todos se lo creen"
+    },
+    {
+      "type": "cta",
+      "book": false,
+      "duration": 5.0,
+      "text": "¿Qué crees que pasó?",
+      "button": "SIGUE PARA LA PARTE 2",
+      "sub": "La avalancha que nadie vio"
+    }
+  ],
+  "audio": "ambient.wav",
+  "audioVolume": 0.9
+}

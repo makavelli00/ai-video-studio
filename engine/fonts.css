@@ -3,3 +3,5 @@
 @font-face { font-family: "Inter"; src: url("fonts/Inter-Bold.otf") format("opentype"); font-weight: 700; }
 @font-face { font-family: "Inter"; src: url("fonts/Inter-ExtraBold.otf") format("opentype"); font-weight: 800; }
 @font-face { font-family: "Inter"; src: url("fonts/Inter-Black.otf") format("opentype"); font-weight: 900; }
+@font-face { font-family: "Liberation Mono"; src: url("fonts/LiberationMono-Regular.ttf") format("truetype"); font-weight: 400; }
+@font-face { font-family: "Liberation Mono"; src: url("fonts/LiberationMono-Bold.ttf") format("truetype"); font-weight: 700; }

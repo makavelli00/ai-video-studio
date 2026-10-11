@@ -12,15 +12,29 @@ const outFile = path.join(outDir, `${slug}.mp4`);
 const player = await openPlayer(timeline, style);
 const { totalFrames, fps, total } = player.info;
 const args = ["-y", "-loglevel", "error", "-f", "image2pipe", "-c:v", "mjpeg", "-framerate", String(fps), "-i", "-"];
-let audioFile = null;
-if (timeline.audio) {
-  audioFile = path.join(dir, timeline.audio);
-  if (!fs.existsSync(audioFile)) { console.warn(`⚠ No encuentro el audio ${timeline.audio}; exporto sin sonido.`); audioFile = null; }
+// Pistas de audio: "audio" = música/ambiente, "voice" = voz en off (opcionales).
+const tracks = [];
+for (const [key, vol] of [["audio", timeline.audioVolume ?? 1], ["voice", timeline.voiceVolume ?? 1]]) {
+  if (!timeline[key]) continue;
+  const f = path.join(dir, timeline[key]);
+  if (fs.existsSync(f)) tracks.push({ f, vol, key });
+  else console.warn(`⚠ No encuentro ${timeline[key]}; exporto sin esa pista.`);
 }
-if (audioFile) {
-  const vol = timeline.audioVolume ?? 1;
-  args.push("-i", audioFile, "-map", "0:v", "-map", "1:a", "-c:a", "aac", "-b:a", "192k",
-    "-af", `volume=${vol},afade=t=out:st=${Math.max(0, total - 1).toFixed(2)}:d=1`, "-shortest");
+tracks.forEach((tr) => args.push("-i", tr.f));
+if (tracks.length) {
+  const fade = `afade=t=out:st=${Math.max(0, total - 1).toFixed(2)}:d=1`;
+  // Con voz, la música baja sola mientras se habla (ducking).
+  const music = tracks.find((tr) => tr.key === "audio"), voice = tracks.find((tr) => tr.key === "voice");
+  const idx = (tr) => 1 + tracks.indexOf(tr);
+  let fc;
+  if (music && voice) {
+    fc = `[${idx(music)}:a]volume=${music.vol}[m];[${idx(voice)}:a]volume=${voice.vol},asplit[v1][v2];` +
+      `[m][v1]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=400[md];[md][v2]amix=inputs=2:duration=longest:normalize=0,${fade}[a]`;
+  } else {
+    const tr = music || voice;
+    fc = `[${idx(tr)}:a]volume=${tr.vol},${fade}[a]`;
+  }
+  args.push("-filter_complex", fc, "-map", "0:v", "-map", "[a]", "-c:a", "aac", "-b:a", "192k", "-t", total.toFixed(3));
 }
 args.push("-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-preset", "medium", "-movflags", "+faststart", outFile);
 

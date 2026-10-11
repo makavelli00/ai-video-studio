@@ -60,6 +60,7 @@ async function load(force) {
     const o = over ? JSON.parse(over) : {};
     for (const k of Object.keys(o)) style[k] = typeof o[k] === "object" ? { ...(style[k] || {}), ...o[k] } : o[k];
     await Promise.all([500, 600, 700, 800, 900].map((w) => document.fonts.load(`${w} 100px Inter`)));
+  await Promise.all([400, 700].map((w) => document.fonts.load(`${w} 100px "Liberation Mono"`)));
     studio = createStudio(canvas, timeline, style);
     document.getElementById("title").textContent = timeline.title || slug;
     document.getElementById("msg").textContent = "";

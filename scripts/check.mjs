@@ -40,6 +40,10 @@ let total = 0;
     case "compare": for (const k of ["left", "right"]) { if (!s[k]?.label || !s[k]?.text) errors.push(`${id}: "${k}" necesita label y text`); }
       texts.push(s.title, s.left?.text, s.right?.text); break;
     case "cta": need("text"); texts.push(s.text, s.button, s.sub); break;
+    case "casefile": if (!s.rows?.length) errors.push(`${id}: necesita "rows" [{k, v}]`);
+      texts.push(s.title, s.stamp, ...(s.rows || []).flatMap((r) => [r.k, r.v]));
+      if (!s.source) warnings.push(`${id}: expediente sin "source". En misterios, cada dato tiene que poder comprobarse.`); break;
+    case "theories": need("items"); texts.push(s.title, ...(s.items || []).map((it) => (typeof it === "string" ? it : it.text))); break;
   }
   texts.filter(Boolean).forEach((t) => { if (stars(t)) errors.push(`${id}: asteriscos sin cerrar en "${t}"`); });
   const n = texts.filter(Boolean).reduce((a, t) => a + words(t), 0);
@@ -49,6 +53,7 @@ let total = 0;
 if (tl.scenes?.[0]?.type !== "hook") warnings.push("La primera escena debería ser un hook");
 if (tl.scenes?.[0]?.duration > 3.5) warnings.push("El hook dura más de 3.5 s; el gancho tiene que llegar antes");
 if (tl.scenes?.at(-1)?.type !== "cta") warnings.push("La última escena debería ser un cta (llamada al ebook)");
+if (tl.voice && !fs.existsSync(path.join(dir, tl.voice))) warnings.push(`No existe la voz ${tl.voice}; se exportará sin voz en off`);
 if (total && (total < 15 || total > 60)) warnings.push(`Duración total ${total.toFixed(1)}s, fuera del rango del estudio (15–60 s)`);
 
 // ---- sensores visuales (zonas seguras) ----

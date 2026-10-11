@@ -1,0 +1,18 @@
+{
+  "look": "mystery",
+  "grain": 0.08,
+  "colors": {
+    "bg": "#07080B",
+    "surface": "#14161B",
+    "text": "#EDEAE3",
+    "muted": "#8E919A",
+    "accent": "#C8102E",
+    "onAccent": "#FFFFFF",
+    "accent2": "#33415E",
+    "stamp": "#B3122E",
+    "fog": "#8A94A6",
+    "paper": "#E6DDC6",
+    "ink": "#1B1A17"
+  },
+  "motion": { "wordStagger": 0.08, "sceneIn": 0.6, "sceneOut": 0.4 }
+}

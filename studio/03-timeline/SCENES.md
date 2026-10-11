@@ -17,9 +17,17 @@ Usa `*asteriscos*` para destacar palabras con el color de acento.
 | `list` | `items[]`, `title?`, `itemSize?`, `itemDelay?` | 2–5 puntos que aparecen uno a uno. |
 | `number` | `value`, `prefix?`, `suffix?`, `decimals?`, `label?`, `source` | Cifra que cuenta hacia arriba. **`source` obligatorio** si es un dato. |
 | `compare` | `left{label,text}`, `right{label,text}`, `title?`, `secondDelay?` | Antes / después, mal / bien. |
-| `cta` | `text`, `button?`, `sub?` | Cierre con la portada del ebook (título en `style.json`). |
+| `cta` | `text`, `button?`, `sub?`, `book?` | Cierre con la portada del ebook (título en `style.json`). Con `"book": false`, cierre sin portada (seguir / parte 2). |
+| `casefile` | `rows[{k,v,hl?}]`, `title?`, `stamp?`, `cps?`, `source` | Ficha de expediente en papel, datos a máquina y sello final. Para misterios. |
+| `theories` | `items[{text, ruled?}]`, `title?`, `ruleAt?` | Teorías que aparecen una a una; las `ruled: true` se tachan. |
 
-Campos globales del timeline: `title`, `fps` (30), `width` (1080), `height` (1920), `audio?` (archivo en la carpeta del vídeo), `audioVolume?`.
+Campos globales del timeline: `title`, `fps` (30), `width` (1080), `height` (1920), `audio?` (música o ambiente, archivo en la carpeta del vídeo), `audioVolume?`, `voice?` (voz en off; la música baja sola mientras se habla), `voiceVolume?`. En cada escena, `"hit": false` quita el golpe de sonido de `npm run ambient` en ese cambio.
+
+Patrón de un reel de misterio (`style.json` con `"look": "mystery"`, ver `studio/02-reference/presets/misterio.json`):
+
+```
+hook → casefile → pistas (statement con kicker "Pista 1"...) → theories → giro → cta con book:false (parte 2)
+```
 
 ## Duraciones orientativas
 - Tiempo de lectura: ~3.3 palabras/segundo + 0.8 s de margen. El check avisa si falta tiempo.

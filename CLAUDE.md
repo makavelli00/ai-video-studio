@@ -60,6 +60,14 @@ Nunca des por buena la primera versión sin haber mirado la hoja de contactos.
 - El motor debe seguir siendo puro: sin `Math.random()`, `Date.now()`, timers, CSS animations ni recursos remotos.
 - Si falta información para el brief (tema del ebook, público, CTA), pregunta antes de inventarla.
 
+## Reels de misterio
+
+Para casos reales y misterios, el vídeo usa el preset `studio/02-reference/presets/misterio.json` (cópialo como `videos/<v>/style.json`): fondo con niebla, viñeta, grano y acento rojo.
+- **Solo hechos comprobables.** Cada dato (fechas, lugares, cifras, conclusiones oficiales) tiene que salir de una fuente que apuntes en `brief.md`; el `casefile` necesita `source`. Si una fuente no lo confirma, no va al vídeo. Diferencia siempre "se cree" / "según la investigación" de lo probado.
+- Sin morbo: nada de detalles gráficos de víctimas reales.
+- Cierre con `cta` `"book": false` y una pregunta o un "parte 2": la monetización viene de llevar al espectador a vídeos largos o a un producto.
+- Sonido: `npm run ambient -- <v>` genera un ambiente de suspense propio (sin derechos de autor). Si hay voz en off, guárdala en la carpeta del vídeo y ponla en `"voice"`.
+
 ## Claude Code en la nube
 
 Si trabajas en la nube (claude.ai/code), el usuario no puede abrir `npm run preview`:
@@ -82,5 +90,6 @@ npm run new     -- <video>   # crea videos/<video>/ con brief y timeline
 npm run check   -- <video>   # sensores: estructura, tiempos de lectura, zonas seguras
 npm run sheet   -- <video>   # hoja de contactos + keyframes en out/
 npm run preview -- <video>   # vista previa en el navegador con recarga automática
-npm run render  -- <video>   # MP4 final en out/
+npm run ambient -- <video>   # ambiente de suspense (dron + golpes) en ambient.wav
+npm run render  -- <video>   # MP4 final en out/ y copia en renders/
 ```

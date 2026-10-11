@@ -91,3 +91,7 @@ Usa música sin copyright o la biblioteca de audio de Instagram/TikTok al public
 - **"Falta Playwright"** → `npm install` y `npm run setup`.
 - **El navegador no se abre en preview** → copia la URL que aparece en la terminal.
 - **Puerto ocupado** → `set PORT=4000` (cmd) o `$env:PORT=4000` (PowerShell) y vuelve a lanzar.
+
+## Reels de misterio
+
+Ejemplo: `videos/misterio-paso-dyatlov`. Estilo oscuro en `studio/02-reference/presets/misterio.json`, escenas `casefile` y `theories`, y `npm run ambient -- <video>` para el sonido de suspense. Para añadir voz en off, guarda el audio en la carpeta del vídeo (por ejemplo `voz.mp3`) y pon `"voice": "voz.mp3"` en el `timeline.json`.
