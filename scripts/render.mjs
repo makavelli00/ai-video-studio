@@ -41,4 +41,8 @@ for (let f = 0; f < totalFrames; f += BATCH) {
 ff.stdin.end();
 await ffDone;
 await player.close();
-console.log(`\n✔ ${path.relative(process.cwd(), outFile)} (${total.toFixed(1)} s, ${((Date.now() - t0) / 1000).toFixed(0)} s de render)`);
+// Copia versionable en renders/ para descargarla desde GitHub (Claude Code en la nube).
+const rendersDir = path.join(path.dirname(dir), "..", "renders");
+fs.mkdirSync(rendersDir, { recursive: true });
+fs.copyFileSync(outFile, path.join(rendersDir, `${slug}.mp4`));
+console.log(`\n✔ ${path.relative(process.cwd(), outFile)} (${total.toFixed(1)} s, ${((Date.now() - t0) / 1000).toFixed(0)} s de render) · copia en renders/`);

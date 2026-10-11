@@ -55,7 +55,7 @@ export async function openPlayer(timeline, style) {
   try { ({ chromium } = await import("playwright")); }
   catch { throw new Error("Falta Playwright. Ejecuta: npm install && npm run setup"); }
   const srv = await startServer();
-  const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+  const browser = await chromium.launch(chromiumOptions());
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
@@ -69,8 +69,16 @@ export async function openPlayer(timeline, style) {
   };
 }
 
+// Chromium: CHROMIUM_PATH > el que trae Claude Code en la nube > el de `npm run setup`.
+const CLOUD_CHROMIUM = "/opt/pw-browsers/chromium";
+function chromiumOptions() {
+  if (process.env.CHROMIUM_PATH) return { executablePath: process.env.CHROMIUM_PATH };
+  if (fs.existsSync(CLOUD_CHROMIUM)) return { executablePath: CLOUD_CHROMIUM };
+  return {};
+}
+
 export async function ffmpegPath() {
   if (process.env.FFMPEG) return process.env.FFMPEG;
-  try { const m = await import("ffmpeg-static"); if (m.default) return m.default; } catch {}
+  try { const m = await import("ffmpeg-static"); if (m.default && fs.existsSync(m.default)) return m.default; } catch {}
   return "ffmpeg";
 }

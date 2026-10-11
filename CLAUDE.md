@@ -60,6 +60,13 @@ Nunca des por buena la primera versión sin haber mirado la hoja de contactos.
 - El motor debe seguir siendo puro: sin `Math.random()`, `Date.now()`, timers, CSS animations ni recursos remotos.
 - Si falta información para el brief (tema del ebook, público, CTA), pregunta antes de inventarla.
 
+## Claude Code en la nube
+
+Si trabajas en la nube (claude.ai/code), el usuario no puede abrir `npm run preview`:
+- En el Gate 3, enseña tú la hoja de contactos y 3–4 keyframes en lugar de pedirle que abra la vista previa.
+- Tras `npm run render`, el MP4 queda también en `renders/<video>.mp4`. Haz commit y push de ese archivo para que el usuario lo descargue desde GitHub.
+- Las dependencias se instalan solas al empezar la sesión (`.claude/settings.json`). El Chromium del entorno se usa sin descargas.
+
 ## Revisión semanal (métricas)
 
 Cuando el usuario pida "revisión semanal" o pegue datos:
