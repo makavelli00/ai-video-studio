@@ -1,0 +1,33 @@
+{
+  "brand": {
+    "handle": "@tu_usuario"
+  },
+  "ebook": {
+    "title": "Título de tu ebook",
+    "author": "Tu nombre",
+    "tag": "EBOOK"
+  },
+  "fonts": {
+    "family": "Inter"
+  },
+  "colors": {
+    "bg": "#0E0F13",
+    "surface": "#1A1C23",
+    "text": "#F5F5F7",
+    "muted": "#9BA0AE",
+    "accent": "#FFD23F",
+    "onAccent": "#111111",
+    "accent2": "#6C5CE7",
+    "bad": "#FF5C5C",
+    "good": "#2ED47A"
+  },
+  "motion": {
+    "wordStagger": 0.06,
+    "sceneIn": 0.45,
+    "sceneOut": 0.3
+  },
+  "overlay": {
+    "progress": true,
+    "handle": true
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "ai-video-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Estudio de reels explicativos en motion design generados por código (renderFrame(t)).",
+  "scripts": {
+    "setup": "npx playwright install chromium",
+    "new": "node scripts/new.mjs",
+    "check": "node scripts/check.mjs",
+    "preview": "node scripts/preview.mjs",
+    "sheet": "node scripts/sheet.mjs",
+    "render": "node scripts/render.mjs"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "playwright": "^1.56.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

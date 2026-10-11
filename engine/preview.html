@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Video Studio — preview</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #111; color: #eee; font: 500 14px Inter, system-ui, sans-serif; display: flex; gap: 24px; padding: 16px; box-sizing: border-box; height: 100vh; }
+  #stage { height: calc(100vh - 32px); aspect-ratio: 9/16; position: relative; flex: none; }
+  canvas { width: 100%; height: 100%; border-radius: 12px; display: block; }
+  #safe { position: absolute; border: 1px dashed rgba(255,80,80,.6); pointer-events: none; display: none; }
+  aside { flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 12px; }
+  button { background: #2a2a2a; color: #eee; border: 1px solid #444; border-radius: 8px; padding: 8px 12px; font: inherit; cursor: pointer; }
+  input[type=range] { width: 100%; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  #scenes div { padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+  #scenes div.on { background: #333; }
+  #msg { color: #ff8; }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c"></canvas><div id="safe"></div></div>
+<aside>
+  <h2 id="title" style="margin:0">…</h2>
+  <div class="row">
+    <button id="play">▶ Play</button>
+    <button id="restart">⟲ Inicio</button>
+    <label><input type="checkbox" id="showSafe"> Zona segura</label>
+  </div>
+  <input type="range" id="scrub" min="0" max="1000" value="0">
+  <div id="time">0.00 s</div>
+  <div id="msg"></div>
+  <div id="scenes"></div>
+  <small>Se recarga sola cuando cambian <code>timeline.json</code> o <code>style.json</code>. Espacio = play/pausa.</small>
+</aside>
+<audio id="audio"></audio>
+<script type="module">
+import { createStudio } from "./engine.js";
+const slug = new URLSearchParams(location.search).get("video");
+const canvas = document.getElementById("c");
+const audio = document.getElementById("audio");
+let studio, t = 0, playing = false, last = 0, lastSrc = "";
+
+async function getJSON(url) { const r = await fetch(url + "?_=" + Date.now()); if (!r.ok) return null; return r.text(); }
+
+async function load(force) {
+  const [tl, base, over] = await Promise.all([
+    getJSON(`../videos/${slug}/timeline.json`),
+    getJSON(`../studio/02-reference/style.json`),
+    getJSON(`../videos/${slug}/style.json`),
+  ]);
+  const src = tl + base + over;
+  if (!force && src === lastSrc) return;
+  lastSrc = src;
+  try {
+    const timeline = JSON.parse(tl);
+    const style = JSON.parse(base || "{}");
+    const o = over ? JSON.parse(over) : {};
+    for (const k of Object.keys(o)) style[k] = typeof o[k] === "object" ? { ...(style[k] || {}), ...o[k] } : o[k];
+    await Promise.all([500, 600, 700, 800, 900].map((w) => document.fonts.load(`${w} 100px Inter`)));
+    studio = createStudio(canvas, timeline, style);
+    document.getElementById("title").textContent = timeline.title || slug;
+    document.getElementById("msg").textContent = "";
+    if (timeline.audio) { audio.src = `../videos/${slug}/${timeline.audio}`; } else audio.removeAttribute("src");
+    const box = document.getElementById("scenes"); box.innerHTML = "";
+    studio.sched.forEach((e) => {
+      const d = document.createElement("div");
+      d.textContent = `${e.i + 1}. ${e.s.type} — ${e.start.toFixed(1)}s → ${e.end.toFixed(1)}s`;
+      d.onclick = () => { t = e.start; sync(); draw(); };
+      d.dataset.i = e.i; box.appendChild(d);
+    });
+    const s = studio.SAFE, el = document.getElementById("safe"), k = 100 / studio.W, kh = 100 / studio.H;
+    Object.assign(el.style, { left: s.left * k + "%", width: (s.right - s.left) * k + "%", top: s.top * kh + "%", height: (s.bottom - s.top) * kh + "%" });
+    t = Math.min(t, studio.total);
+    draw();
+  } catch (err) { document.getElementById("msg").textContent = "Error: " + err.message; }
+}
+
+function draw() {
+  if (!studio) return;
+  studio.renderAt(t);
+  document.getElementById("scrub").value = Math.round((t / studio.total) * 1000);
+  document.getElementById("time").textContent = `${t.toFixed(2)} s / ${studio.total.toFixed(2)} s · frame ${Math.round(t * studio.fps)}`;
+  document.querySelectorAll("#scenes div").forEach((d) => { const e = studio.sched[d.dataset.i]; d.classList.toggle("on", t >= e.start && t < e.end); });
+}
+function sync() { if (audio.src) audio.currentTime = t; }
+function loop(now) {
+  if (playing) {
+    t += (now - last) / 1000;
+    if (t >= studio.total) { t = studio.total; playing = false; audio.pause(); document.getElementById("play").textContent = "▶ Play"; }
+    draw();
+  }
+  last = now; requestAnimationFrame(loop);
+}
+function toggle() {
+  if (!studio) return;
+  if (t >= studio.total) t = 0;
+  playing = !playing;
+  document.getElementById("play").textContent = playing ? "❚❚ Pausa" : "▶ Play";
+  if (audio.src) { if (playing) { sync(); audio.play().catch(() => {}); } else audio.pause(); }
+}
+document.getElementById("play").onclick = toggle;
+document.getElementById("restart").onclick = () => { t = 0; sync(); draw(); };
+document.getElementById("scrub").oninput = (e) => { t = (e.target.value / 1000) * studio.total; sync(); draw(); };
+document.getElementById("showSafe").onchange = (e) => { document.getElementById("safe").style.display = e.target.checked ? "block" : "none"; };
+addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); toggle(); } });
+if (!slug) document.getElementById("msg").textContent = "Falta ?video=nombre-del-video en la URL";
+else { await load(true); setInterval(() => load(false), 1500); requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

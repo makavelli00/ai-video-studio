@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>AI Video Studio — player</title>
+<link rel="stylesheet" href="fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+import { createStudio } from "./engine.js";
+
+async function loadFonts() {
+  await Promise.all([500, 600, 700, 800, 900].map((w) => document.fonts.load(`${w} 100px Inter`)));
+  await document.fonts.ready;
+}
+
+// Lo usan los scripts de render, sheet y check (vía Playwright).
+window.studioInit = async (timeline, style) => {
+  await loadFonts();
+  const canvas = document.getElementById("c");
+  window.studio = createStudio(canvas, timeline, style);
+  window.studioCanvas = canvas;
+  return { totalFrames: window.studio.totalFrames, fps: window.studio.fps, total: window.studio.total };
+};
+
+window.studioFrames = (from, to, quality = 0.95) => {
+  const out = [];
+  for (let f = from; f < to; f++) {
+    window.studio.renderFrame(f);
+    out.push(window.studioCanvas.toDataURL("image/jpeg", quality));
+  }
+  return out;
+};
+
+// Hoja de contactos: varios instantes en una cuadrícula.
+window.studioSheet = (shots, cols = 4, thumbW = 270) => {
+  const st = window.studio;
+  const thumbH = Math.round(thumbW * st.H / st.W);
+  const labelH = 34, gap = 12;
+  const rows = Math.ceil(shots.length / cols);
+  const sheet = document.createElement("canvas");
+  sheet.width = cols * thumbW + (cols + 1) * gap;
+  sheet.height = rows * (thumbH + labelH) + (rows + 1) * gap;
+  const g = sheet.getContext("2d");
+  g.fillStyle = "#222"; g.fillRect(0, 0, sheet.width, sheet.height);
+  shots.forEach((s, i) => {
+    st.renderAt(s.t);
+    const x = gap + (i % cols) * (thumbW + gap);
+    const y = gap + Math.floor(i / cols) * (thumbH + labelH + gap);
+    g.drawImage(window.studioCanvas, x, y, thumbW, thumbH);
+    // zona segura
+    g.strokeStyle = "rgba(255,80,80,0.55)"; g.setLineDash([4, 4]); g.lineWidth = 1;
+    const k = thumbW / st.W;
+    g.strokeRect(x + st.SAFE.left * k, y + st.SAFE.top * k, (st.SAFE.right - st.SAFE.left) * k, (st.SAFE.bottom - st.SAFE.top) * k);
+    g.setLineDash([]);
+    g.fillStyle = "#ddd"; g.font = "600 18px Inter, sans-serif"; g.textBaseline = "top";
+    g.fillText(s.label, x, y + thumbH + 8);
+  });
+  return sheet.toDataURL("image/png");
+};
+
+window.studioReady = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+{
+  "title": "3 errores al usar la IA",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "scenes": [
+    {
+      "type": "hook",
+      "duration": 3.5,
+      "text": "Estás usando la IA *mal* (y no lo sabes)"
+    },
+    {
+      "type": "statement",
+      "duration": 4.5,
+      "kicker": "Error 1",
+      "text": "Pedirle todo en *un solo mensaje*",
+      "note": "Divídelo en pasos pequeños"
+    },
+    {
+      "type": "statement",
+      "duration": 4.5,
+      "kicker": "Error 2",
+      "text": "No darle *contexto*",
+      "note": "Dile quién eres y a quién hablas"
+    },
+    {
+      "type": "statement",
+      "duration": 5.2,
+      "kicker": "Error 3",
+      "text": "Quedarte con la *primera respuesta*",
+      "note": "Pídele que la critique y la mejore"
+    },
+    {
+      "type": "compare",
+      "duration": 6,
+      "left": {
+        "label": "Antes",
+        "text": "Escríbeme un post sobre café"
+      },
+      "right": {
+        "label": "Después",
+        "text": "Eres barista. Dame 3 ganchos de Reels sobre *café*, tono cercano."
+      }
+    },
+    {
+      "type": "list",
+      "duration": 4.5,
+      "title": "La fórmula",
+      "items": [
+        "Rol",
+        "Contexto",
+        "Tarea",
+        "Formato"
+      ]
+    },
+    {
+      "type": "cta",
+      "duration": 5,
+      "text": "Lo tienes todo en mi *ebook*",
+      "button": "Comenta GUÍA",
+      "sub": "y te paso el enlace"
+    }
+  ]
+}
