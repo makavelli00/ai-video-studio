@@ -35,7 +35,7 @@ export function loadVideo(slug) {
   return { slug, dir, outDir, timeline, style };
 }
 
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json", ".otf": "font/otf", ".ttf": "font/ttf", ".woff2": "font/woff2", ".png": "image/png", ".jpg": "image/jpeg", ".mp3": "audio/mpeg", ".wav": "audio/wav", ".m4a": "audio/mp4" };
+const MIME = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json", ".otf": "font/otf", ".ttf": "font/ttf", ".woff2": "font/woff2", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".mp3": "audio/mpeg", ".wav": "audio/wav", ".m4a": "audio/mp4" };
 
 export function startServer(port = 0) {
   return new Promise((resolve) => {
@@ -50,7 +50,7 @@ export function startServer(port = 0) {
   });
 }
 
-export async function openPlayer(timeline, style) {
+export async function openPlayer(timeline, style, slug) {
   let chromium;
   try { ({ chromium } = await import("playwright")); }
   catch { throw new Error("Falta Playwright. Ejecuta: npm install && npm run setup"); }
@@ -61,7 +61,7 @@ export async function openPlayer(timeline, style) {
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(`${srv.url}/engine/player.html`);
   await page.waitForFunction(() => window.studioReady === true);
-  const info = await page.evaluate(([t, s]) => window.studioInit(t, s), [timeline, style]);
+  const info = await page.evaluate(([t, s, b]) => window.studioInit(t, s, b), [timeline, style, slug ? `/videos/${slug}` : ""]);
   if (errors.length) throw new Error("Error en el motor: " + errors.join(" | "));
   return {
     page, info, errors,

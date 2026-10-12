@@ -6,7 +6,7 @@ import { slugArg, loadVideo, openPlayer } from "./lib/common.mjs";
 
 const slug = slugArg();
 const { outDir, timeline, style } = loadVideo(slug);
-const player = await openPlayer(timeline, style);
+const player = await openPlayer(timeline, style, slug);
 const shots = [];
 let acc = 0;
 const out = style?.motion?.sceneOut ?? 0.3;

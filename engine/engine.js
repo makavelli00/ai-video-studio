@@ -5,7 +5,7 @@
 export const DEFAULT_STYLE = {
   brand: { handle: "@tu_usuario" },
   ebook: { title: "Tu ebook", author: "Tu nombre", tag: "EBOOK" },
-  look: "clean", // "clean" (explicativo) | "mystery" (niebla, viñeta, grano)
+  look: "clean", // "clean" (explicativo) | "mystery" (niebla, viñeta, grano) | "anime" (trama manga, líneas de impacto, kanji)
   fonts: { family: "Inter", mono: "Liberation Mono" },
   colors: {
     bg: "#0E0F13", surface: "#1A1C23", text: "#F5F5F7", muted: "#9BA0AE",
@@ -66,7 +66,21 @@ function roundRect(ctx, x, y, w, h, r) {
 }
 
 // ---------- estudio ----------
-export function createStudio(canvas, timeline, styleIn) {
+// Carga las imágenes que usa el timeline (campo "image" de cada escena) desde base.
+// Se hace una sola vez antes de crear el estudio, así renderAt(t) sigue siendo puro.
+export async function loadImages(timeline, base = "") {
+  const srcs = [...new Set((timeline.scenes || []).map((s) => s.image).filter(Boolean))];
+  const out = {};
+  await Promise.all(srcs.map((src) => new Promise((ok, ko) => {
+    const img = new Image();
+    img.onload = () => { out[src] = img; ok(); };
+    img.onerror = () => ko(new Error(`No se pudo cargar la imagen ${src}`));
+    img.src = `${base}/${src}`;
+  })));
+  return out;
+}
+
+export function createStudio(canvas, timeline, styleIn, images = {}) {
   const W = timeline.width || 1080;
   const H = timeline.height || 1920;
   const fps = timeline.fps || 30;
@@ -79,10 +93,12 @@ export function createStudio(canvas, timeline, styleIn) {
   const font = (weight, size) => `${weight} ${size}px ${FAMILY}, Inter, Arial, sans-serif`;
   const mono = (weight, size) => `${weight} ${size}px "${S.fonts.mono || "Liberation Mono"}", "Courier New", monospace`;
   const MYSTERY = S.look === "mystery";
+  const ANIME = S.look === "anime";
+  const kanjiFont = (size) => `400 ${size}px IPAGothic, "IPAゴシック", sans-serif`;
 
   // Grano de película: textura generada una vez con semilla fija.
   let grain = null;
-  if (MYSTERY && typeof document !== "undefined") {
+  if ((MYSTERY || ANIME) && typeof document !== "undefined") {
     grain = document.createElement("canvas");
     grain.width = 512; grain.height = 512;
     const g = grain.getContext("2d");
@@ -93,6 +109,25 @@ export function createStudio(canvas, timeline, styleIn) {
       img.data[i * 4 + 3] = 255;
     }
     g.putImageData(img, 0, 0);
+  }
+
+  // Trama de manga (puntos de semitono): se genera una vez y se reutiliza.
+  let tone = null;
+  if (ANIME && typeof document !== "undefined") {
+    tone = document.createElement("canvas");
+    tone.width = W; tone.height = H;
+    const g = tone.getContext("2d");
+    const step = 18;
+    g.fillStyle = C.tone || "#3A0A10";
+    for (let y = 0; y < H + step; y += step) {
+      for (let x = (y / step) % 2 ? step / 2 : 0; x < W + step; x += step) {
+        // más trama arriba (luz roja) y en las esquinas de abajo
+        const top = clamp(1 - y / (H * 0.55));
+        const corner = clamp((Math.hypot(x - W / 2, y - H) - H * 0.45) / (H * 0.4));
+        const r = (step / 2) * Math.max(top * 0.9, corner * 0.7);
+        if (r > 0.6) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+      }
+    }
   }
 
   let acc = 0;
@@ -219,6 +254,26 @@ export function createStudio(canvas, timeline, styleIn) {
 
   const CW = SAFE.right - SAFE.left; // ancho útil
   const CENTER_Y = (SAFE.top + SAFE.bottom) / 2;
+
+  // ---------- imágenes (fondo de escena) ----------
+  const MOVES = ["in", "left", "out", "right", "up"];
+  // Imagen a pantalla completa con movimiento lento de cámara (Ken Burns).
+  function drawImageBg(sc, i, lt, d) {
+    const img = images[sc.image];
+    if (!img) return false;
+    const p = easeInOut(clamp(lt / d));
+    const mv = sc.move || MOVES[i % MOVES.length];
+    let k = 1.08, dx = 0, dy = 0;
+    if (mv === "in") k = 1.04 + 0.1 * p;
+    else if (mv === "out") k = 1.14 - 0.1 * p;
+    else if (mv === "left") dx = 40 - 80 * p;
+    else if (mv === "right") dx = -40 + 80 * p;
+    else if (mv === "up") dy = 50 - 100 * p;
+    const base = Math.max(W / img.width, H / img.height) * k;
+    const iw = img.width * base, ih = img.height * base;
+    ctx.drawImage(img, (W - iw) / 2 + dx, (H - ih) / 2 + dy, iw, ih);
+    return true;
+  }
 
   // ---------- escenas ----------
   const SCENES = {
@@ -447,6 +502,35 @@ export function createStudio(canvas, timeline, styleIn) {
       }
     },
 
+    // Viñeta con imagen: el texto va como subtítulo abajo (o arriba con pos: "top").
+    // image · text · kicker? · note? · pos? · size?
+    panel(sc, lt) {
+      const top = sc.pos === "top";
+      const main = layoutRich({ text: sc.text, maxWidth: CW, size: sc.size || 78, weight: 900, lh: 1.12 });
+      const note = sc.note ? layoutRich({ text: sc.note, maxWidth: CW - 40, size: sc.noteSize || 50, weight: 600, lh: 1.25, hlMode: "color" }) : null;
+      const pillH = sc.kicker ? 38 * 1.7 : 0;
+      const g1 = sc.kicker ? 30 : 0, g2 = 30;
+      const blockH = pillH + g1 + main.h + (note ? g2 + note.h : 0);
+      // sombra para que el texto se lea sobre cualquier imagen
+      const sh = ctx.createLinearGradient(0, top ? 0 : H, 0, top ? SAFE.top + blockH + 260 : SAFE.bottom - blockH - 300);
+      sh.addColorStop(0, "rgba(0,0,0,0.92)"); sh.addColorStop(0.55, "rgba(0,0,0,0.65)"); sh.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = sh;
+      ctx.fillRect(0, 0, W, H);
+      let y = top ? SAFE.top + 30 : SAFE.bottom - 20 - blockH;
+      if (sc.kicker) {
+        const e = easeOutBack(clamp(lt / 0.5));
+        ctx.save();
+        ctx.globalAlpha *= clamp(lt / 0.25);
+        ctx.translate(-80 * (1 - e), 0);
+        pill(sc.kicker.toUpperCase(), SAFE.left, y, { size: 38, label: "panel.kicker" });
+        ctx.restore();
+        y += pillH + g1;
+      }
+      drawRich({ layout: main, x: SAFE.left, y, align: "left", t: lt, delay: 0.15, label: "panel.text", maxWidth: CW });
+      y += main.h + g2;
+      if (note) drawRich({ layout: note, x: SAFE.left, y, align: "left", t: lt, delay: 0.35 + main.count * S.motion.wordStagger, stagger: 0.03, color: C.muted, label: "panel.note", maxWidth: CW - 40 });
+    },
+
     // Teorías: aparecen una a una; las descartadas se tachan después.
     // items: [{text, ruled?}] · title · ruleAt (segundos)
     theories(sc, lt, d) {
@@ -587,6 +671,7 @@ export function createStudio(canvas, timeline, styleIn) {
   // ---------- fondo y capa fija ----------
   function background(t) {
     if (MYSTERY) return mysteryBackground(t);
+    if (ANIME) return animeBackground(t);
     ctx.fillStyle = C.bg;
     ctx.fillRect(0, 0, W, H);
     const blob = (x, y, r, col, a) => {
@@ -638,8 +723,106 @@ export function createStudio(canvas, timeline, styleIn) {
     }
   }
 
+  // ---- look anime ----
+  // Negro, luna roja difusa y trama de puntos que respira despacio.
+  function animeBackground(t) {
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(0, 0, W, H);
+    const mx = W * 0.72, my = H * 0.2 + Math.sin(t * 0.25) * 20;
+    const g = ctx.createRadialGradient(mx, my, 0, mx, my, 900);
+    g.addColorStop(0, hexA(C.accent, 0.28)); g.addColorStop(0.35, hexA(C.accent, 0.10)); g.addColorStop(1, hexA(C.accent, 0));
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    if (tone) {
+      const k = 1.03 + 0.02 * Math.sin(t * 0.4);
+      ctx.save();
+      ctx.globalAlpha = 0.9;
+      ctx.translate(W / 2, H / 2); ctx.scale(k, k); ctx.translate(-W / 2, -H / 2);
+      ctx.drawImage(tone, 0, 0);
+      ctx.restore();
+    }
+  }
+
+  // Viñeta de tinta, grano y marco de viñeta de cómic.
+  function animeFinish(t) {
+    const f = Math.round(t * fps);
+    const v = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.72);
+    v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, "rgba(0,0,0,0.85)");
+    ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+    if (grain) {
+      ctx.save();
+      ctx.globalAlpha = S.grain ?? 0.07;
+      ctx.globalCompositeOperation = "overlay";
+      const ox = Math.floor(hash(f * 2 + 1) * 512), oy = Math.floor(hash(f * 2 + 2) * 512);
+      ctx.translate(-ox, -oy);
+      ctx.fillStyle = ctx.createPattern(grain, "repeat");
+      ctx.fillRect(ox, oy, W, H);
+      ctx.restore();
+    }
+    ctx.strokeStyle = hexA(C.text, 0.85);
+    ctx.lineWidth = 6;
+    ctx.strokeRect(30, 30, W - 60, H - 60);
+  }
+
+  // Líneas de impacto (集中線) que apuntan al centro; cambian cada 2 fotogramas.
+  function speedLines(t, lt, alpha) {
+    const seed = Math.floor(t * fps / 2);
+    const cx = W / 2, cy = CENTER_Y;
+    const a0 = clamp(lt / 0.25) * alpha;
+    if (a0 <= 0) return;
+    ctx.save();
+    for (let i = 0; i < 110; i++) {
+      const h1 = hash(seed * 131 + i * 7), h2 = hash(seed * 17 + i * 13 + 5);
+      const ang = (i / 110) * Math.PI * 2 + h1 * 0.05;
+      const r0 = 560 + h2 * 260, r1 = 1500;
+      const wd = 3 + h1 * 14;
+      const ca = Math.cos(ang), sa = Math.sin(ang), px = -sa * wd, py = ca * wd;
+      ctx.globalAlpha = a0 * (0.25 + 0.45 * h2);
+      ctx.fillStyle = i % 9 === 0 ? C.accent : C.text;
+      ctx.beginPath();
+      ctx.moveTo(cx + ca * r0, cy + sa * r0);
+      ctx.lineTo(cx + ca * r1 + px, cy + sa * r1 + py);
+      ctx.lineTo(cx + ca * r1 - px, cy + sa * r1 - py);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // Kanji vertical enorme detrás del texto (decorado, no se lee).
+  function kanjiDecor(text, lt) {
+    const chars = [...String(text)];
+    const size = chars.length > 2 ? 300 : 380;
+    const e = easeOutCubic(clamp(lt / 0.8));
+    ctx.save();
+    ctx.globalAlpha *= 0.2 * e;
+    ctx.fillStyle = C.accent;
+    ctx.font = kanjiFont(size);
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    const x = W - 60 - size / 2, y0 = 330 - (1 - e) * 80;
+    chars.forEach((ch, i) => ctx.fillText(ch, x, y0 + i * size * 1.02));
+    ctx.restore();
+  }
+
+  // Corte de viñeta: una franja roja y otra blanca cruzan en diagonal al cambiar de escena.
+  function slashCut(lt) {
+    const dur = 0.32;
+    if (lt >= dur) return;
+    const p = easeInOut(lt / dur);
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    ctx.rotate(-0.42);
+    const x = -1700 + p * 3400;
+    ctx.globalAlpha = 0.9 * (1 - p * 0.3);
+    ctx.fillStyle = C.accent;
+    ctx.fillRect(x - 160, -1600, 200, 3200);
+    ctx.fillStyle = C.text;
+    ctx.fillRect(x + 60, -1600, 26, 3200);
+    ctx.restore();
+  }
+
   function overlay(t) {
     if (MYSTERY) mysteryFinish(t);
+    if (ANIME) animeFinish(t);
     if (S.overlay.progress) {
       const x = SAFE.left, y = 200, w = CW, h = 8;
       ctx.fillStyle = "rgba(255,255,255,0.14)";
@@ -673,12 +856,28 @@ export function createStudio(canvas, timeline, styleIn) {
     const outP = isLast ? 0 : easeInCubic(clamp((lt - (d - S.motion.sceneOut)) / S.motion.sceneOut));
     const fn = SCENES[e.s.type];
     currentLabel = `#${e.i + 1} ${e.s.type}`;
+    if (e.s.image) {
+      // la imagen anterior queda debajo mientras entra la nueva (fundido de 0.35 s)
+      const prev = sched[e.i - 1];
+      const fade = clamp(lt / 0.35);
+      if (prev && prev.s.image && fade < 1) drawImageBg(prev.s, prev.i, prev.s.duration, prev.s.duration);
+      ctx.save();
+      ctx.globalAlpha = prev && prev.s.image ? easeOutCubic(fade) : 1;
+      drawImageBg(e.s, e.i, lt, d);
+      // oscurecer para que el texto central se lea (panel pone su propia sombra)
+      const dim = e.s.dim ?? (e.s.type === "panel" ? 0.1 : 0.5);
+      if (dim > 0) { ctx.fillStyle = `rgba(0,0,0,${dim})`; ctx.fillRect(0, 0, W, H); }
+      ctx.restore();
+    }
+    if (ANIME && e.s.impact) speedLines(t, lt, Math.min(inP, 1 - outP));
     ctx.save();
     ctx.globalAlpha = Math.min(inP, 1 - outP);
     ctx.translate(0, 50 * (1 - inP) - 70 * outP);
+    if (ANIME && e.s.kanji) kanjiDecor(e.s.kanji, lt);
     if (fn) fn(e.s, lt, d);
     else drawRich({ text: `Escena desconocida: ${e.s.type}`, x: W / 2, y: CENTER_Y, maxWidth: CW, size: 60, color: C.bad });
     ctx.restore();
+    if (ANIME && !isFirst) slashCut(lt);
     overlay(t);
   }
 
@@ -709,4 +908,4 @@ function hexA(hex, a) {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
 }
 
-export const SCENE_TYPES = ["hook", "statement", "list", "number", "compare", "casefile", "theories", "cta"];
+export const SCENE_TYPES = ["hook", "statement", "list", "number", "compare", "casefile", "theories", "panel", "cta"];

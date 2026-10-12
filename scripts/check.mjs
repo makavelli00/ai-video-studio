@@ -22,6 +22,7 @@ if (!Array.isArray(tl.scenes) || !tl.scenes.length) errors.push("timeline.scenes
 if ((tl.width && tl.width !== 1080) || (tl.height && tl.height !== 1920)) warnings.push("El formato estándar de Reels es 1080x1920");
 if (tl.fps && tl.fps !== 30) warnings.push(`fps=${tl.fps}; el estudio trabaja a 30`);
 if (tl.audio && !fs.existsSync(path.join(dir, tl.audio))) errors.push(`No existe el audio ${tl.audio}`);
+for (const [i, s] of (tl.scenes || []).entries()) if (s.image && !fs.existsSync(path.join(dir, s.image))) errors.push(`Escena ${i + 1}: no existe la imagen ${s.image}`);
 
 const READ_WPS = 3.3; // palabras por segundo que se pueden leer cómodamente en pantalla
 let total = 0;
@@ -45,6 +46,7 @@ let total = 0;
     case "casefile": if (!s.rows?.length) errors.push(`${id}: necesita "rows" [{k, v}]`);
       texts.push(s.title, s.stamp, ...(s.rows || []).flatMap((r) => [r.k, r.v]));
       if (!s.source) warnings.push(`${id}: expediente sin "source". En misterios, cada dato tiene que poder comprobarse.`); break;
+    case "panel": need("text"); need("image"); texts.push(s.kicker, s.text, s.note); break;
     case "theories": need("items"); texts.push(s.title, ...(s.items || []).map((it) => (typeof it === "string" ? it : it.text))); break;
   }
   texts.filter(Boolean).forEach((t) => { if (stars(t)) errors.push(`${id}: asteriscos sin cerrar en "${t}"`); });
@@ -61,7 +63,7 @@ if (total && (total < 15 || total > 60)) warnings.push(`Duración total ${total.
 // ---- sensores visuales (zonas seguras) ----
 if (!errors.length) {
   try {
-    const p = await openPlayer(v.timeline, v.style);
+    const p = await openPlayer(v.timeline, v.style, slug);
     const rep = await p.page.evaluate(() => window.studio.layoutReport());
     const S = rep.safe, tol = 2;
     // textos que se pisan dentro de la misma escena

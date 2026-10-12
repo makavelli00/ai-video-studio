@@ -94,6 +94,10 @@ Para casos reales y misterios, el vídeo usa el preset `studio/02-reference/pres
 - Cierre con `cta` `"book": false` y una pregunta o un "parte 2": la monetización viene de llevar al espectador a vídeos largos o a un producto.
 - Sonido: `npm run ambient -- <v>` genera un ambiente de suspense propio (sin derechos de autor). Si hay voz en off, guárdala en la carpeta del vídeo y ponla en `"voice"`.
 
+## Reels con storyboard (look anime)
+
+Si el usuario trae imágenes, guárdalas en `videos/<v>/assets/` (JPG 1080×1920) y usa escenas `panel` (una imagen por beat, texto como subtítulo) con el preset `studio/02-reference/presets/anime.json`. Si el caso es ficción, apúntalo en `brief.md`.
+
 ## Claude Code en la nube
 
 Si trabajas en la nube (claude.ai/code), el usuario no puede abrir `npm run preview`:

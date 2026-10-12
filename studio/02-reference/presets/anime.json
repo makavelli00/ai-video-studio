@@ -1,0 +1,21 @@
+{
+  "look": "anime",
+  "grain": 0.07,
+  "colors": {
+    "bg": "#050505",
+    "surface": "#121214",
+    "text": "#F2EFEA",
+    "muted": "#C9C4BC",
+    "accent": "#E0102F",
+    "onAccent": "#FFFFFF",
+    "accent2": "#1B2A44",
+    "tone": "#3A0A10",
+    "bad": "#E0102F",
+    "good": "#F2EFEA",
+    "stamp": "#C8102E",
+    "paper": "#E6DDC6",
+    "ink": "#1B1A17"
+  },
+  "motion": { "wordStagger": 0.07, "sceneIn": 0.35, "sceneOut": 0.25 },
+  "overlay": { "progress": true, "handle": false }
+}

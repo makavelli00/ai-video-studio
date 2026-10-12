@@ -9,7 +9,7 @@ const slug = slugArg();
 const { dir, outDir, timeline, style } = loadVideo(slug);
 const outFile = path.join(outDir, `${slug}.mp4`);
 
-const player = await openPlayer(timeline, style);
+const player = await openPlayer(timeline, style, slug);
 const { totalFrames, fps, total } = player.info;
 const args = ["-y", "-loglevel", "error", "-f", "image2pipe", "-c:v", "mjpeg", "-framerate", String(fps), "-i", "-"];
 // Pistas de audio: "audio" = música/ambiente, "voice" = voz en off (opcionales).

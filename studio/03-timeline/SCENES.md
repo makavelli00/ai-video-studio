@@ -20,14 +20,17 @@ Usa `*asteriscos*` para destacar palabras con el color de acento.
 | `cta` | `text`, `button?`, `sub?`, `book?` | Cierre con la portada del ebook (título en `style.json`). Con `"book": false`, cierre sin portada (seguir / parte 2). |
 | `casefile` | `rows[{k,v,hl?}]`, `title?`, `stamp?`, `cps?`, `source` | Ficha de expediente en papel, datos a máquina y sello final. Para misterios. |
 | `theories` | `items[{text, ruled?}]`, `title?`, `ruleAt?` | Teorías que aparecen una a una; las `ruled: true` se tachan. |
+| `panel` | `image`, `text`, `kicker?`, `note?`, `pos?` (`"top"`), `size?` | Imagen a pantalla completa con el texto como subtítulo abajo (o arriba). Para storyboards. |
 
-Campos globales del timeline: `title`, `fps` (30), `width` (1080), `height` (1920), `audio?` (música o ambiente, archivo en la carpeta del vídeo), `audioVolume?`, `voice?` (voz en off; la música baja sola mientras se habla), `voiceVolume?`. En cada escena, `"hit": false` quita el golpe de sonido de `npm run ambient` en ese cambio.
+Campos globales del timeline: `title`, `fps` (30), `width` (1080), `height` (1920), `audio?` (música o ambiente, archivo en la carpeta del vídeo), `audioVolume?`, `voice?` (voz en off; la música baja sola mientras se habla), `voiceVolume?`. En cada escena: `image` (archivo de `assets/`, a pantalla completa con movimiento de cámara; `move`: `in`/`out`/`left`/`right`/`up`; `dim` oscurece), y con el look `anime`, `impact: true` (líneas de impacto) y `kanji` (kanji vertical decorativo). `"hit": false` quita el golpe de sonido de `npm run ambient` en ese cambio.
 
 Patrón de un reel de misterio (`style.json` con `"look": "mystery"`, ver `studio/02-reference/presets/misterio.json`):
 
 ```
 hook → casefile → pistas (statement con kicker "Pista 1"...) → theories → giro → cta con book:false (parte 2)
 ```
+
+Look anime (`studio/02-reference/presets/anime.json`): negro, rojo, trama manga, marco de viñeta y corte diagonal entre escenas. Pensado para storyboards de imágenes con `panel`.
 
 ## Duraciones orientativas
 - Tiempo de lectura: ~3.3 palabras/segundo + 0.8 s de margen. El check avisa si falta tiempo.
