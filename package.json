@@ -13,7 +13,8 @@
     "render": "node scripts/render.mjs",
     "ambient": "node scripts/ambient.mjs",
     "beats": "node scripts/beats.mjs",
-    "ref": "node scripts/ref.mjs"
+    "ref": "node scripts/ref.mjs",
+    "image": "node scripts/image.mjs"
   },
   "dependencies": {
     "ffmpeg-static": "^5.2.0",
