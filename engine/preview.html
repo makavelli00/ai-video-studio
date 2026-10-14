@@ -37,7 +37,7 @@
 </aside>
 <audio id="audio"></audio>
 <script type="module">
-import { createStudio } from "./engine.js";
+import { createStudio, loadImages } from "./engine.js";
 const slug = new URLSearchParams(location.search).get("video");
 const canvas = document.getElementById("c");
 const audio = document.getElementById("audio");
@@ -61,7 +61,8 @@ async function load(force) {
     for (const k of Object.keys(o)) style[k] = typeof o[k] === "object" ? { ...(style[k] || {}), ...o[k] } : o[k];
     await Promise.all([500, 600, 700, 800, 900].map((w) => document.fonts.load(`${w} 100px Inter`)));
   await Promise.all([400, 700].map((w) => document.fonts.load(`${w} 100px "Liberation Mono"`)));
-    studio = createStudio(canvas, timeline, style);
+  await document.fonts.load(`400 100px IPAGothic`, "事件");
+    studio = createStudio(canvas, timeline, style, await loadImages(timeline, `../videos/${slug}`));
     document.getElementById("title").textContent = timeline.title || slug;
     document.getElementById("msg").textContent = "";
     if (timeline.audio) { audio.src = `../videos/${slug}/${timeline.audio}`; } else audio.removeAttribute("src");

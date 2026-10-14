@@ -1,15 +1,15 @@
-// Capa 4 · Renderer — exporta el MP4 final (1080x1920).
-// Uso: npm run render -- <video>
+// Capa 4 · Renderer — exporta el MP4 final (1080x1920 o el formato pedido).
+// Uso: npm run render -- <video> [--format 1x1|4x5|16x9]
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { slugArg, loadVideo, openPlayer, ffmpegPath } from "./lib/common.mjs";
 
 const slug = slugArg();
-const { dir, outDir, timeline, style } = loadVideo(slug);
-const outFile = path.join(outDir, `${slug}.mp4`);
+const { dir, outDir, timeline, style, suffix } = loadVideo(slug);
+const outFile = path.join(outDir, `${slug}${suffix}.mp4`);
 
-const player = await openPlayer(timeline, style);
+const player = await openPlayer(timeline, style, slug);
 const { totalFrames, fps, total } = player.info;
 const args = ["-y", "-loglevel", "error", "-f", "image2pipe", "-c:v", "mjpeg", "-framerate", String(fps), "-i", "-"];
 // Pistas de audio: "audio" = música/ambiente, "voice" = voz en off (opcionales).
@@ -22,7 +22,8 @@ for (const [key, vol] of [["audio", timeline.audioVolume ?? 1], ["voice", timeli
 }
 tracks.forEach((tr) => args.push("-i", tr.f));
 if (tracks.length) {
-  const fade = `afade=t=out:st=${Math.max(0, total - 1).toFixed(2)}:d=1`;
+  // fundido final y volumen normalizado a -14 LUFS (lo que esperan Instagram, TikTok y YouTube)
+  const fade = `afade=t=out:st=${Math.max(0, total - 1).toFixed(2)}:d=1,loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000`;
   // Con voz, la música baja sola mientras se habla (ducking).
   const music = tracks.find((tr) => tr.key === "audio"), voice = tracks.find((tr) => tr.key === "voice");
   const idx = (tr) => 1 + tracks.indexOf(tr);
@@ -58,5 +59,5 @@ await player.close();
 // Copia versionable en renders/ para descargarla desde GitHub (Claude Code en la nube).
 const rendersDir = path.join(path.dirname(dir), "..", "renders");
 fs.mkdirSync(rendersDir, { recursive: true });
-fs.copyFileSync(outFile, path.join(rendersDir, `${slug}.mp4`));
+fs.copyFileSync(outFile, path.join(rendersDir, `${slug}${suffix}.mp4`));
 console.log(`\n✔ ${path.relative(process.cwd(), outFile)} (${total.toFixed(1)} s, ${((Date.now() - t0) / 1000).toFixed(0)} s de render) · copia en renders/`);

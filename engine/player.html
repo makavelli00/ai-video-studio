@@ -9,19 +9,21 @@
 <body>
 <canvas id="c"></canvas>
 <script type="module">
-import { createStudio } from "./engine.js";
+import { createStudio, loadImages } from "./engine.js";
 
 async function loadFonts() {
   await Promise.all([500, 600, 700, 800, 900].map((w) => document.fonts.load(`${w} 100px Inter`)));
   await Promise.all([400, 700].map((w) => document.fonts.load(`${w} 100px "Liberation Mono"`)));
+  await document.fonts.load(`400 100px IPAGothic`, "事件");
   await document.fonts.ready;
 }
 
 // Lo usan los scripts de render, sheet y check (vía Playwright).
-window.studioInit = async (timeline, style) => {
+window.studioInit = async (timeline, style, base = "") => {
   await loadFonts();
+  const images = await loadImages(timeline, base);
   const canvas = document.getElementById("c");
-  window.studio = createStudio(canvas, timeline, style);
+  window.studio = createStudio(canvas, timeline, style, images);
   window.studioCanvas = canvas;
   return { totalFrames: window.studio.totalFrames, fps: window.studio.fps, total: window.studio.total };
 };
@@ -60,6 +62,22 @@ window.studioSheet = (shots, cols = 4, thumbW = 270) => {
     g.fillText(s.label, x, y + thumbH + 8);
   });
   return sheet.toDataURL("image/png");
+};
+
+// Movimiento entre fotogramas (diferencia media de píxeles en miniatura), para encontrar el momento más rápido.
+window.studioMotion = (stride = 3) => {
+  const st = window.studio, cv = window.studioCanvas;
+  const small = document.createElement("canvas"); small.width = 54; small.height = Math.round(54 * cv.height / cv.width);
+  const g = small.getContext("2d", { willReadFrequently: true });
+  let prev = null; const out = [];
+  for (let f = 0; f < st.totalFrames; f += stride) {
+    st.renderFrame(f);
+    g.drawImage(cv, 0, 0, small.width, small.height);
+    const d = g.getImageData(0, 0, small.width, small.height).data;
+    if (prev) { let s = 0; for (let i = 0; i < d.length; i += 4) s += Math.abs(d[i] - prev[i]) + Math.abs(d[i + 1] - prev[i + 1]) + Math.abs(d[i + 2] - prev[i + 2]); out.push({ f, v: s / (d.length / 4) }); }
+    prev = d;
+  }
+  return out;
 };
 
 window.studioReady = true;

@@ -1,0 +1,159 @@
+{
+  "title": "El error del apagón",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "scenes": [
+    {
+      "type": "hook",
+      "duration": 3.5,
+      "image": "assets/01-la-fotografia.jpg",
+      "move": "in",
+      "impact": true,
+      "kanji": "嘘",
+      "text": "Un error tan *absurdo* que casi lo deja escapar"
+    },
+    {
+      "type": "panel",
+      "duration": 2.8,
+      "image": "assets/02-el-detective.jpg",
+      "move": "in",
+      "text": "Y se delató *delante del detective*"
+    },
+    {
+      "type": "panel",
+      "duration": 4.4,
+      "image": "assets/03-el-hallazgo.jpg",
+      "move": "left",
+      "kicker": "22:00",
+      "kanji": "事件",
+      "text": "El empresario Daniel Robles aparece *muerto* en su despacho"
+    },
+    {
+      "type": "panel",
+      "duration": 4.8,
+      "image": "assets/04-los-tres-sospechosos.jpg",
+      "move": "out",
+      "pos": "top",
+      "text": "*Tres* sospechosos",
+      "note": "Laura, Marcos y Elena. Los tres juran que no fueron."
+    },
+    {
+      "type": "panel",
+      "duration": 3.8,
+      "image": "assets/05-declaracion-de-laura.jpg",
+      "move": "right",
+      "kicker": "Laura · su mujer",
+      "text": "«Estaba en casa de *mi hermana*»"
+    },
+    {
+      "type": "panel",
+      "duration": 3.8,
+      "image": "assets/06-declaracion-de-marcos.jpg",
+      "move": "left",
+      "kicker": "Marcos · su socio",
+      "text": "«Salí del edificio a las *21:15*»",
+      "hit": false
+    },
+    {
+      "type": "panel",
+      "duration": 4.1,
+      "image": "assets/07-declaracion-de-elena.jpg",
+      "move": "in",
+      "kicker": "Elena · su asistente",
+      "text": "«A las *21:45* vi a Daniel vivo…»"
+    },
+    {
+      "type": "panel",
+      "duration": 3.8,
+      "image": "assets/08-daniel-leyendo.jpg",
+      "move": "in",
+      "text": "«…sentado en su despacho, leyendo bajo *su lámpara*»",
+      "hit": false
+    },
+    {
+      "type": "panel",
+      "duration": 3.6,
+      "image": "assets/09-la-sospecha-del-detective.jpg",
+      "move": "in",
+      "kanji": "疑",
+      "text": "El detective no responde. Solo *la mira*."
+    },
+    {
+      "type": "panel",
+      "duration": 5.0,
+      "image": "assets/10-el-apagon.jpg",
+      "move": "up",
+      "impact": true,
+      "kicker": "Aquella noche",
+      "kanji": "停電",
+      "text": "*21:30*: un apagón deja a oscuras todo el edificio"
+    },
+    {
+      "type": "compare",
+      "duration": 5.4,
+      "image": "assets/11-la-lampara-apagada.jpg",
+      "move": "in",
+      "dim": 0.62,
+      "title": "Lo sabían los tres",
+      "left": {
+        "label": "21:30",
+        "text": "Se va la luz. Ni ordenadores *ni lámparas*."
+      },
+      "right": {
+        "label": "22:00",
+        "text": "Vuelve *la luz*."
+      },
+      "secondDelay": 2.2
+    },
+    {
+      "type": "panel",
+      "duration": 5.4,
+      "image": "assets/12-la-pregunta-del-detective.jpg",
+      "move": "in",
+      "impact": true,
+      "kicker": "La pregunta",
+      "text": "«Si no había luz… ¿cómo viste *la lámpara* encendida?»"
+    },
+    {
+      "type": "panel",
+      "duration": 4.0,
+      "image": "assets/13-reaccion-de-elena.jpg",
+      "move": "in",
+      "text": "Elena se queda *inmóvil*",
+      "note": "Nadie le había contado ese detalle.",
+      "hit": false
+    },
+    {
+      "type": "panel",
+      "duration": 5.0,
+      "image": "assets/14-el-cierre-de-la-carpeta.jpg",
+      "move": "out",
+      "kicker": "El detective",
+      "kanji": "真実",
+      "text": "«Tú acabas de describir algo que *no podías ver*»"
+    },
+    {
+      "type": "panel",
+      "duration": 4.4,
+      "image": "assets/15-la-duda-final.jpg",
+      "move": "in",
+      "text": "¿Fue ella la *asesina*…",
+      "note": "…o sabía lo que solo el culpable sabía?",
+      "hit": false
+    },
+    {
+      "type": "cta",
+      "book": false,
+      "duration": 4.0,
+      "image": "assets/15-la-duda-final.jpg",
+      "move": "in",
+      "dim": 0.7,
+      "text": "¿Fue *Elena*?",
+      "button": "COMENTA TU TEORÍA",
+      "hit": false
+    }
+  ],
+  "audio": "ambient.wav",
+  "audioVolume": 0.8
+}

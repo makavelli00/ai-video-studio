@@ -19,9 +19,10 @@ const stars = (s) => ((s || "").match(/\*/g) || []).length % 2 !== 0;
 
 // ---- estructura ----
 if (!Array.isArray(tl.scenes) || !tl.scenes.length) errors.push("timeline.scenes está vacío");
-if ((tl.width && tl.width !== 1080) || (tl.height && tl.height !== 1920)) warnings.push("El formato estándar de Reels es 1080x1920");
+if (v.fmt === "9x16" && ((tl.width && tl.width !== 1080) || (tl.height && tl.height !== 1920))) warnings.push("El formato estándar de Reels es 1080x1920");
 if (tl.fps && tl.fps !== 30) warnings.push(`fps=${tl.fps}; el estudio trabaja a 30`);
 if (tl.audio && !fs.existsSync(path.join(dir, tl.audio))) errors.push(`No existe el audio ${tl.audio}`);
+for (const [i, s] of (tl.scenes || []).entries()) if (s.image && !fs.existsSync(path.join(dir, s.image))) errors.push(`Escena ${i + 1}: no existe la imagen ${s.image}`);
 
 const READ_WPS = 3.3; // palabras por segundo que se pueden leer cómodamente en pantalla
 let total = 0;
@@ -45,6 +46,7 @@ let total = 0;
     case "casefile": if (!s.rows?.length) errors.push(`${id}: necesita "rows" [{k, v}]`);
       texts.push(s.title, s.stamp, ...(s.rows || []).flatMap((r) => [r.k, r.v]));
       if (!s.source) warnings.push(`${id}: expediente sin "source". En misterios, cada dato tiene que poder comprobarse.`); break;
+    case "panel": need("text"); need("image"); texts.push(s.kicker, s.text, s.note); break;
     case "theories": need("items"); texts.push(s.title, ...(s.items || []).map((it) => (typeof it === "string" ? it : it.text))); break;
   }
   texts.filter(Boolean).forEach((t) => { if (stars(t)) errors.push(`${id}: asteriscos sin cerrar en "${t}"`); });
@@ -61,7 +63,7 @@ if (total && (total < 15 || total > 60)) warnings.push(`Duración total ${total.
 // ---- sensores visuales (zonas seguras) ----
 if (!errors.length) {
   try {
-    const p = await openPlayer(v.timeline, v.style);
+    const p = await openPlayer(v.timeline, v.style, slug);
     const rep = await p.page.evaluate(() => window.studio.layoutReport());
     const S = rep.safe, tol = 2;
     // textos que se pisan dentro de la misma escena
@@ -107,8 +109,8 @@ if (!errors.length) {
 for (const [k, c] of Object.entries(v.style.colors || {})) {
   if (!/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(c))) { counters.invalidColors++; errors.push(`Color no válido en style.colors.${k}: "${c}" (usa #RRGGBB)`); }
 }
-fs.writeFileSync(path.join(outDir, "check.json"), JSON.stringify({ slug, total, counters, errors, warnings, at: new Date().toISOString() }, null, 2));
-console.log(`\nCheck · ${slug} · ${tl.scenes?.length || 0} escenas · ${total.toFixed(1)} s`);
+fs.writeFileSync(path.join(outDir, `check${v.suffix}.json`), JSON.stringify({ slug, total, counters, errors, warnings, at: new Date().toISOString() }, null, 2));
+console.log(`\nCheck · ${slug} · ${v.fmt} · ${tl.scenes?.length || 0} escenas · ${total.toFixed(1)} s`);
 const names = { runtimeErrors: "errores de ejecución", outOfBounds: "fuera de la zona segura", overlaps: "textos solapados", invalidColors: "colores no válidos", nonDeterministic: "no determinista", seam: tl.loop ? "costura del bucle" : "costura (solo con loop: true)" };
 console.log("  Smoke test: " + Object.entries(counters).map(([k, n]) => `${n === 0 ? "✓" : "✖"} ${names[k]} ${n}`).join(" · "));
 warnings.forEach((w) => console.log("  ⚠ " + w));
