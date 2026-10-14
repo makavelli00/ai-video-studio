@@ -1,6 +1,21 @@
 # Capa 5 · Crítico — checklist de revisión
 
-Antes de exportar, el crítico mira `out/contact-sheet.png` y `out/keyframes/`. No se da por buena la primera versión.
+Antes de exportar, el crítico mira lo que sale de `npm run sheet`: `contact-sheet.png`, `phone-test.png` (cada escena a 360 px, como en el móvil), `strip.png` (12 fotogramas seguidos alrededor del movimiento más brusco) y `keyframes/`. No se da por buena la primera versión.
+
+## Puntuación (lo que se escribe en review.md)
+
+Juzga solo los fotogramas renderizados, no lo que querías hacer. Puntúa de 1 a 10:
+
+| Criterio | Qué mirar |
+|---|---|
+| Gancho | ¿Se entiende y engancha en los primeros 2 s, sin sonido? |
+| Móvil | En `phone-test.png`, ¿se lee todo sin hacer zoom? |
+| Movimiento | En `strip.png`, ¿hay tirones, cosas que deslizan sin peso, saltos? |
+| Variedad | ¿Algo nuevo cada 2–4 s? ¿Algún tramo muerto? |
+| Sonido | ¿Los cortes caen en golpes o pausas de la voz? (`npm run beats`) |
+| Verdad y estilo | Datos con fuente, guía de estilo, sin defaults prohibidos. |
+
+Luego, **los 3 peores defectos**, cada uno con instante (s), prueba (qué fotograma lo enseña) y arreglo local (escena, campo, valor nuevo). Arregla esos 3, vuelve a sacar las pruebas y repite hasta que **todo esté en 8 o más** (máximo 4 vueltas). Plantilla: `studio/05-critic/REVIEW_TEMPLATE.md`.
 
 ## Automático (`npm run check`)
 - [ ] Smoke test con los 6 contadores a 0 (ejecución, zona segura, solapes, colores, determinismo, costura).

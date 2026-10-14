@@ -11,7 +11,9 @@
     "preview": "node scripts/preview.mjs",
     "sheet": "node scripts/sheet.mjs",
     "render": "node scripts/render.mjs",
-    "ambient": "node scripts/ambient.mjs"
+    "ambient": "node scripts/ambient.mjs",
+    "beats": "node scripts/beats.mjs",
+    "ref": "node scripts/ref.mjs"
   },
   "dependencies": {
     "ffmpeg-static": "^5.2.0",

@@ -41,10 +41,10 @@ Objetivo: `check` sin errores **y** checklist de `studio/05-critic/CHECKLIST.md`
 ```
 repetir (máx. 4 vueltas):
   npm run check -- <v>        → corrige errores y avisos razonables
-  npm run sheet -- <v>        → mira contact-sheet.png y keyframes/
-  evalúa con el CHECKLIST     → anota en review.md
-  si todo ok: salir
-  si no: cambia timeline.json (texto, duración, tipo de escena) y repite
+  npm run sheet -- <v>        → mira contact-sheet, phone-test, strip y keyframes/
+  puntúa 1–10 con el CHECKLIST y lista los 3 peores defectos con instante → review.md
+  si todo ≥ 8: salir
+  si no: arregla esos 3 en timeline.json (texto, duración, tipo de escena) y repite
 ```
 
 Nunca des por buena la primera versión sin haber mirado la hoja de contactos.
@@ -71,6 +71,21 @@ Los gates del usuario siguen valiendo: el bucle autónomo sustituye a las vuelta
 ### Registro de fallos (spine) y regla de oro
 
 Cada fallo que detecten los sensores o el usuario se apunta en `studio/05-critic/SPINE.md` (fecha, vídeo, fallo, arreglo). **Si el mismo fallo aparece dos veces, no lo corrijas otra vez a mano:** añade una regla a este `CLAUDE.md` o un sensor nuevo a `scripts/check.mjs`, y anótalo en el spine.
+
+## Movimiento y sonido
+
+- **Muelles, no curvas fijas.** El motor tiene `spring(t, cfg)` en forma cerrada (sigue siendo puro) y `SPRINGS` por clase de objeto: `snap` (etiquetas), `settle` (tarjetas, entrada de escena), `glide` (cámara), `land` (titulares), `bounce` (botón del CTA). Si un valor cambia de objetivo varias veces, usa `track(t, [{t, v}…])`: un muelle por cambio, sumados. Si todo rebota, nada parece preciso.
+- **Mide el audio antes de animar.** Con música o voz, `npm run beats -- <v>` escribe `beats.json` (BPM, pulsos, compases fuertes, golpes y pausas de la voz). `--snap` mueve los cortes de escena a las pausas de la voz o a los pulsos. Cambios de escena en pulsos, momentos grandes en compases fuertes.
+- El render normaliza el audio a **-14 LUFS**.
+- **Prueba a ciegas:** escucha el vídeo sin mirar. Si el sonido no tiene forma, falta diseño sonoro.
+
+## Formatos
+
+Todos salen del mismo timeline, nunca de un recorte: `--format 1x1 | 4x5 | 16x9` en `check`, `sheet` y `render` (sale `<video>-1x1.mp4`). El motor reajusta zona segura y tamaño de letra; las imágenes que no encajan van enteras sobre un fondo desenfocado. Pasa el check en cada formato antes de exportarlo.
+
+## Referencias visuales
+
+Nombrar un estilo funciona mejor que describirlo, y un vídeo de referencia todavía mejor. `npm run ref -- archivo.mp4 [nombre]` saca un fotograma cada 0.5 s y una hoja en `studio/02-reference/refs/<nombre>/`. Mira la hoja y escribe `NOTES.md` ahí: paleta en hex, tipografía, duración de planos, transiciones, cámara, grano. Se copia la gramática, nunca personajes, logos ni textos. Enséñalo en el Gate 1 junto al brief.
 
 ## Reglas (guías)
 
@@ -123,5 +138,12 @@ npm run check   -- <video>   # smoke test (6 contadores a 0) + tiempos de lectur
 npm run sheet   -- <video>   # hoja de contactos + keyframes en out/
 npm run preview -- <video>   # vista previa en el navegador con recarga automática
 npm run ambient -- <video>   # ambiente de suspense (dron + golpes) en ambient.wav
-npm run render  -- <video>   # MP4 final en out/ y copia en renders/
+npm run beats   -- <video>   # beats.json: BPM, pulsos, golpes y pausas de la voz (--snap alinea cortes)
+npm run ref     -- <mp4>     # fotogramas de un vídeo de referencia para la guía de estilo
+npm run render  -- <video>   # MP4 final en out/ y copia en renders/ (-14 LUFS)
+# check, sheet y render aceptan --format 1x1 | 4x5 | 16x9
+
+Skill: /motion-reel encadena todo el flujo (.claude/skills/motion-reel/SKILL.md).
+
+No disponible en este entorno: modelos de vídeo (Seedance y similares) y voz sintética (TTS); la voz la graba el usuario.
 ```

@@ -32,6 +32,11 @@ hook → casefile → pistas (statement con kicker "Pista 1"...) → theories �
 
 Look anime (`studio/02-reference/presets/anime.json`): negro, rojo, trama manga, marco de viñeta y corte diagonal entre escenas. Pensado para storyboards de imágenes con `panel`.
 
+## Movimiento
+Las entradas usan muelles en forma cerrada (`spring`, `SPRINGS` en `engine/engine.js`): titulares `land`, etiquetas `snap`, tarjetas y escenas `settle`, botón `bounce`. Para un valor con varios objetivos (un cursor, un ancho que cambia), `track(t, [{t, v}, …])`.
+
+Para alinear con música o voz: `npm run beats -- <video> [--snap]` (ver `beats.json`).
+
 ## Duraciones orientativas
 - Tiempo de lectura: ~3.3 palabras/segundo + 0.8 s de margen. El check avisa si falta tiempo.
 - hook 2.5–3.2 s · statement 3–4.5 s · list 4–6 s · compare 4–5.5 s · cta 3.5–4.5 s.

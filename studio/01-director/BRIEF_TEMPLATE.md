@@ -31,8 +31,17 @@
 ## Datos reales / fuentes
 <!-- Cualquier cifra que salga en el vídeo, con su fuente. Si no hay fuente, no sale. -->
 
-## Duración objetivo
-<!-- 20–45 s -->
+## Material (assets)
+<!-- Lo que hay de verdad: imágenes del storyboard, logo, capturas, audio. Va en assets/. Si falta algo, se pregunta: no se dibuja una imitación. -->
+
+## Referencia visual
+<!-- Vídeo o fotograma que marque el estilo (npm run ref -- archivo.mp4). Qué se copia (ritmo, color, transiciones) y qué clichés se evitan. -->
+
+## Línea roja
+<!-- Lo que nunca puede salir: cifras inventadas, pantallas falsas, datos sin fuente… -->
+
+## Duración y formatos
+<!-- 20–45 s · 9x16 (y, si hace falta, 1x1 / 4x5 / 16x9 desde el mismo timeline) -->
 
 ## Música / voz
 <!-- Opcional: archivo de audio en la carpeta del vídeo y campo "audio" en timeline.json -->

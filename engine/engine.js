@@ -19,11 +19,54 @@ export const DEFAULT_STYLE = {
 
 export const SAFE = { top: 310, bottom: 1500, left: 90, right: 990 };
 
+// Formatos: todos salen del mismo timeline, nunca de un recorte.
+// El motor dibuja en un "espacio de diseño" (VW×VH) y lo escala al lienzo real:
+// en 9:16 es 1080×1920 (k = 1); en 1:1, 4:5 o 16:9 la letra queda proporcionalmente más pequeña
+// y la zona segura se adapta al formato.
+export function designSpace(w, h) {
+  const k = Math.min(w / 1080, h / 1600, 1);
+  const VW = w / k, VH = h / k;
+  const tall = VH / VW >= 1.7;
+  const side = Math.max(90, (VW - 1500) / 2); // en 16:9 el texto va en una columna central
+  const safe = tall
+    ? { top: Math.round(VH * 0.1615), bottom: Math.round(VH * 0.78), left: 90, right: Math.round(VW - 90) }
+    : { top: Math.round(VH * 0.14), bottom: Math.round(VH * 0.9), left: Math.round(side), right: Math.round(VW - side) };
+  return { k, VW, VH, safe };
+}
+
+// Muelle en forma cerrada (masa-muelle amortiguado): va de 0 a 1 y depende solo de t,
+// así que cualquier fotograma se puede pedir suelto. Con overshoot si damping es bajo.
+export function spring(t, { stiffness = 170, damping = 26, mass = 1 } = {}) {
+  if (!(t > 0)) return 0;
+  if (t > 12) return 1;
+  const w0 = Math.sqrt(stiffness / mass), z = damping / (2 * Math.sqrt(stiffness * mass));
+  if (z < 1) {
+    const wd = w0 * Math.sqrt(1 - z * z);
+    return 1 - Math.exp(-z * w0 * t) * (Math.cos(wd * t) + ((z * w0) / wd) * Math.sin(wd * t));
+  }
+  return 1 - Math.exp(-w0 * t) * (1 + w0 * t);
+}
+// Una regla por clase de objeto: si todo rebota, nada parece preciso.
+export const SPRINGS = {
+  snap: { stiffness: 420, damping: 34 },   // etiquetas y UI pequeña: casi sin rebote
+  settle: { stiffness: 170, damping: 20 }, // tarjetas y paneles: se asientan
+  glide: { stiffness: 60, damping: 16 },   // cámara: sin rebote
+  land: { stiffness: 300, damping: 18 },   // titulares: caen con peso
+  bounce: { stiffness: 220, damping: 10 }, // botón del CTA: rebote a propósito
+};
+// Valor que cambia de objetivo varias veces: un muelle por cambio, sumados (sin simular).
+// keys: [{t, v}] ordenadas; el primer v es el valor inicial.
+export function track(t, keys, cfg = SPRINGS.settle) {
+  if (!keys.length) return 0;
+  let v = keys[0].v;
+  for (let i = 1; i < keys.length; i++) v += (keys[i].v - keys[i - 1].v) * spring(t - keys[i].t, cfg);
+  return v;
+}
+
 // ---------- utilidades ----------
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 const easeInCubic = (t) => t * t * t;
-const easeOutBack = (t) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 // Pseudoaleatorio determinista: mismo n -> mismo valor (nada de Math.random).
 const hash = (n) => { let x = Math.imul((n | 0) ^ 0x9e3779b9, 0x85ebca6b); x ^= x >>> 13; x = Math.imul(x, 0xc2b2ae35); x ^= x >>> 16; return (x >>> 0) / 4294967296; };
@@ -81,11 +124,13 @@ export async function loadImages(timeline, base = "") {
 }
 
 export function createStudio(canvas, timeline, styleIn, images = {}) {
-  const W = timeline.width || 1080;
-  const H = timeline.height || 1920;
+  const CANVAS_W = timeline.width || 1080;
+  const CANVAS_H = timeline.height || 1920;
+  const DS = designSpace(CANVAS_W, CANVAS_H);
+  const W = DS.VW, H = DS.VH, SAFE = DS.safe;
   const fps = timeline.fps || 30;
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = CANVAS_W;
+  canvas.height = CANVAS_H;
   const ctx = canvas.getContext("2d");
   const S = mergeStyle(styleIn);
   const C = S.colors;
@@ -115,7 +160,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
   let tone = null;
   if (ANIME && typeof document !== "undefined") {
     tone = document.createElement("canvas");
-    tone.width = W; tone.height = H;
+    tone.width = Math.ceil(W); tone.height = Math.ceil(H);
     const g = tone.getContext("2d");
     const step = 18;
     g.fillStyle = C.tone || "#3A0A10";
@@ -204,11 +249,12 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const mid = y + li * L.lineH + L.lineH / 2;
       const x0 = align === "center" ? x - ln.width / 2 : align === "right" ? x - ln.width : x;
       ln.words.forEach((wd) => {
-        const wt = clamp((t - delay - idx * stagger) / 0.4);
+        const tt = t - delay - idx * stagger;
+        const wt = clamp(tt / 0.4);
         idx++;
         if (wt <= 0) return;
         const e = easeOutCubic(wt);
-        const dy = (1 - e) * L.size * 0.35;
+        const dy = (1 - spring(tt, SPRINGS.land)) * L.size * 0.35;
         const me = easeOutCubic(clamp((wt - 0.25) / 0.6));
         ctx.save();
         ctx.globalAlpha *= e;
@@ -269,7 +315,19 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     else if (mv === "left") dx = 40 - 80 * p;
     else if (mv === "right") dx = -40 + 80 * p;
     else if (mv === "up") dy = 50 - 100 * p;
-    const base = Math.max(W / img.width, H / img.height) * k;
+    const cover = Math.max(W / img.width, H / img.height);
+    const contain = Math.min(W / img.width, H / img.height);
+    // Si la imagen no encaja en el formato (p. ej. un storyboard 9:16 en 16:9), no se recorta:
+    // va entera, sobre una copia ampliada y desenfocada de sí misma.
+    const fits = contain / cover > 0.8;
+    if (!fits) {
+      ctx.save();
+      ctx.filter = "blur(40px) brightness(0.45)";
+      const bw = img.width * cover * 1.1, bh = img.height * cover * 1.1;
+      ctx.drawImage(img, (W - bw) / 2, (H - bh) / 2, bw, bh);
+      ctx.restore();
+    }
+    const base = (fits ? cover : contain) * k;
     const iw = img.width * base, ih = img.height * base;
     ctx.drawImage(img, (W - iw) / 2 + dx, (H - ih) / 2 + dy, iw, ih);
     return true;
@@ -303,7 +361,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const blockH = pillH + g1 + main.h + (note ? g2 + note.h : 0);
       let y = CENTER_Y - blockH / 2;
       if (sc.kicker) {
-        const e = easeOutBack(clamp(lt / 0.5));
+        const e = spring(lt, SPRINGS.snap);
         ctx.save();
         ctx.globalAlpha *= clamp(lt / 0.25);
         ctx.translate(-80 * (1 - e), 0);
@@ -341,7 +399,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       items.forEach((L, i) => {
         const rowH = Math.max(L.h, R * 2);
         const d0 = base + i * step;
-        const e = easeOutBack(clamp((lt - d0) / 0.45));
+        const e = spring(lt - d0, SPRINGS.snap);
         const a = clamp((lt - d0) / 0.2);
         ctx.save();
         ctx.globalAlpha *= a;
@@ -374,7 +432,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const gap = 40;
       const numH = size * 1.0;
       const top = CENTER_Y - (numH + (label ? gap + label.h : 0)) / 2;
-      const pop = easeOutBack(clamp(lt / 0.5));
+      const pop = spring(lt, SPRINGS.land);
       ctx.save();
       ctx.translate(W / 2, top + numH / 2);
       ctx.scale(0.6 + 0.4 * pop, 0.6 + 0.4 * pop);
@@ -518,7 +576,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       ctx.fillRect(0, 0, W, H);
       let y = top ? SAFE.top + 30 : SAFE.bottom - 20 - blockH;
       if (sc.kicker) {
-        const e = easeOutBack(clamp(lt / 0.5));
+        const e = spring(lt, SPRINGS.snap);
         ctx.save();
         ctx.globalAlpha *= clamp(lt / 0.25);
         ctx.translate(-80 * (1 - e), 0);
@@ -584,7 +642,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const blockH = bookH + g1 + text.h + (sc.button ? g2 + btnH : 0) + (sub ? g3 + sub.h : 0);
       let y = CENTER_Y - blockH / 2;
       // portada
-      const be = easeOutBack(clamp(lt / 0.6));
+      const be = spring(lt, SPRINGS.settle);
       const float = Math.sin(lt * 2.2) * 10;
       ctx.save();
       ctx.globalAlpha *= clamp(lt / 0.25);
@@ -617,7 +675,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       if (sc.button) {
         y += g2;
         const bd = 0.6 + text.count * S.motion.wordStagger;
-        const e = easeOutBack(clamp((lt - bd) / 0.45));
+        const e = spring(lt - bd, SPRINGS.bounce);
         const pulse = lt > bd + 0.5 ? 1 + 0.035 * Math.sin((lt - bd) * 6) : 1;
         ctx.save();
         ctx.globalAlpha *= clamp((lt - bd) / 0.2);
@@ -644,7 +702,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     const bd = 0.4 + text.count * 0.09;
     if (sc.button) {
       y += g2;
-      const e = easeOutBack(clamp((lt - bd) / 0.45));
+      const e = spring(lt - bd, SPRINGS.bounce);
       const pulse = lt > bd + 0.5 ? 1 + 0.03 * Math.sin((lt - bd) * 5) : 1;
       ctx.save();
       ctx.globalAlpha *= clamp((lt - bd) / 0.2);
@@ -811,12 +869,13 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     ctx.save();
     ctx.translate(W / 2, H / 2);
     ctx.rotate(-0.42);
-    const x = -1700 + p * 3400;
+    const D = Math.hypot(W, H) / 2 + 200;
+    const x = -D + p * 2 * D;
     ctx.globalAlpha = 0.9 * (1 - p * 0.3);
     ctx.fillStyle = C.accent;
-    ctx.fillRect(x - 160, -1600, 200, 3200);
+    ctx.fillRect(x - 160, -D, 200, 2 * D);
     ctx.fillStyle = C.text;
-    ctx.fillRect(x + 60, -1600, 26, 3200);
+    ctx.fillRect(x + 60, -D, 26, 2 * D);
     ctx.restore();
   }
 
@@ -824,7 +883,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     if (MYSTERY) mysteryFinish(t);
     if (ANIME) animeFinish(t);
     if (S.overlay.progress) {
-      const x = SAFE.left, y = 200, w = CW, h = 8;
+      const x = SAFE.left, y = SAFE.top - 110, w = CW, h = 8;
       ctx.fillStyle = "rgba(255,255,255,0.14)";
       roundRect(ctx, x, y, w, h, 4); ctx.fill();
       ctx.fillStyle = C.accent;
@@ -834,7 +893,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       ctx.fillStyle = C.muted;
       ctx.font = font(600, 34);
       ctx.textAlign = "left"; ctx.textBaseline = "top";
-      ctx.fillText(S.brand.handle, SAFE.left, 236);
+      ctx.fillText(S.brand.handle, SAFE.left, SAFE.top - 74);
     }
   }
 
@@ -845,7 +904,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
 
   function renderAt(t) {
     t = clamp(t, 0, Math.max(0, total - 1e-6));
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.setTransform(DS.k, 0, 0, DS.k, 0, 0);
     ctx.globalAlpha = 1;
     background(t);
     const e = sceneAt(t);
@@ -853,6 +912,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     const isLast = e.i === sched.length - 1;
     const isFirst = e.i === 0;
     const inP = isFirst ? 1 : easeOutCubic(clamp(lt / S.motion.sceneIn));
+    const inMove = isFirst ? 1 : spring(lt, SPRINGS.settle); // la escena entra con un muelle que se asienta
     const outP = isLast ? 0 : easeInCubic(clamp((lt - (d - S.motion.sceneOut)) / S.motion.sceneOut));
     const fn = SCENES[e.s.type];
     currentLabel = `#${e.i + 1} ${e.s.type}`;
@@ -872,7 +932,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     if (ANIME && e.s.impact) speedLines(t, lt, Math.min(inP, 1 - outP));
     ctx.save();
     ctx.globalAlpha = Math.min(inP, 1 - outP);
-    ctx.translate(0, 50 * (1 - inP) - 70 * outP);
+    ctx.translate(0, 50 * (1 - inMove) - 70 * outP);
     if (ANIME && e.s.kanji) kanjiDecor(e.s.kanji, lt);
     if (fn) fn(e.s, lt, d);
     else drawRich({ text: `Escena desconocida: ${e.s.type}`, x: W / 2, y: CENTER_Y, maxWidth: CW, size: 60, color: C.bad });
