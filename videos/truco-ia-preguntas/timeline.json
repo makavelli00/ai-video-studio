@@ -1,0 +1,53 @@
+{
+  "title": "Que la IA te pregunte primero",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "scenes": [
+    {
+      "type": "hook",
+      "duration": 3.2,
+      "text": "Haz que la IA te entienda *a la primera*"
+    },
+    {
+      "type": "statement",
+      "duration": 5.0,
+      "kicker": "El truco",
+      "text": "Que *te pregunte* antes de responder",
+      "note": "Una frase al final de tu mensaje"
+    },
+    {
+      "type": "compare",
+      "duration": 6.0,
+      "title": "Así se escribe",
+      "left": {
+        "label": "Antes",
+        "text": "Hazme un plan de ahorro."
+      },
+      "right": {
+        "label": "Después",
+        "text": "Hazme un plan de ahorro. Antes, *hazme 3 preguntas*."
+      },
+      "secondDelay": 1.8
+    },
+    {
+      "type": "list",
+      "duration": 4.8,
+      "title": "Por qué funciona",
+      "itemSize": 64,
+      "itemDelay": 0.6,
+      "items": [
+        "Pide lo que *olvidaste*",
+        "Se adapta *a ti*",
+        "Menos *relleno*"
+      ]
+    },
+    {
+      "type": "cta",
+      "book": false,
+      "duration": 3.6,
+      "text": "Pruébalo en tu *próxima pregunta*",
+      "button": "GUÁRDALO"
+    }
+  ]
+}
