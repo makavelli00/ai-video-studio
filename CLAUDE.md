@@ -140,6 +140,7 @@ npm run preview -- <video>   # vista previa en el navegador con recarga automát
 npm run ambient -- <video>   # ambiente de suspense (dron + golpes) en ambient.wav
 npm run beats   -- <video>   # beats.json: BPM, pulsos, golpes y pausas de la voz (--snap alinea cortes)
 npm run ref     -- <mp4>     # fotogramas de un vídeo de referencia para la guía de estilo
+npm run image   -- <video> "descripción"  # imagen con Gemini en assets/ (1080×1920); clave en .env
 npm run render  -- <video>   # MP4 final en out/ y copia en renders/ (-14 LUFS)
 # check, sheet y render aceptan --format 1x1 | 4x5 | 16x9
 
