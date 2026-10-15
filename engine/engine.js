@@ -5,7 +5,7 @@
 export const DEFAULT_STYLE = {
   brand: { handle: "@tu_usuario" },
   ebook: { title: "Tu ebook", author: "Tu nombre", tag: "EBOOK" },
-  look: "clean", // "clean" (explicativo) | "mystery" (niebla, viñeta, grano) | "anime" (trama manga, líneas de impacto, kanji)
+  look: "clean", // "clean" (explicativo) | "mystery" (niebla, viñeta, grano) | "anime" (trama manga, líneas de impacto, kanji) | "editorial" (ficha científica)
   fonts: { family: "Inter", mono: "Liberation Mono" },
   colors: {
     bg: "#0E0F13", surface: "#1A1C23", text: "#F5F5F7", muted: "#9BA0AE",
@@ -139,6 +139,8 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
   const mono = (weight, size) => `${weight} ${size}px "${S.fonts.mono || "Liberation Mono"}", "Courier New", monospace`;
   const MYSTERY = S.look === "mystery";
   const ANIME = S.look === "anime";
+  const EDITORIAL = S.look === "editorial";
+  const serif = (weight, size) => `${weight} ${size}px "${S.fonts.serif || "Source Serif 4"}", Georgia, IPAGothic, serif`;
   const kanjiFont = (size) => `400 ${size}px IPAGothic, "IPAゴシック", sans-serif`;
 
   // Grano de película: textura generada una vez con semilla fija.
@@ -188,8 +190,9 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
   let currentLabel = "";
 
   // ---- texto enriquecido ----
-  function layoutRich({ text, maxWidth, size, weight = 800, lh = 1.12, hlMode = "marker" }) {
-    ctx.font = font(weight, size);
+  function layoutRich({ text, maxWidth, size, weight = 800, lh = 1.12, hlMode = "marker", face }) {
+    const fontFn = face === "serif" ? serif : font;
+    ctx.font = fontFn(weight, size);
     const padX = hlMode === "marker" ? size * 0.14 : 0; // margen interior del rotulador
     const words = parseRich(text).map((o) => ({
       ...o,
@@ -230,18 +233,18 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     });
     const lineH = size * lh;
     const widest = Math.max(0, ...out.map((l) => l.width));
-    return { lines: out, space, padX, lineH, h: out.length * lineH, w: widest, size, weight, hlMode, count: words.length };
+    return { lines: out, space, padX, lineH, h: out.length * lineH, w: widest, size, weight, hlMode, count: words.length, fontFn };
   }
 
   // Dibuja texto con revelado palabra a palabra. y = borde superior del bloque.
   function drawRich(opts) {
     const {
       x, y, align = "center", color = C.text,
-      t = Infinity, delay = 0, stagger = S.motion.wordStagger, label = "texto",
+      t = Infinity, delay = 0, stagger = S.motion.wordStagger, label = "texto", hlColor = C.accent,
     } = opts;
     const L = opts.layout || layoutRich(opts);
     const marker = L.hlMode === "marker";
-    ctx.font = font(L.weight, L.size);
+    ctx.font = (L.fontFn || font)(L.weight, L.size);
     ctx.textBaseline = "middle";
     ctx.textAlign = "left";
     let idx = 0;
@@ -268,7 +271,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
             ctx.fill();
             ctx.fillStyle = me > 0.35 ? C.onAccent : color;
           } else {
-            ctx.fillStyle = s.hl ? C.accent : color;
+            ctx.fillStyle = s.hl ? hlColor : color;
           }
           ctx.fillText(s.t, sx, mid + dy);
         });
@@ -730,6 +733,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
   function background(t) {
     if (MYSTERY) return mysteryBackground(t);
     if (ANIME) return animeBackground(t);
+    if (EDITORIAL) { ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H); return; }
     ctx.fillStyle = C.bg;
     ctx.fillRect(0, 0, W, H);
     const blob = (x, y, r, col, a) => {
@@ -897,6 +901,257 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     }
   }
 
+  // ---------- look editorial (ficha científica) ----------
+  // Una ficha fija que no corta nunca: categoría y titular quietos todo el vídeo; por beat cambian
+  // la barra de color (la frase), la etiqueta, el dibujo (viz) y la línea DATA con la fuente.
+  const fmtNum = (v, dec = 0) => {
+    const [i, f] = Math.abs(v).toFixed(dec).split(".");
+    const int = i.length > 3 ? i.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : i;
+    return (v < 0 ? "−" : "") + int + (f ? "," + f : "");
+  };
+  const barText = (s) => (s.type === "cta" ? s.text : s.bar) || "";
+  const ED = (() => {
+    if (!EDITORIAL) return null;
+    const head = layoutRich({ text: timeline.headline || "", maxWidth: CW, size: timeline.headlineSize || 84, weight: 900, lh: 1.04, hlMode: "color", face: "serif" });
+    const catY = SAFE.top, headY = catY + 56;
+    const barY = headY + head.h + 24;
+    const bar = { padX: 26, padY: 18, size: 40 };
+    const barLayout = (s) => (barText(s) ? layoutRich({ text: barText(s), maxWidth: CW - bar.padX * 2, size: bar.size, weight: 700, lh: 1.24, hlMode: "color" }) : null);
+    const barH = (L) => (L ? L.h + bar.padY * 2 : 0);
+    const layouts = sched.map((e) => barLayout(e.s));
+    const maxBar = Math.max(0, ...layouts.map(barH));
+    const labelY = barY + maxBar + 28;
+    const handleY = SAFE.bottom - 36;
+    const dataY = handleY - 24 - 2 * 28 * 1.3;
+    const vizTop = labelY + 34 + 26, vizBottom = dataY - 36;
+    return { head, catY, headY, barY, bar, layouts, barH, labelY, dataY, handleY, area: { x: SAFE.left, y: vizTop, w: CW, h: vizBottom - vizTop } };
+  })();
+
+  const reg = (label, x, y, w, h) => { if (collect) collect.push({ scene: currentLabel, label, x, y, w, h }); };
+  const monoText = (text, x, y, { size = 28, weight = 500, color = C.text, align = "left", label = "mono", spacing = 0 } = {}) => {
+    ctx.font = mono(weight, size);
+    ctx.letterSpacing = `${spacing}px`;
+    ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = "top";
+    ctx.fillText(text, x, y);
+    const w = ctx.measureText(text).width;
+    ctx.letterSpacing = "0px";
+    reg(label, align === "center" ? x - w / 2 : align === "right" ? x - w : x, y, w, size * 1.15);
+    return w;
+  };
+  const tagPill = (text, x, y, { size = 28, bg = "#111111", fg = "#FFFFFF", align = "center", label = "tag" } = {}) => {
+    ctx.font = mono(500, size);
+    const w = ctx.measureText(text).width + size * 0.9, h = size * 1.55;
+    const left = align === "center" ? x - w / 2 : x;
+    ctx.fillStyle = bg; ctx.fillRect(left, y, w, h);
+    ctx.fillStyle = fg; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    ctx.fillText(text, left + size * 0.45, y + h / 2 + 1);
+    reg(label, left, y, w, h);
+    return { w, h };
+  };
+  // Opacidad de una capa que cambia por beat: si el beat anterior/siguiente tiene lo mismo, no parpadea.
+  const layerAlpha = (same, sameNext, lt, d, isLast, delay = 0) =>
+    (same ? 1 : clamp((lt - delay) / 0.25)) * (sameNext || isLast ? 1 : 1 - clamp((lt - (d - 0.2)) / 0.2));
+
+  const VIZ = {
+    // Cifra grande que cuenta. value · from? · prefix? · suffix? · decimals? · caption? · sub?
+    counter(v, lt, A, cont) {
+      const dec = v.decimals || 0;
+      const from = v.from ?? 0;
+      const p = cont && v.from === undefined ? 1 : easeOutCubic(clamp((lt - 0.15) / (v.countDuration || 1.2)));
+      const final = `${v.prefix || ""}${fmtNum(v.value, dec)}${v.suffix || ""}`;
+      const shown = `${v.prefix || ""}${fmtNum(from + (v.value - from) * p, dec)}${v.suffix || ""}`;
+      let size = v.size || 230;
+      ctx.font = serif(900, size);
+      while (ctx.measureText(final).width > A.w && size > 80) { size -= 10; ctx.font = serif(900, size); }
+      const cap = v.caption ? 34 * 1.15 + 26 : 0;
+      const sub = v.sub ? layoutRich({ text: v.sub, maxWidth: A.w - 80, size: 36, weight: 500, lh: 1.25, hlMode: "color" }) : null;
+      const blockH = size * 0.82 + cap + (sub ? 22 + sub.h : 0);
+      let y = A.y + (A.h - blockH) / 2;
+      ctx.font = serif(900, size); // layoutRich del sub cambia la fuente
+      ctx.fillStyle = v.dim ? C.muted : C.accent;
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.fillText(shown, W / 2, y + size * 0.78);
+      const fw = ctx.measureText(final).width;
+      reg("viz.counter", W / 2 - fw / 2, y, fw, size * 0.82);
+      y += size * 0.82 + Math.max(26, size * 0.18); // deja sitio a comas y descendentes
+      if (v.caption) { monoText(v.caption.toUpperCase(), W / 2, y, { size: 34, align: "center", label: "viz.caption", spacing: 2 }); y += 34 * 1.15; }
+      if (sub) drawRich({ layout: sub, x: W / 2, y: y + 22, t: lt, delay: 0.5, stagger: 0.02, color: C.muted, label: "viz.sub", maxWidth: A.w - 80 });
+    },
+
+    // Barras verticales. items[{label, value, text?, sub?, hl?}] · max? · caption?
+    bars(v, lt, A, cont) {
+      const items = v.items || [];
+      const max = v.max || Math.max(...items.map((it) => it.value));
+      const top = A.y + (v.caption ? 60 : 0) + 74, base = A.y + A.h - 92;
+      const colW = A.w / items.length, bw = Math.min(150, colW * 0.56);
+      if (v.caption) monoText(v.caption.toUpperCase(), A.x, A.y, { size: 26, color: C.muted, label: "viz.caption", spacing: 1 });
+      ctx.fillStyle = C.text; ctx.fillRect(A.x, base, A.w, 3);
+      items.forEach((it, i) => {
+        const cx = A.x + colW * (i + 0.5);
+        const g = cont ? 1 : spring(lt - 0.2 - i * 0.22, SPRINGS.settle);
+        const h = (base - top) * (it.value / max) * g;
+        ctx.fillStyle = it.hl ? C.accent : C.soft || "#E6E4DC";
+        ctx.fillRect(cx - bw / 2, base - h, bw, h);
+        const a = cont ? 1 : clamp((lt - 0.45 - i * 0.22) / 0.25);
+        ctx.save(); ctx.globalAlpha *= a;
+        const txt = it.text ?? fmtNum(it.value);
+        ctx.font = serif(900, 56);
+        ctx.fillStyle = it.hl ? C.accent : C.text;
+        ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+        ctx.fillText(txt, cx, base - (base - top) * (it.value / max) - 18);
+        const tw = ctx.measureText(txt).width;
+        reg(`viz.bar${i + 1}.value`, cx - tw / 2, base - (base - top) * (it.value / max) - 66, tw, 52);
+        monoText(String(it.label), cx, base + 16, { size: 28, align: "center", label: `viz.bar${i + 1}.label` });
+        if (it.sub) monoText(String(it.sub), cx, base + 52, { size: 22, color: C.muted, align: "center", label: `viz.bar${i + 1}.sub` });
+        ctx.restore();
+      });
+    },
+
+    // Curva que se dibuja. points[[x,y]] · x[min,max] · y[min,max] · xTicks[] · xLabel? · yLabel?
+    // band{from,to,label}? · note? (aviso tipo "curva dibujada para ilustrar")
+    curve(v, lt, A, cont) {
+      const [x0, x1] = v.x, [y0, y1] = v.y;
+      const P = { l: A.x + 10, r: A.x + A.w - 10, t: A.y + 56, b: A.y + A.h - 70 };
+      const X = (x) => P.l + ((x - x0) / (x1 - x0)) * (P.r - P.l);
+      const Y = (y) => P.b - ((y - y0) / (y1 - y0)) * (P.b - P.t);
+      if (v.yLabel) monoText(v.yLabel.toUpperCase(), A.x, A.y, { size: 26, color: C.muted, label: "viz.ylabel", spacing: 1 });
+      ctx.fillStyle = C.text; ctx.fillRect(P.l, P.b, P.r - P.l, 3);
+      (v.xTicks || []).forEach((x, i) => {
+        ctx.fillRect(Math.min(P.r - 3, Math.max(P.l, X(x) - 1.5)), P.b, 3, 12);
+        monoText(fmtNum(x), X(x), P.b + 20, { size: 24, align: i === 0 ? "left" : i === v.xTicks.length - 1 ? "right" : "center", label: `viz.tick${i + 1}` });
+      });
+      // banda (zona donde se estanca)
+      if (v.band) {
+        const ba = clamp((lt - (cont ? 0.15 : v.bandAt ?? 1.4)) / 0.35);
+        if (ba > 0) {
+          ctx.save(); ctx.globalAlpha *= ba;
+          ctx.fillStyle = hexA(C.accent, 0.12);
+          ctx.fillRect(X(v.band.from), P.t, X(v.band.to) - X(v.band.from), P.b - P.t);
+          ctx.strokeStyle = C.accent; ctx.lineWidth = 2; ctx.setLineDash([8, 8]);
+          for (const bx of [v.band.from, v.band.to]) { ctx.beginPath(); ctx.moveTo(X(bx), P.t); ctx.lineTo(X(bx), P.b); ctx.stroke(); }
+          ctx.setLineDash([]);
+          if (v.band.label) tagPill(v.band.label.toUpperCase(), (X(v.band.from) + X(v.band.to)) / 2, P.t + 8, { size: 24, bg: C.accent, label: "viz.band" });
+          ctx.restore();
+        }
+      }
+      // curva
+      const pts = v.points || [];
+      const p = cont ? 1 : easeInOut(clamp((lt - 0.2) / (v.drawDuration || 1.4)));
+      const xEnd = x0 + (x1 - x0) * p;
+      ctx.beginPath();
+      let last = null;
+      for (let i = 0; i < pts.length; i++) {
+        const [px, py] = pts[i];
+        if (px <= xEnd) { i ? ctx.lineTo(X(px), Y(py)) : ctx.moveTo(X(px), Y(py)); last = [px, py]; continue; }
+        if (i > 0) { const [qx, qy] = pts[i - 1]; const k = (xEnd - qx) / (px - qx); last = [xEnd, qy + (py - qy) * k]; ctx.lineTo(X(last[0]), Y(last[1])); }
+        break;
+      }
+      ctx.strokeStyle = C.accent; ctx.lineWidth = 7; ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.stroke();
+      if (last) { ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(X(last[0]), Y(last[1]), 11, 0, Math.PI * 2); ctx.fill(); }
+      if (v.xLabel) monoText(v.xLabel.toUpperCase(), P.r, P.b - 40, { size: 24, color: C.muted, align: "right", label: "viz.xlabel", spacing: 1 });
+    },
+
+    // Columnas enfrentadas. items[{label, value, caption?, dim?}]
+    compare(v, lt, A, cont) {
+      const items = v.items || [];
+      const colW = A.w / items.length;
+      // un solo tamaño para todas las columnas (el de la que menos cabe), para que se lean como pareja
+      let size = v.size || 150;
+      ctx.font = serif(900, size);
+      while (items.some((it) => ctx.measureText(it.value).width > colW - 30) && size > 60) { size -= 6; ctx.font = serif(900, size); }
+      items.forEach((it, i) => {
+        const cx = A.x + colW * (i + 0.5);
+        const a = cont ? 1 : clamp((lt - 0.15 - i * 0.35) / 0.3);
+        const e = cont ? 1 : spring(lt - 0.15 - i * 0.35, SPRINGS.land);
+        ctx.save(); ctx.globalAlpha *= a;
+        const cy = A.y + A.h * 0.5;
+        tagPill(String(it.label).toUpperCase(), cx, cy - 170, { size: 28, label: `viz.col${i + 1}.label` });
+        ctx.font = serif(900, size);
+        ctx.fillStyle = it.dim ? C.muted : C.accent;
+        ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+        ctx.fillText(it.value, cx, cy + size * 0.35 + (1 - e) * 30);
+        const vw = ctx.measureText(it.value).width;
+        reg(`viz.col${i + 1}.value`, cx - vw / 2, cy - size * 0.45, vw, size * 0.82);
+        if (it.caption) wrapMono(it.caption.toUpperCase(), colW - 40, 24, 500).forEach((ln, k) =>
+          monoText(ln, cx, cy + size * 0.35 + 30 + k * 30, { size: 24, color: C.muted, align: "center", label: `viz.col${i + 1}.cap${k}` }));
+        ctx.restore();
+      });
+    },
+
+    // Cierre: botón grande. button · sub?
+    follow(v, lt, A) {
+      if (!v.button) return;
+      const e = spring(lt - 0.35, SPRINGS.bounce);
+      const size = 68;
+      ctx.font = font(800, size);
+      const w = ctx.measureText(v.button).width + 100, h = size * 1.9;
+      const cy = A.y + A.h * 0.42;
+      ctx.save();
+      ctx.globalAlpha *= clamp((lt - 0.35) / 0.2);
+      ctx.translate(W / 2, cy); ctx.scale(e, e);
+      ctx.fillStyle = C.accent; ctx.fillRect(-w / 2, -h / 2, w, h);
+      ctx.fillStyle = C.onAccent; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(v.button, 0, 3);
+      ctx.restore();
+      reg("viz.button", W / 2 - w / 2, cy - h / 2, w, h);
+      if (v.sub) drawRich({ text: v.sub, x: W / 2, y: cy + h / 2 + 40, maxWidth: A.w - 80, size: 38, weight: 500, lh: 1.25, hlMode: "color", t: lt, delay: 0.8, stagger: 0.03, color: C.muted, label: "viz.sub" });
+    },
+  };
+
+  function editorialRender(t) {
+    const e = sceneAt(t);
+    const s = e.s, lt = t - e.start, d = s.duration;
+    const prev = sched[e.i - 1]?.s, next = sched[e.i + 1]?.s;
+    const isLast = e.i === sched.length - 1;
+    currentLabel = `#${e.i + 1} ${s.type}`;
+    const intro = e.i === 0 ? ED.head.count * 0.05 + 0.45 : 0; // el titular entra primero
+    // categoría y titular: fijos
+    if (timeline.category) monoText(timeline.category.toUpperCase(), SAFE.left, ED.catY, { size: 28, color: C.muted, label: "categoria", spacing: 3 });
+    drawRich({ layout: ED.head, x: SAFE.left, y: ED.headY, align: "left", t, delay: 0.05, stagger: 0.05, color: C.text, label: "titular", maxWidth: CW });
+    // barra: cambia de alto con un muelle y la frase se funde
+    const L = ED.layouts[e.i], Lp = ED.layouts[e.i - 1];
+    const hNow = ED.barH(L), hPrev = e.i === 0 ? 0 : ED.barH(Lp);
+    const bh = hPrev + (hNow - hPrev) * spring(lt - intro, SPRINGS.snap);
+    if (bh > 1) { ctx.fillStyle = C.accent; ctx.fillRect(SAFE.left, ED.barY, CW, bh); }
+    if (L) {
+      const same = prev && barText(prev) === barText(s), sameNext = next && barText(next) === barText(s);
+      ctx.save();
+      ctx.globalAlpha *= layerAlpha(same, sameNext, lt, d, isLast, intro + 0.08);
+      drawRich({ layout: L, x: SAFE.left + ED.bar.padX, y: ED.barY + ED.bar.padY, align: "left", t: same ? Infinity : lt, delay: intro + 0.08, stagger: 0.012, color: C.onAccent, hlColor: C.barHl || C.onAccent, label: "barra", maxWidth: CW - ED.bar.padX * 2 });
+      ctx.restore();
+    }
+    // etiqueta del beat
+    if (s.label) {
+      ctx.save();
+      ctx.globalAlpha *= layerAlpha(prev?.label === s.label, next?.label === s.label, lt, d, isLast, intro + 0.2);
+      monoText(s.label, SAFE.left, ED.labelY, { size: 30, color: C.text, label: "etiqueta" });
+      ctx.restore();
+    }
+    // dibujo
+    const v = s.type === "cta" ? { kind: "follow", button: s.button, sub: s.sub } : s.viz;
+    if (v && VIZ[v.kind]) {
+      const cont = !!(v.id && prev?.viz?.id === v.id);
+      const contNext = !!(v.id && next?.viz?.id === v.id);
+      ctx.save();
+      ctx.globalAlpha *= layerAlpha(cont, contNext, lt, d, isLast, intro);
+      VIZ[v.kind](v, lt - intro, ED.area, cont);
+      ctx.restore();
+    }
+    // línea DATA
+    if (s.data) {
+      ctx.save();
+      ctx.globalAlpha *= layerAlpha(prev?.data === s.data, next?.data === s.data, lt, d, isLast, intro);
+      const w = monoText("DATA", SAFE.left, ED.dataY + 4, { size: 26, weight: 700, label: "data.k" });
+      drawRich({ text: s.data, x: SAFE.left + w + 18, y: ED.dataY, align: "left", maxWidth: CW - w - 18, size: 28, weight: 500, lh: 1.3, hlMode: "color", color: C.muted, label: "data" });
+      ctx.restore();
+    }
+    if (S.brand.handle) {
+      ctx.font = font(600, 30); ctx.fillStyle = C.text; ctx.textAlign = "left"; ctx.textBaseline = "top";
+      ctx.fillText(S.brand.handle, SAFE.left, ED.handleY);
+      reg("handle", SAFE.left, ED.handleY, ctx.measureText(S.brand.handle).width, 34);
+    }
+  }
+
   function sceneAt(t) {
     for (const e of sched) if (t < e.end) return e;
     return sched[sched.length - 1];
@@ -907,6 +1162,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     ctx.setTransform(DS.k, 0, 0, DS.k, 0, 0);
     ctx.globalAlpha = 1;
     background(t);
+    if (EDITORIAL) { editorialRender(t); overlay(t); return; }
     const e = sceneAt(t);
     const lt = t - e.start, d = e.s.duration;
     const isLast = e.i === sched.length - 1;
@@ -968,4 +1224,4 @@ function hexA(hex, a) {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
 }
 
-export const SCENE_TYPES = ["hook", "statement", "list", "number", "compare", "casefile", "theories", "panel", "cta"];
+export const SCENE_TYPES = ["hook", "statement", "list", "number", "compare", "casefile", "theories", "panel", "ficha", "cta"];

@@ -1,0 +1,550 @@
+{
+  "title": "El mito de los 10.000 pasos",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "category": "Caminar · Pasos",
+  "headline": "Los *10.000 pasos* no salieron de un estudio. Salieron de un *podómetro*.",
+  "scenes": [
+    {
+      "type": "ficha",
+      "duration": 6.76,
+      "bar": "La meta que marca casi cualquier reloj. ¿De dónde sale?",
+      "label": "meta diaria",
+      "viz": {
+        "kind": "counter",
+        "id": "meta",
+        "value": 10000,
+        "caption": "pasos al día"
+      }
+    },
+    {
+      "type": "ficha",
+      "duration": 6.06,
+      "bar": "Probablemente, de un podómetro japonés de 1965: el *Manpo-kei*, «medidor de 10.000 pasos».",
+      "label": "1965 · Japón",
+      "viz": {
+        "kind": "compare",
+        "size": 170,
+        "items": [
+          {
+            "label": "man",
+            "value": "万",
+            "caption": "10.000"
+          },
+          {
+            "label": "po",
+            "value": "歩",
+            "caption": "pasos"
+          },
+          {
+            "label": "kei",
+            "value": "計",
+            "caption": "medidor"
+          }
+        ]
+      },
+      "data": "Lee 2019, JAMA Intern Med · el origen «no está claro»"
+    },
+    {
+      "type": "ficha",
+      "duration": 4.71,
+      "bar": "En 2022, 15 estudios siguieron a 47.471 adultos durante unos 7 años.",
+      "label": "seguimiento: 7,1 años",
+      "viz": {
+        "kind": "counter",
+        "value": 47471,
+        "caption": "adultos"
+      },
+      "data": "Paluch 2022, Lancet Public Health · 15 cohortes · 47.471 adultos"
+    },
+    {
+      "type": "ficha",
+      "duration": 6.06,
+      "bar": "Más pasos, menos riesgo. Pero el gran salto llega *al principio*.",
+      "viz": {
+        "kind": "bars",
+        "id": "cuartiles",
+        "caption": "Riesgo de muerte · menos pasos = 100",
+        "max": 100,
+        "items": [
+          {
+            "label": "3.553",
+            "sub": "pasos",
+            "value": 100,
+            "hl": true
+          },
+          {
+            "label": "5.801",
+            "sub": "pasos",
+            "value": 60,
+            "hl": true
+          },
+          {
+            "label": "7.842",
+            "sub": "pasos",
+            "value": 55,
+            "hl": false
+          },
+          {
+            "label": "10.901",
+            "sub": "pasos",
+            "value": 47,
+            "hl": false
+          }
+        ]
+      },
+      "data": "Paluch 2022, Lancet Public Health · 15 cohortes · 47.471 adultos"
+    },
+    {
+      "type": "ficha",
+      "duration": 4.71,
+      "bar": "Menores de 60: el riesgo deja de bajar entre *8.000 y 10.000* pasos.",
+      "label": "menores de 60",
+      "viz": {
+        "kind": "curve",
+        "id": "curva",
+        "x": [
+          2000,
+          12000
+        ],
+        "y": [
+          0.35,
+          1.05
+        ],
+        "xTicks": [
+          2000,
+          6000,
+          8000,
+          10000,
+          12000
+        ],
+        "yLabel": "Riesgo de muerte según pasos al día",
+        "points": [
+          [
+            2000,
+            1
+          ],
+          [
+            2250,
+            0.9334
+          ],
+          [
+            2500,
+            0.8751
+          ],
+          [
+            2750,
+            0.8239
+          ],
+          [
+            3000,
+            0.779
+          ],
+          [
+            3250,
+            0.7397
+          ],
+          [
+            3500,
+            0.7052
+          ],
+          [
+            3750,
+            0.675
+          ],
+          [
+            4000,
+            0.6485
+          ],
+          [
+            4250,
+            0.6252
+          ],
+          [
+            4500,
+            0.6049
+          ],
+          [
+            4750,
+            0.587
+          ],
+          [
+            5000,
+            0.5713
+          ],
+          [
+            5250,
+            0.5576
+          ],
+          [
+            5500,
+            0.5456
+          ],
+          [
+            5750,
+            0.535
+          ],
+          [
+            6000,
+            0.5258
+          ],
+          [
+            6250,
+            0.5177
+          ],
+          [
+            6500,
+            0.5106
+          ],
+          [
+            6750,
+            0.5043
+          ],
+          [
+            7000,
+            0.4989
+          ],
+          [
+            7250,
+            0.4941
+          ],
+          [
+            7500,
+            0.4899
+          ],
+          [
+            7750,
+            0.4862
+          ],
+          [
+            8000,
+            0.483
+          ],
+          [
+            8250,
+            0.4801
+          ],
+          [
+            8500,
+            0.4776
+          ],
+          [
+            8750,
+            0.4755
+          ],
+          [
+            9000,
+            0.4736
+          ],
+          [
+            9250,
+            0.4719
+          ],
+          [
+            9500,
+            0.4704
+          ],
+          [
+            9750,
+            0.4691
+          ],
+          [
+            10000,
+            0.468
+          ],
+          [
+            10250,
+            0.467
+          ],
+          [
+            10500,
+            0.4662
+          ],
+          [
+            10750,
+            0.4654
+          ],
+          [
+            11000,
+            0.4647
+          ],
+          [
+            11250,
+            0.4642
+          ],
+          [
+            11500,
+            0.4636
+          ],
+          [
+            11750,
+            0.4632
+          ],
+          [
+            12000,
+            0.4628
+          ]
+        ],
+        "band": {
+          "from": 8000,
+          "to": 10000,
+          "label": "aquí se aplana"
+        }
+      },
+      "data": "Paluch 2022, Lancet Public Health · 15 cohortes · 47.471 adultos · curva ilustrativa"
+    },
+    {
+      "type": "ficha",
+      "duration": 3.37,
+      "bar": "Mayores de 60: entre *6.000 y 8.000*.",
+      "label": "mayores de 60",
+      "viz": {
+        "kind": "curve",
+        "id": "curva",
+        "x": [
+          2000,
+          12000
+        ],
+        "y": [
+          0.35,
+          1.05
+        ],
+        "xTicks": [
+          2000,
+          6000,
+          8000,
+          10000,
+          12000
+        ],
+        "yLabel": "Riesgo de muerte según pasos al día",
+        "points": [
+          [
+            2000,
+            1
+          ],
+          [
+            2250,
+            0.9334
+          ],
+          [
+            2500,
+            0.8751
+          ],
+          [
+            2750,
+            0.8239
+          ],
+          [
+            3000,
+            0.779
+          ],
+          [
+            3250,
+            0.7397
+          ],
+          [
+            3500,
+            0.7052
+          ],
+          [
+            3750,
+            0.675
+          ],
+          [
+            4000,
+            0.6485
+          ],
+          [
+            4250,
+            0.6252
+          ],
+          [
+            4500,
+            0.6049
+          ],
+          [
+            4750,
+            0.587
+          ],
+          [
+            5000,
+            0.5713
+          ],
+          [
+            5250,
+            0.5576
+          ],
+          [
+            5500,
+            0.5456
+          ],
+          [
+            5750,
+            0.535
+          ],
+          [
+            6000,
+            0.5258
+          ],
+          [
+            6250,
+            0.5177
+          ],
+          [
+            6500,
+            0.5106
+          ],
+          [
+            6750,
+            0.5043
+          ],
+          [
+            7000,
+            0.4989
+          ],
+          [
+            7250,
+            0.4941
+          ],
+          [
+            7500,
+            0.4899
+          ],
+          [
+            7750,
+            0.4862
+          ],
+          [
+            8000,
+            0.483
+          ],
+          [
+            8250,
+            0.4801
+          ],
+          [
+            8500,
+            0.4776
+          ],
+          [
+            8750,
+            0.4755
+          ],
+          [
+            9000,
+            0.4736
+          ],
+          [
+            9250,
+            0.4719
+          ],
+          [
+            9500,
+            0.4704
+          ],
+          [
+            9750,
+            0.4691
+          ],
+          [
+            10000,
+            0.468
+          ],
+          [
+            10250,
+            0.467
+          ],
+          [
+            10500,
+            0.4662
+          ],
+          [
+            10750,
+            0.4654
+          ],
+          [
+            11000,
+            0.4647
+          ],
+          [
+            11250,
+            0.4642
+          ],
+          [
+            11500,
+            0.4636
+          ],
+          [
+            11750,
+            0.4632
+          ],
+          [
+            12000,
+            0.4628
+          ]
+        ],
+        "band": {
+          "from": 6000,
+          "to": 8000,
+          "label": "aquí se aplana"
+        }
+      },
+      "data": "Paluch 2022, Lancet Public Health · 15 cohortes · 47.471 adultos · curva ilustrativa"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "Una revisión de 2025: 7.000 pasos dan casi lo mismo que 10.000.",
+      "label": "frente a 2.000 pasos al día",
+      "viz": {
+        "kind": "compare",
+        "items": [
+          {
+            "label": "7.000 pasos",
+            "value": "−47 %",
+            "caption": "riesgo de muerte"
+          },
+          {
+            "label": "10.000 pasos",
+            "value": "≈ igual",
+            "dim": true,
+            "caption": "beneficio extra"
+          }
+        ],
+        "size": 120
+      },
+      "data": "Ding 2025, Lancet Public Health · 57 estudios"
+    },
+    {
+      "type": "ficha",
+      "duration": 4.71,
+      "bar": "Ojo: son estudios de observación. Muestran una relación, no prueban la causa.",
+      "label": "lo que no demuestran",
+      "viz": {
+        "kind": "compare",
+        "items": [
+          {
+            "label": "Muestran",
+            "value": "Relación"
+          },
+          {
+            "label": "No prueban",
+            "value": "Causa",
+            "dim": true
+          }
+        ]
+      },
+      "data": "Paluch 2022 · Ding 2025 · Lee 2019"
+    },
+    {
+      "type": "cta",
+      "book": false,
+      "duration": 3.23,
+      "text": "Sigue la cuenta para más mitos con datos.",
+      "button": "Seguir"
+    }
+  ],
+  "headlineSize": 74,
+  "audio": "music-loop.wav"
+}

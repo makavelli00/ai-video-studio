@@ -1,0 +1,19 @@
+{
+  "look": "editorial",
+  "fonts": { "family": "Inter", "serif": "Source Serif 4", "mono": "IBM Plex Mono" },
+  "colors": {
+    "bg": "#FDFFFF",
+    "surface": "#F4F2EC",
+    "text": "#111111",
+    "muted": "#6B6B6B",
+    "accent": "#C31F15",
+    "onAccent": "#FFFFFF",
+    "barHl": "#FFD9D3",
+    "soft": "#E6E4DC",
+    "accent2": "#111111",
+    "bad": "#C31F15",
+    "good": "#111111"
+  },
+  "motion": { "wordStagger": 0.05, "sceneIn": 0.25, "sceneOut": 0.2 },
+  "overlay": { "progress": false, "handle": false }
+}
