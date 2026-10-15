@@ -140,7 +140,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
   const MYSTERY = S.look === "mystery";
   const ANIME = S.look === "anime";
   const EDITORIAL = S.look === "editorial";
-  const serif = (weight, size) => `${weight} ${size}px "${S.fonts.serif || "Source Serif 4"}", Georgia, serif`;
+  const serif = (weight, size) => `${weight} ${size}px "${S.fonts.serif || "Source Serif 4"}", Georgia, IPAGothic, serif`;
   const kanjiFont = (size) => `400 ${size}px IPAGothic, "IPAゴシック", sans-serif`;
 
   // Grano de película: textura generada una vez con semilla fija.
@@ -920,7 +920,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     const barH = (L) => (L ? L.h + bar.padY * 2 : 0);
     const layouts = sched.map((e) => barLayout(e.s));
     const maxBar = Math.max(0, ...layouts.map(barH));
-    const labelY = barY + maxBar + 18;
+    const labelY = barY + maxBar + 28;
     const handleY = SAFE.bottom - 36;
     const dataY = handleY - 24 - 2 * 28 * 1.3;
     const vizTop = labelY + 34 + 26, vizBottom = dataY - 36;
@@ -1079,7 +1079,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     follow(v, lt, A) {
       if (!v.button) return;
       const e = spring(lt - 0.35, SPRINGS.bounce);
-      const size = 54;
+      const size = 68;
       ctx.font = font(800, size);
       const w = ctx.measureText(v.button).width + 100, h = size * 1.9;
       const cy = A.y + A.h * 0.42;

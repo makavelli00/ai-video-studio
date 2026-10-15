@@ -24,10 +24,25 @@
    "bar": "Probablemente, de un podómetro japonés de 1965: el *Manpo-kei*, «medidor de 10.000 pasos».",
    "label": "1965 · Japón",
    "viz": {
-    "kind": "counter",
-    "id": "meta",
-    "value": 10000,
-    "caption": "Manpo-kei"
+    "kind": "compare",
+    "size": 170,
+    "items": [
+     {
+      "label": "man",
+      "value": "万",
+      "caption": "10.000"
+     },
+     {
+      "label": "po",
+      "value": "歩",
+      "caption": "pasos"
+     },
+     {
+      "label": "kei",
+      "value": "計",
+      "caption": "medidor"
+     }
+    ]
    },
    "data": "Lee 2019, JAMA Intern Med · el origen «no está claro»"
   },
@@ -47,7 +62,6 @@
    "type": "ficha",
    "duration": 6.0,
    "bar": "Más pasos, menos riesgo. Pero el gran salto llega *al principio*.",
-   "label": "4 grupos según sus pasos",
    "viz": {
     "kind": "bars",
     "id": "cuartiles",
@@ -480,7 +494,7 @@
   },
   {
    "type": "ficha",
-   "duration": 5.0,
+   "duration": 5.5,
    "bar": "Una revisión de 2025: 7.000 pasos dan casi lo mismo que 10.000.",
    "label": "frente a 2.000 pasos al día",
    "viz": {
@@ -495,9 +509,10 @@
       "label": "10.000 pasos",
       "value": "≈ igual",
       "dim": true,
-      "caption": "beneficio extra pequeño"
+      "caption": "beneficio extra"
      }
-    ]
+    ],
+    "size": 120
    },
    "data": "Ding 2025, Lancet Public Health · 57 estudios"
   },
