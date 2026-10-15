@@ -11,7 +11,7 @@ Todo lo que no diga el usuario sale de CLAUDE.md, `studio/02-reference/` y `stud
 
 ## Pasos
 
-1. **Preparar.** `npm run new -- <slug>`. Elige preset: `misterio.json` (casos reales), `anime.json` (storyboard de imágenes) o el estilo base. Cópialo a `videos/<slug>/style.json`. Imágenes del usuario → `assets/` en JPG 1080×1920. Con vídeo de referencia: `npm run ref -- <mp4> <slug>`, mira `sheet.jpg` y escribe `NOTES.md`.
+1. **Preparar.** `npm run new -- <slug>`. Elige preset: `misterio.json` (casos reales), `anime.json` (storyboard de imágenes), `explicativo.json` (infografía oscura con letra mono, verde contra rosa; sale de `refs/1bit1pixel/NOTES.md`) o el estilo base. Cópialo a `videos/<slug>/style.json`. Imágenes del usuario → `assets/` en JPG 1080×1920. Con vídeo de referencia: `npm run ref -- <mp4> <slug>`, mira `sheet.jpg` y escribe `NOTES.md`.
 2. **Brief.** Rellena `brief.md` (idea, público, material, referencia, línea roja, duración y formatos, fuentes). En casos reales, cada dato con fuente; si no hay fuente, no sale.
    🚦 Gate 1: idea, público y 3 ganchos.
 3. **Timeline.** Escribe `timeline.json` (una idea por escena, hook ≤ 3 s, cierre `cta`). Si hay música o voz: `npm run beats -- <slug> --snap`. Repite `npm run check -- <slug>` hasta 0 errores.

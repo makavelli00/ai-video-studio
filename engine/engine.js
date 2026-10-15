@@ -5,7 +5,7 @@
 export const DEFAULT_STYLE = {
   brand: { handle: "@tu_usuario" },
   ebook: { title: "Tu ebook", author: "Tu nombre", tag: "EBOOK" },
-  look: "clean", // "clean" (explicativo) | "mystery" (niebla, viñeta, grano) | "anime" (trama manga, líneas de impacto, kanji)
+  look: "clean", // "clean" (explicativo) | "flat" (fondo liso con rejilla, sin degradado) | "mystery" (niebla, viñeta, grano) | "anime" (trama manga, líneas de impacto, kanji)
   fonts: { family: "Inter", mono: "Liberation Mono" },
   colors: {
     bg: "#0E0F13", surface: "#1A1C23", text: "#F5F5F7", muted: "#9BA0AE",
@@ -732,6 +732,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     if (ANIME) return animeBackground(t);
     ctx.fillStyle = C.bg;
     ctx.fillRect(0, 0, W, H);
+    if (S.look === "flat") return flatGrid();
     const blob = (x, y, r, col, a) => {
       const g = ctx.createRadialGradient(x, y, 0, x, y, r);
       g.addColorStop(0, hexA(col, a)); g.addColorStop(1, hexA(col, 0));
@@ -739,6 +740,16 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     };
     blob(W * (0.2 + 0.12 * Math.sin(t * 0.45)), H * (0.25 + 0.05 * Math.cos(t * 0.3)), 760, C.accent2, 0.30);
     blob(W * (0.85 + 0.08 * Math.cos(t * 0.38)), H * (0.78 + 0.05 * Math.sin(t * 0.33)), 820, C.accent, 0.12);
+  }
+
+  // Look "flat": fondo liso con una rejilla tenue, sin manchas de color (estilo infografía).
+  function flatGrid() {
+    const step = 90;
+    ctx.strokeStyle = hexA(C.surface, 0.9); ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let x = step / 2; x < W; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+    for (let y = step / 2; y < H; y += step) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+    ctx.stroke();
   }
 
   // Niebla que se desplaza despacio + un haz de luz frío.
