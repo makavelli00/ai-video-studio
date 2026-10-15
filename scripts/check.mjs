@@ -46,6 +46,10 @@ let total = 0;
     case "casefile": if (!s.rows?.length) errors.push(`${id}: necesita "rows" [{k, v}]`);
       texts.push(s.title, s.stamp, ...(s.rows || []).flatMap((r) => [r.k, r.v]));
       if (!s.source) warnings.push(`${id}: expediente sin "source". En misterios, cada dato tiene que poder comprobarse.`); break;
+    case "ficha": need("bar"); texts.push(s.bar, s.label, s.viz?.caption, s.viz?.sub, ...(s.viz?.items || []).flatMap((it) => [it.caption]));
+      if (i === 0) texts.push(tl.headline);
+      if (!s.data && i > 0) warnings.push(`${id}: ficha sin "data". En el look editorial, cada beat con un dato lleva su fuente al pie.`);
+      if (v.style.look !== "editorial") errors.push(`${id}: la escena ficha solo existe en el look "editorial" (preset studio/02-reference/presets/editorial.json)`); break;
     case "panel": need("text"); need("image"); texts.push(s.kicker, s.text, s.note); break;
     case "theories": need("items"); texts.push(s.title, ...(s.items || []).map((it) => (typeof it === "string" ? it : it.text))); break;
   }
@@ -54,8 +58,14 @@ let total = 0;
   const min = n / READ_WPS + 0.8;
   if (s.duration && s.duration + 0.05 < min) warnings.push(`${id}: ${n} palabras en ${s.duration}s; necesita ~${min.toFixed(1)}s para leerse`);
 });
-if (tl.scenes?.[0]?.type !== "hook") warnings.push("La primera escena debería ser un hook");
-if (tl.scenes?.[0]?.duration > 3.5) warnings.push("El hook dura más de 3.5 s; el gancho tiene que llegar antes");
+if (v.style.look === "editorial") {
+  // en la ficha, el gancho es el titular fijo: aparece en el primer segundo y no cambia
+  if (!tl.headline) errors.push('Look editorial: falta "headline" (el titular fijo, que hace de gancho)');
+  else if (words(tl.headline) > 16) warnings.push(`El titular tiene ${words(tl.headline)} palabras; mejor ≤ 16`);
+} else {
+  if (tl.scenes?.[0]?.type !== "hook") warnings.push("La primera escena debería ser un hook");
+  if (tl.scenes?.[0]?.duration > 3.5) warnings.push("El hook dura más de 3.5 s; el gancho tiene que llegar antes");
+}
 if (tl.scenes?.at(-1)?.type !== "cta") warnings.push("La última escena debería ser un cta (llamada al ebook)");
 if (tl.voice && !fs.existsSync(path.join(dir, tl.voice))) warnings.push(`No existe la voz ${tl.voice}; se exportará sin voz en off`);
 if (total && (total < 15 || total > 60)) warnings.push(`Duración total ${total.toFixed(1)}s, fuera del rango del estudio (15–60 s)`);
