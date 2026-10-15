@@ -1,0 +1,177 @@
+{
+  "title": "Prensa o extensiones",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "audio": "music-loop.wav",
+  "category": "Entrenamiento · Pierna",
+  "headlineSize": 74,
+  "headline": "La *prensa* hizo crecer más la pierna. Las *extensiones*, el músculo que la prensa no toca.",
+  "scenes": [
+    {
+      "type": "ficha",
+      "duration": 8.78,
+      "bar": "17 principiantes, 12 semanas. Una pierna hizo prensa; la otra, extensiones.",
+      "label": "5 × 10 al 70 %, 2 días por semana",
+      "viz": {
+        "kind": "compare",
+        "items": [
+          {
+            "label": "Pierna A",
+            "value": "Prensa"
+          },
+          {
+            "label": "Pierna B",
+            "value": "Extensión"
+          }
+        ]
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 4.71,
+      "bar": "En el cuádriceps entero, casi empate.",
+      "label": "volumen tras 12 semanas",
+      "viz": {
+        "kind": "compare",
+        "id": "quad",
+        "items": [
+          {
+            "label": "Prensa",
+            "value": "+4,9 %"
+          },
+          {
+            "label": "Extensiones",
+            "value": "+7,1 %"
+          }
+        ]
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia · diferencia no significativa"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "Salvo un músculo: el *recto femoral* solo creció con extensiones.",
+      "label": "recto femoral",
+      "viz": {
+        "kind": "compare",
+        "items": [
+          {
+            "label": "Prensa",
+            "value": "+1,1 %",
+            "dim": true,
+            "caption": "no significativo"
+          },
+          {
+            "label": "Extensiones",
+            "value": "+13,2 %"
+          }
+        ]
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "Es el único de los cuatro que cruza dos articulaciones.",
+      "label": "recto femoral",
+      "viz": {
+        "kind": "counter",
+        "value": 2,
+        "from": 0,
+        "countDuration": 0.6,
+        "caption": "cadera y rodilla",
+        "sub": "Los otros tres, solo la *rodilla*."
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 6.06,
+      "bar": "Pero la prensa ganó en lo demás: glúteo y aductor solo crecieron con ella.",
+      "label": "crecimiento en 12 semanas (%)",
+      "viz": {
+        "kind": "bars",
+        "max": 16,
+        "items": [
+          {
+            "label": "Glúteo",
+            "sub": "prensa",
+            "value": 15.4,
+            "text": "+15,4",
+            "hl": true
+          },
+          {
+            "label": "Glúteo",
+            "sub": "extensión",
+            "value": 0.2,
+            "text": "≈0"
+          },
+          {
+            "label": "Aductor",
+            "sub": "prensa",
+            "value": 6.2,
+            "text": "+6,2",
+            "hl": true
+          },
+          {
+            "label": "Aductor",
+            "sub": "extensión",
+            "value": 0.05,
+            "text": "≈0"
+          }
+        ]
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "Sumando todo, la pierna creció más con prensa.",
+      "label": "músculo total de la pierna",
+      "viz": {
+        "kind": "compare",
+        "items": [
+          {
+            "label": "Prensa",
+            "value": "+6,3 %"
+          },
+          {
+            "label": "Extensiones",
+            "value": "+2,8 %",
+            "dim": true
+          }
+        ]
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "Ojo: eran principiantes y solo 17. En gente entrenada puede salir distinto.",
+      "label": "en resumen",
+      "viz": {
+        "kind": "compare",
+        "items": [
+          {
+            "label": "Para el recto femoral",
+            "value": "Extensión"
+          },
+          {
+            "label": "Para la pierna",
+            "value": "Prensa"
+          }
+        ]
+      },
+      "data": "Límites según los autores: solo principiantes · cadera fija a 90°"
+    },
+    {
+      "type": "cta",
+      "book": false,
+      "duration": 3.77,
+      "text": "Guárdalo para tu próximo día de pierna.",
+      "button": "Guardar"
+    }
+  ]
+}

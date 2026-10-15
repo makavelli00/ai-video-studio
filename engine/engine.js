@@ -967,6 +967,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const sub = v.sub ? layoutRich({ text: v.sub, maxWidth: A.w - 80, size: 36, weight: 500, lh: 1.25, hlMode: "color" }) : null;
       const blockH = size * 0.82 + cap + (sub ? 22 + sub.h : 0);
       let y = A.y + (A.h - blockH) / 2;
+      ctx.font = serif(900, size); // layoutRich del sub cambia la fuente
       ctx.fillStyle = v.dim ? C.muted : C.accent;
       ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
       ctx.fillText(shown, W / 2, y + size * 0.78);
