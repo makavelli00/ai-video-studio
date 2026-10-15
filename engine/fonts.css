@@ -6,3 +6,6 @@
 @font-face { font-family: "Liberation Mono"; src: url("fonts/LiberationMono-Regular.ttf") format("truetype"); font-weight: 400; }
 @font-face { font-family: "Liberation Mono"; src: url("fonts/LiberationMono-Bold.ttf") format("truetype"); font-weight: 700; }
 @font-face { font-family: "IPAGothic"; src: url("fonts/ipag.ttf") format("truetype"); font-weight: 400; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-400.woff2") format("woff2"); font-weight: 400 500; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-700.woff2") format("woff2"); font-weight: 600 700; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-800.woff2") format("woff2"); font-weight: 800 900; }
