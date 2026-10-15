@@ -9,3 +9,4 @@ Cada fallo que encuentren los sensores, el crítico o el usuario va aquí. Si un
 | 2026-10-12 | caso-apagon | Botón del CTA demasiado largo, se salía por los lados | Texto del botón acortado | 1 | Ya cubierto por el check (zona segura) |
 | 2026-10-15 | mito-10000-pasos | Dos beats seguidos con el mismo dibujo quieto (13 s) | Beat 2 con dibujo propio (kanji del Manpo-kei) | 1 | — |
 | 2026-10-15 | mito-10000-pasos | Beats justos de tiempo de lectura (look editorial, muy denso) | Etiquetas redundantes fuera; resto aceptado | 2 | Ya cubierto por el aviso de lectura del check |
+| 2026-10-15 | placa-silenciosa | Valor de `compare` demasiado largo, se salía por el lado | Texto más corto; el motor usa un tamaño común por escena | 1 | Ya cubierto por el check (zona segura) |

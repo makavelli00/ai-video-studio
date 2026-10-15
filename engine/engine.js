@@ -972,7 +972,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       ctx.fillText(shown, W / 2, y + size * 0.78);
       const fw = ctx.measureText(final).width;
       reg("viz.counter", W / 2 - fw / 2, y, fw, size * 0.82);
-      y += size * 0.82 + 26;
+      y += size * 0.82 + Math.max(26, size * 0.18); // deja sitio a comas y descendentes
       if (v.caption) { monoText(v.caption.toUpperCase(), W / 2, y, { size: 34, align: "center", label: "viz.caption", spacing: 2 }); y += 34 * 1.15; }
       if (sub) drawRich({ layout: sub, x: W / 2, y: y + 22, t: lt, delay: 0.5, stagger: 0.02, color: C.muted, label: "viz.sub", maxWidth: A.w - 80 });
     },
@@ -1054,6 +1054,10 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     compare(v, lt, A, cont) {
       const items = v.items || [];
       const colW = A.w / items.length;
+      // un solo tamaño para todas las columnas (el de la que menos cabe), para que se lean como pareja
+      let size = v.size || 150;
+      ctx.font = serif(900, size);
+      while (items.some((it) => ctx.measureText(it.value).width > colW - 30) && size > 60) { size -= 6; ctx.font = serif(900, size); }
       items.forEach((it, i) => {
         const cx = A.x + colW * (i + 0.5);
         const a = cont ? 1 : clamp((lt - 0.15 - i * 0.35) / 0.3);
@@ -1061,9 +1065,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         ctx.save(); ctx.globalAlpha *= a;
         const cy = A.y + A.h * 0.5;
         tagPill(String(it.label).toUpperCase(), cx, cy - 170, { size: 28, label: `viz.col${i + 1}.label` });
-        let size = v.size || 150;
         ctx.font = serif(900, size);
-        while (ctx.measureText(it.value).width > colW - 30 && size > 60) { size -= 6; ctx.font = serif(900, size); }
         ctx.fillStyle = it.dim ? C.muted : C.accent;
         ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
         ctx.fillText(it.value, cx, cy + size * 0.35 + (1 - e) * 30);
