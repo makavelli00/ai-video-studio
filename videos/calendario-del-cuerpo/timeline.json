@@ -1,0 +1,248 @@
+{
+  "title": "El calendario del cuerpo",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "audio": "music-loop.wav",
+  "category": "Salud · Envejecer",
+  "headlineSize": 66,
+  "headline": "Tu cuerpo no envejece de golpe: cada capacidad tiene su *calendario*.",
+  "scenes": [
+    {
+      "type": "ficha",
+      "duration": 6.76,
+      "bar": "Tres capacidades, tres edades distintas en las que empiezan a bajar.",
+      "label": "edad · negro: pico · rojo: baja",
+      "viz": {
+        "kind": "agebar",
+        "id": "cal",
+        "items": [
+          {
+            "label": "Fondo",
+            "new": true
+          },
+          {
+            "label": "Fuerza",
+            "new": true
+          },
+          {
+            "label": "Músculo",
+            "new": true
+          }
+        ]
+      },
+      "data": "Medias de población de tres estudios · ver fuentes en cada dato"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "El *fondo* es el primero: baja un *3–6 %* por década desde los 20.",
+      "label": "edad · negro: pico · rojo: baja",
+      "viz": {
+        "kind": "agebar",
+        "id": "cal",
+        "items": [
+          {
+            "label": "Fondo",
+            "drop": 20,
+            "dropLabel": "desde los 20",
+            "new": true
+          },
+          {
+            "label": "Fuerza"
+          },
+          {
+            "label": "Músculo"
+          }
+        ],
+        "focus": 0
+      },
+      "data": "Fleg 2005, Circulation · capacidad aeróbica (VO2 pico) medida en adultos sanos"
+    },
+    {
+      "type": "ficha",
+      "duration": 4.04,
+      "bar": "Y se acelera: más de un *20 %* por década desde los 70.",
+      "label": "edad · negro: pico · rojo: baja",
+      "viz": {
+        "kind": "agebar",
+        "id": "cal",
+        "items": [
+          {
+            "label": "Fondo",
+            "drop": 20,
+            "dropLabel": "desde los 20",
+            "fast": 70,
+            "new": true
+          },
+          {
+            "label": "Fuerza"
+          },
+          {
+            "label": "Músculo"
+          }
+        ],
+        "focus": 0
+      },
+      "data": "Fleg 2005, Circulation · capacidad aeróbica (VO2 pico) medida en adultos sanos"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "La *fuerza* de agarre toca techo entre los 26 y los 42 años.",
+      "label": "edad · negro: pico · rojo: baja",
+      "viz": {
+        "kind": "agebar",
+        "id": "cal",
+        "items": [
+          {
+            "label": "Fondo",
+            "drop": 20,
+            "dropLabel": "desde los 20",
+            "fast": 70
+          },
+          {
+            "label": "Fuerza",
+            "hold": [
+              26,
+              42
+            ],
+            "drop": 42,
+            "dropLabel": "desde los ~40",
+            "new": true
+          },
+          {
+            "label": "Músculo"
+          }
+        ],
+        "focus": 1
+      },
+      "data": "Dodds 2014, PLoS One · 49.964 personas · pico: hombres 29–39 años, mujeres 26–42"
+    },
+    {
+      "type": "ficha",
+      "duration": 4.71,
+      "bar": "En su mejor momento: *51 kg* de agarre ellos y *31 kg* ellas.",
+      "label": "agarre en el pico (mediana)",
+      "viz": {
+        "kind": "compare",
+        "items": [
+          {
+            "label": "Hombres",
+            "value": "51 kg"
+          },
+          {
+            "label": "Mujeres",
+            "value": "31 kg"
+          }
+        ]
+      },
+      "data": "Dodds 2014, PLoS One · 49.964 personas · pico: hombres 29–39 años, mujeres 26–42"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "El *músculo* es el último: no baja de forma clara hasta finales de los 40.",
+      "label": "edad · negro: pico · rojo: baja",
+      "viz": {
+        "kind": "agebar",
+        "id": "cal",
+        "items": [
+          {
+            "label": "Fondo",
+            "drop": 20,
+            "dropLabel": "desde los 20",
+            "fast": 70
+          },
+          {
+            "label": "Fuerza",
+            "hold": [
+              26,
+              42
+            ],
+            "drop": 42,
+            "dropLabel": "desde los ~40"
+          },
+          {
+            "label": "Músculo",
+            "hold": [
+              20,
+              50
+            ],
+            "drop": 50,
+            "dropLabel": "desde finales de los 40",
+            "new": true
+          }
+        ],
+        "focus": 2
+      },
+      "data": "Janssen 2000, J Appl Physiol · 468 personas · resonancia de cuerpo entero"
+    },
+    {
+      "type": "ficha",
+      "duration": 4.71,
+      "bar": "Y donde más se pierde es en las *piernas*.",
+      "label": "dónde se pierde más músculo",
+      "viz": {
+        "kind": "compare",
+        "items": [
+          {
+            "label": "Parte inferior",
+            "value": "Piernas",
+            "win": true
+          },
+          {
+            "label": "Parte superior",
+            "value": "Brazos",
+            "dim": true
+          }
+        ]
+      },
+      "data": "Janssen 2000, J Appl Physiol · 468 personas · resonancia de cuerpo entero"
+    },
+    {
+      "type": "ficha",
+      "duration": 4.71,
+      "bar": "Son medias de población: no dicen cómo envejecerás tú.",
+      "label": "edad · negro: pico · rojo: baja",
+      "viz": {
+        "kind": "agebar",
+        "id": "cal",
+        "items": [
+          {
+            "label": "Fondo",
+            "drop": 20,
+            "dropLabel": "desde los 20",
+            "fast": 70
+          },
+          {
+            "label": "Fuerza",
+            "hold": [
+              26,
+              42
+            ],
+            "drop": 42,
+            "dropLabel": "desde los ~40"
+          },
+          {
+            "label": "Músculo",
+            "hold": [
+              20,
+              50
+            ],
+            "drop": 50,
+            "dropLabel": "desde finales de los 40"
+          }
+        ]
+      },
+      "data": "Fleg 2005 · Dodds 2014 · Janssen 2000"
+    },
+    {
+      "type": "cta",
+      "book": false,
+      "duration": 3.32,
+      "text": "Guárdalo y elige qué entrenar primero.",
+      "button": "Guardar"
+    }
+  ]
+}

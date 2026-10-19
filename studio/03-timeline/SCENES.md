@@ -63,3 +63,4 @@ Dibujos fijos: `"figures": [{move, label, hl?}]` en el timeline los deja en una 
 | `compare` | `items[{label, value, caption?, dim?, win?}]` | 2–3 columnas enfrentadas con etiqueta negra. Las cifras cuentan desde 0; `win` mete la ganadora en una caja roja. |
 | `exercise` | `items[{label, move, hl?, caption?}]`, `period?` | Dibujo del ejercicio haciendo repeticiones (vista lateral). `move`: `prensa` o `extension`. `hl`: músculos en rojo (`cuadriceps`, `gluteo`; por defecto el cuádriceps). |
 | `rows` | `items[{stats[{value, caption?, dim?, win?}]}]`, `size?` | Con `figures` en el timeline: una fila por dibujo fijo, con sus cifras al lado. |
+| `agebar` | `items[{label, hold?[a,b], drop?, dropLabel?, fast?, new?}]`, `x?[min,max]`, `ticks?`, `focus?` | Regla de edad: una fila por capacidad, tramo negro (en su mejor momento) y rojo desde que baja (más grueso desde `fast`). `new` dibuja la fila en ese beat; `focus` apaga las demás. |

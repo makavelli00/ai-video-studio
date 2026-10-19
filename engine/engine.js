@@ -1069,6 +1069,59 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       if (sub) drawRich({ layout: sub, x: (A.x + A.w / 2), y: y + 22, t: lt, delay: 0.5, stagger: 0.02, color: C.muted, label: "viz.sub", maxWidth: A.w - 80 });
     },
 
+    // Regla de edad: una fila por capacidad. x[min,max] · ticks[] · focus? (índice de la fila que manda)
+    // items[{label, hold?[a,b], drop?, dropLabel?, fast?, show?, new?}]
+    //   hold: tramo en su mejor momento (negro) · drop: edad desde la que baja (rojo hasta el final)
+    //   fast: desde aquí la bajada se dibuja más gruesa · new: la fila entra en este beat
+    agebar(v, lt, A, cont) {
+      const [x0, x1] = v.x || [20, 80];
+      const items = v.items || [];
+      const labW = 200, L = A.x + labW, R = A.x + A.w - 24;
+      const axisY = A.y + A.h - 46;
+      const rowH = (axisY - A.y - 10) / Math.max(1, items.length);
+      const X = (age) => L + ((age - x0) / (x1 - x0)) * (R - L);
+      // eje
+      ctx.fillStyle = C.text; ctx.fillRect(L, axisY, R - L, 3);
+      (v.ticks || [20, 30, 40, 50, 60, 70, 80]).forEach((a, k, arr) => {
+        ctx.fillRect(X(a) - 1.5, axisY - 10, 3, 13);
+        monoText(String(a), X(a), axisY + 12, { size: 26, align: k === arr.length - 1 ? "right" : k === 0 ? "left" : "center", label: `viz.tick${a}`, color: C.muted });
+      });
+      items.forEach((it, i) => {
+        if (it.show === false) return;
+        const fresh = !!it.new;
+        const g = fresh ? clamp(spring(lt - 0.25, SPRINGS.settle)) : 1;
+        const a = fresh ? clamp((lt - 0.15) / 0.3) : 1;
+        const dim = v.focus !== undefined && v.focus !== i;
+        const cy = A.y + 10 + rowH * (i + 0.5);
+        ctx.save(); ctx.globalAlpha *= a * (dim ? 0.3 : 1);
+        monoText(String(it.label).toUpperCase(), A.x, cy - 17, { size: 30, weight: 700, label: `viz.age${i + 1}.label`, spacing: 1 });
+        ctx.fillStyle = C.soft || "#E6E4DC"; ctx.fillRect(L, cy - 3, R - L, 6);
+        const sweep = x0 + (x1 - x0) * g; // todo se dibuja de izquierda a derecha
+        if (it.hold) {
+          const [h0, h1] = it.hold, e = Math.min(h1, sweep);
+          if (e > h0) { ctx.fillStyle = C.text; ctx.fillRect(X(h0), cy - 14, X(e) - X(h0), 28); }
+        }
+        if (it.drop !== undefined) {
+          const fast = it.fast ?? x1;
+          const e1 = Math.min(fast, sweep), e2 = Math.min(x1, sweep);
+          ctx.fillStyle = C.accent;
+          if (e1 > it.drop) ctx.fillRect(X(it.drop), cy - 10, X(e1) - X(it.drop), 20);
+          if (e2 > fast) ctx.fillRect(X(fast), cy - 22, X(e2) - X(fast), 44);
+          if (sweep >= it.drop) {
+            const m = fresh ? clamp(spring(lt - 0.25 - 0.6 * ((it.drop - x0) / (x1 - x0)), SPRINGS.bounce)) : 1;
+            ctx.beginPath(); ctx.arc(X(it.drop), cy, 17 * m, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = C.onAccent; ctx.beginPath(); ctx.arc(X(it.drop), cy, 7 * m, 0, Math.PI * 2); ctx.fill();
+            if (it.dropLabel) {
+              const lx = Math.min(Math.max(X(it.drop), L + 10), R - 10);
+              monoText(String(it.dropLabel).toUpperCase(), lx, cy + 30, { size: 24, weight: 700, color: C.accent, align: X(it.drop) > (L + R) / 2 ? "right" : "left", label: `viz.age${i + 1}.drop` });
+            }
+          }
+        }
+        reg(`viz.age${i + 1}.row`, L, cy - 22, R - L, 44);
+        ctx.restore();
+      });
+    },
+
     // Barras verticales. items[{label, value, text?, sub?, hl?}] · max? · caption?
     bars(v, lt, A, cont) {
       const items = v.items || [];
