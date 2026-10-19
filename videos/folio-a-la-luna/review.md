@@ -35,3 +35,9 @@ check: 6 contadores a 0, sin avisos.
 | Verdad y estilo | 9 | Igual |
 
 Veredicto: ✅ exportar (pendiente: @ real y, si se quiere, música).
+
+## Vuelta 4 (petición de pablo: "hazlo animando")
+Escena `doubling` sustituida por `folding`: el folio se dobla de verdad 5 veces (vista frontal, solapa con perspectiva) y luego, de lado, la columna crece mientras la cámara se aleja y pasan a escala real la canasta, la Torre Eiffel, el Everest, la Estación Espacial y la Luna, que queda justo encima de la columna.
+check: 6 contadores a 0, sin avisos. Duración 44,0 s.
+Fallo encontrado y corregido: el Everest, visto de muy cerca, tapaba toda la pantalla de gris (16 s) → los monumentos solo se dibujan cuando caben enteros.
+Veredicto: ✅ exportar.

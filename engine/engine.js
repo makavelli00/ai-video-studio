@@ -555,6 +555,187 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       ctx.restore();
     },
 
+    // Doblar: un folio que se dobla de verdad (vista frontal) y luego, de lado, una columna que crece
+    // mientras la cámara se aleja y pasan monumentos dibujados a escala real hasta la Luna.
+    // base (mm) · to · front (dobleces en vista frontal) · marks: [{label, mm, kind: hoop|tower|mountain|station|moon, hl?}] · source
+    folding(sc, lt, d) {
+      const base = sc.base || 0.1, to = sc.to || 42, front = sc.front ?? 5;
+      const tFront = sc.frontStep || 0.7, tFast = sc.step || 0.22, tSlow = sc.lastStep || 0.9, nSlow = sc.lastSlow ?? 3;
+      const segs = [[front, tFront], [Math.max(0, to - nSlow - front), tFast], [Math.min(nSlow, to - front), tSlow]];
+      // dobleces (continuo) en función del tiempo
+      let rem = lt - (sc.startAt ?? 0.5), nf = 0;
+      for (const [cnt, dt] of segs) { const u = clamp(rem / (cnt * dt || 1)); nf += cnt * u; rem -= cnt * dt; if (u < 1) break; }
+      nf = Math.min(nf, to);
+      const n = Math.floor(nf + 1e-9), frac = nf - n;
+      // grosor mostrado: salta en cada doblez con un muelle corto
+      const nd = n + (n < to ? easeOutCubic(clamp(frac / 0.45)) : 0);
+      const mmNow = base * Math.pow(2, n);
+      const hDisp = (base * Math.pow(2, nd)) / 1000; // metros
+      // HUD
+      const hudY = SAFE.top + 10, hudH = 170, gap = 24, hw = (CW - gap) / 2;
+      const box = (x, label, value, col, key) => {
+        ctx.fillStyle = hexA(C.surface, 0.92); roundRect(ctx, x, hudY, hw, hudH, 24); ctx.fill();
+        ctx.strokeStyle = hexA(C.muted, 0.35); ctx.lineWidth = 2; roundRect(ctx, x, hudY, hw, hudH, 24); ctx.stroke();
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillStyle = C.muted; ctx.font = font(400, 34); ctx.fillText(label, x + hw / 2, hudY + 44);
+        let sz = 72; ctx.font = font(800, sz);
+        while (ctx.measureText(value).width > hw - 40 && sz > 30) { sz -= 4; ctx.font = font(800, sz); }
+        ctx.fillStyle = col; ctx.fillText(value, x + hw / 2, hudY + 112);
+        if (collect) collect.push({ scene: currentLabel, label: key, x, y: hudY, w: hw, h: hudH });
+      };
+      const yTop = hudY + hudH + 40, yG = SAFE.bottom - 30, viewPx = yG - yTop;
+      const X0 = SAFE.left + 120; // eje de la columna
+      const fadeIn = clamp(lt / 0.3);
+      ctx.save();
+      ctx.globalAlpha *= fadeIn;
+
+      // ---- Fase 1: vista frontal, el folio se dobla ----
+      const pB = clamp((nf - front + 0.15) / 0.35); // fundido a la vista lateral
+      if (pB < 1) {
+        ctx.save();
+        ctx.globalAlpha *= 1 - pB;
+        const cx = W / 2, cy = yTop + viewPx * 0.5;
+        let w = 470, h = 665;
+        const k = Math.min(n, front);
+        for (let i = 0; i < k; i++) { if (i % 2 === 0) w /= 2; else h /= 2; }
+        const f = n < front ? easeInOut(clamp(frac / 0.8)) : 0;
+        const layers = Math.pow(2, k);
+        const paper = "#F2F2EE", shade = "#DCDEE3";
+        const rect = (x, y, ww, hh, col) => { ctx.fillStyle = col; ctx.fillRect(x, y, ww, hh); };
+        // grosor visible: un borde que engorda con las capas
+        const edge = Math.min(26, 1 + layers * 0.8);
+        // Pliegue con algo de perspectiva: el borde libre de la solapa crece al mirar a cámara.
+        const flap = (pts, col) => { ctx.fillStyle = col; ctx.beginPath(); pts.forEach(([x, y], j) => (j ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); ctx.fill(); };
+        let sx0 = cx - w / 2, sx1 = cx + w / 2, sy = cy + h / 2; // huella para la sombra del grosor
+        if (n >= front) { rect(cx - w / 2, cy - h / 2, w, h, paper); }
+        else if (k % 2 === 0) {
+          // pliegue vertical: la mitad derecha gira sobre la izquierda; el conjunto se recentra
+          const ox = (w / 4) * f, L = cx - w / 2 + ox, M = cx + ox;
+          rect(L, cy - h / 2, w / 2, h, paper);
+          const c = Math.cos(Math.PI * f), sn = Math.sin(Math.PI * f), fw = (w / 2) * c, e = h * 0.08 * sn;
+          flap([[M, cy - h / 2], [M + fw, cy - h / 2 - e], [M + fw, cy + h / 2 + e], [M, cy + h / 2]], c >= 0 ? paper : shade);
+          sx0 = L; sx1 = M + Math.max(0, fw);
+        } else {
+          const oy = -(h / 4) * f, T = cy + oy;
+          rect(cx - w / 2, T, w, h / 2, paper);
+          const c = Math.cos(Math.PI * f), sn = Math.sin(Math.PI * f), fh = (h / 2) * c, e = w * 0.08 * sn;
+          flap([[cx - w / 2, T], [cx - w / 2 - e, T - fh], [cx + w / 2 + e, T - fh], [cx + w / 2, T]], c >= 0 ? paper : shade);
+          sy = T + h / 2;
+        }
+        // sombra del grosor bajo el papel
+        ctx.fillStyle = hexA(C.accent, 0.9);
+        ctx.fillRect(sx0 - 2, sy + 6, sx1 - sx0 + 4, edge * 0.35 + 3);
+        ctx.restore();
+      }
+
+      // ---- Fase 2: vista lateral, cámara que se aleja ----
+      if (pB > 0) {
+        ctx.save();
+        ctx.globalAlpha *= pB;
+        const V = Math.max(hDisp * (sc.zoom || 2.4), 0.004); // metros visibles en vertical
+        const toY = (m) => yG - (m / V) * viewPx;
+        const px = (m) => (m / V) * viewPx;
+        // estrellas cuando ya estamos lejos del suelo
+        const starA = clamp((Math.log10(V) - 4.3) / 1.2);
+        if (starA > 0) for (let i = 0; i < 70; i++) {
+          ctx.fillStyle = hexA(C.text, starA * (0.25 + 0.5 * hash(i * 7 + 3)));
+          const r = 1 + 2 * hash(i * 7 + 5);
+          ctx.fillRect(hash(i * 7 + 1) * W, yTop + hash(i * 7 + 2) * viewPx * 0.9, r, r);
+        }
+        // la Tierra: un círculo de 6.371 km de radio (plano mientras es enorme)
+        const R = 6371000, Rpx = px(R);
+        ctx.fillStyle = hexA(C.accent, 0.12);
+        if (Rpx > 2e5) ctx.fillRect(0, yG, W, H - yG);
+        else { ctx.beginPath(); ctx.arc(X0, yG + Rpx, Rpx, 0, Math.PI * 2); ctx.fill(); }
+        ctx.strokeStyle = hexA(C.accent, 0.35); ctx.lineWidth = 3;
+        if (Rpx > 2e5) { ctx.beginPath(); ctx.moveTo(0, yG); ctx.lineTo(W, yG); ctx.stroke(); }
+        else { ctx.beginPath(); ctx.arc(X0, yG + Rpx, Rpx, 0, Math.PI * 2); ctx.stroke(); }
+        // monumentos
+        const labels = [];
+        let moonDraw = null;
+        for (const [i, m] of (sc.marks || []).entries()) {
+          const hm = m.mm / 1000, Hpx = px(hm);
+          const passed = mmNow >= m.mm;
+          const kCross = Math.ceil(Math.log2(m.mm / base) - 1e-9);
+          const col = passed ? (m.hl ? C.accent2 : C.accent) : C.muted;
+          const kind = m.kind;
+          const far = kind === "station" || kind === "moon";
+          if (!far && (Hpx < 3 || Hpx > viewPx * 1.05)) continue;
+          if (far && toY(hm) < yTop - 80) continue;
+          const a = far ? 1 : Math.min(clamp((Hpx - 3) / 25), clamp((viewPx * 1.05 - Hpx) / (viewPx * 0.25)));
+          ctx.save(); ctx.globalAlpha *= a;
+          const fill = hexA(col, passed ? 0.85 : 0.5);
+          ctx.fillStyle = fill; ctx.strokeStyle = col; ctx.lineWidth = 3;
+          let lx, ly; // punto de la etiqueta
+          if (kind === "hoop") {
+            const xc = X0 + 230;
+            ctx.fillRect(xc - Hpx * 0.02, yG - Hpx * 1.1, Hpx * 0.04, Hpx * 1.1);
+            ctx.fillRect(xc - Hpx * 0.02, yG - Hpx * 1.12, Hpx * 0.42, Hpx * 0.03);
+            ctx.fillRect(xc + Hpx * 0.36, yG - Hpx * 1.3, Hpx * 0.03, Hpx * 0.36);
+            ctx.beginPath(); ctx.ellipse(xc + Hpx * 0.22, yG - Hpx, Hpx * 0.12, Hpx * 0.025, 0, 0, Math.PI * 2); ctx.stroke();
+            lx = xc; ly = yG - Hpx * 1.3;
+          } else if (kind === "tower") {
+            const xc = X0 + 330;
+            const P = [[-0.19, 0], [-0.12, 0.13], [-0.075, 0.3], [-0.035, 0.6], [-0.014, 0.9], [-0.004, 1], [0.004, 1], [0.014, 0.9], [0.035, 0.6], [0.075, 0.3], [0.12, 0.13], [0.19, 0]];
+            ctx.beginPath(); P.forEach(([x, y], j) => (j ? ctx.lineTo : ctx.moveTo).call(ctx, xc + x * Hpx, yG - y * Hpx)); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = C.bg; ctx.beginPath(); ctx.ellipse(xc, yG, Hpx * 0.09, Hpx * 0.1, 0, Math.PI, 0); ctx.fill();
+            ctx.fillStyle = fill; ctx.fillRect(xc - Hpx * 0.13, yG - Hpx * 0.14, Hpx * 0.26, Hpx * 0.015); ctx.fillRect(xc - Hpx * 0.07, yG - Hpx * 0.31, Hpx * 0.14, Hpx * 0.012);
+            lx = xc; ly = yG - Hpx;
+          } else if (kind === "mountain") {
+            const xc = SAFE.right - 170;
+            ctx.beginPath(); ctx.moveTo(xc - Hpx * 1.6, yG); ctx.lineTo(xc - Hpx * 0.3, yG - Hpx * 0.72); ctx.lineTo(xc, yG - Hpx); ctx.lineTo(xc + Hpx * 0.45, yG - Hpx * 0.6); ctx.lineTo(xc + Hpx * 1.4, yG); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = hexA(C.text, 0.85 * a);
+            ctx.beginPath(); ctx.moveTo(xc - Hpx * 0.16, yG - Hpx * 0.86); ctx.lineTo(xc, yG - Hpx); ctx.lineTo(xc + Hpx * 0.12, yG - Hpx * 0.89); ctx.lineTo(xc, yG - Hpx * 0.9); ctx.closePath(); ctx.fill();
+            lx = xc; ly = yG - Hpx;
+          } else if (kind === "station") {
+            const y = toY(hm), xc = SAFE.right - 150;
+            ctx.save(); ctx.setLineDash([10, 12]); ctx.strokeStyle = hexA(col, 0.5); ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(X0 + 90, y); ctx.lineTo(SAFE.right, y); ctx.stroke(); ctx.restore();
+            ctx.fillRect(xc - 60, y - 14, 50, 28); ctx.fillRect(xc + 10, y - 14, 50, 28); ctx.fillRect(xc - 12, y - 8, 24, 16);
+            lx = xc; ly = y - 20;
+          } else if (kind === "moon") {
+            moonDraw = () => { ctx.save(); ctx.globalAlpha *= a; ctx.lineWidth = 3;
+            const y = toY(hm), r = Math.max(px(1737400), 70), xc = X0;
+            ctx.fillStyle = passed ? hexA(C.text, 0.92) : hexA(C.text, 0.7);
+            ctx.beginPath(); ctx.arc(xc, y, r, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = hexA(C.bg, 0.18);
+            for (let j = 0; j < 6; j++) { ctx.beginPath(); ctx.arc(xc + (hash(j * 5 + 1) - 0.5) * r * 1.2, y + (hash(j * 5 + 2) - 0.5) * r * 1.2, r * (0.08 + 0.12 * hash(j * 5 + 3)), 0, Math.PI * 2); ctx.fill(); }
+            if (passed) { ctx.strokeStyle = C.accent2; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(xc, y, r + 10, 0, Math.PI * 2); ctx.stroke(); }
+            ctx.restore(); };
+            lx = X0 + 110 + 230; ly = toY(hm) + 30;
+          }
+          ctx.restore();
+          const showLabel = far ? true : Hpx > 36 && yG - Hpx > yTop + 70;
+          if (showLabel) labels.push({ m, i, lx, ly, col, passed, since: (nf - kCross) / tSlow, a });
+        }
+        // columna de papel (de lado): cada mitad es un doblez
+        const top = toY(hDisp), cw = 110;
+        ctx.fillStyle = C.accent; ctx.fillRect(X0 - cw / 2, top, cw, yG - top);
+        ctx.strokeStyle = hexA(C.bg, 0.6); ctx.lineWidth = 2;
+        for (let j = 1; j <= 9; j++) { const y = toY(hDisp / Math.pow(2, j)); if (yG - y < 3) break; ctx.beginPath(); ctx.moveTo(X0 - cw / 2, y); ctx.lineTo(X0 + cw / 2, y); ctx.stroke(); }
+        if (moonDraw) moonDraw();
+        // etiquetas
+        for (const L of labels) {
+          const sz = 38; ctx.font = font(700, sz);
+          const tw = ctx.measureText(L.m.label).width, ph = sz * 1.7, pw = tw + sz * 1.4;
+          let x = Math.min(SAFE.right - pw, Math.max(X0 + cw / 2 + 16, L.lx - pw / 2)), y = Math.max(yTop, L.ly - ph - 8);
+          const k = L.passed && L.since >= 0 ? 1 + 0.25 * Math.exp(-L.since * 6) * Math.cos(L.since * 14) : 1;
+          ctx.save(); ctx.globalAlpha *= clamp(L.a * 1.5);
+          ctx.translate(x + pw / 2, y + ph / 2); ctx.scale(k, k); ctx.translate(-(x + pw / 2), -(y + ph / 2));
+          ctx.fillStyle = L.passed ? L.col : hexA(C.bg, 0.85); roundRect(ctx, x, y, pw, ph, ph / 2); ctx.fill();
+          ctx.strokeStyle = L.col; ctx.lineWidth = 3; roundRect(ctx, x, y, pw, ph, ph / 2); ctx.stroke();
+          ctx.fillStyle = L.passed ? C.onAccent : L.col; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+          ctx.fillText(L.m.label, x + sz * 0.7, y + ph / 2 + 1);
+          ctx.restore();
+          if (collect) collect.push({ scene: currentLabel, label: `folding.mark${L.i + 1}`, x, y, w: pw, h: ph });
+        }
+        ctx.restore();
+      }
+      box(SAFE.left, sc.countLabel || "Dobleces", String(n), C.text, "folding.count");
+      box(SAFE.left + hw + gap, sc.sizeLabel || "Grosor", fmtLen(mmNow), C.accent, "folding.size");
+      ctx.restore();
+    },
+
     // Expediente: ficha de papel con datos a máquina y sello final.
     // rows: [{k, v}] · title · stamp · cps (caracteres por segundo)
     casefile(sc, lt, d) {
@@ -1069,4 +1250,4 @@ function hexA(hex, a) {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
 }
 
-export const SCENE_TYPES = ["hook", "statement", "list", "number", "compare", "doubling", "casefile", "theories", "panel", "cta"];
+export const SCENE_TYPES = ["hook", "statement", "list", "number", "compare", "doubling", "folding", "casefile", "theories", "panel", "cta"];

@@ -11,41 +11,47 @@
     },
     {
       "type": "statement",
-      "duration": 4.8,
+      "duration": 4.7,
       "kicker": "La regla",
       "text": "Cada doblez *duplica* el grosor",
       "note": "0,1 → 0,2 → 0,4 mm…"
     },
     {
-      "type": "doubling",
-      "duration": 13,
+      "type": "folding",
+      "duration": 19.4,
       "base": 0.1,
       "to": 42,
+      "front": 5,
       "marks": [
         {
           "label": "Canasta · 3,05 m",
-          "mm": 3050
+          "mm": 3050,
+          "kind": "hoop"
         },
         {
           "label": "Torre Eiffel · 330 m",
-          "mm": 330000
+          "mm": 330000,
+          "kind": "tower"
         },
         {
           "label": "Everest · 8.849 m",
-          "mm": 8849000
+          "mm": 8849000,
+          "kind": "mountain"
         },
         {
           "label": "Estación Espacial · 400 km",
-          "mm": 400000000
+          "mm": 400000000,
+          "kind": "station"
         },
         {
           "label": "Luna · 384.400 km",
           "mm": 384400000000,
+          "kind": "moon",
           "hl": true
         }
       ],
       "source": "Cálculo 0,1 mm × 2^n. Canasta 3,05 m (reglamento FIBA); Torre Eiffel 330 m (toureiffel.paris); Everest 8.849 m (medición China–Nepal 2020); EEI ~400 km (NASA); Luna 384.400 km de media (NASA Moon Fact Sheet)",
-      "axisNote": "Cada raya = 1 doblez"
+      "step": 0.3
     },
     {
       "type": "compare",
