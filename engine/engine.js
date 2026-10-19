@@ -478,6 +478,75 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       card(sc.right, B, hB, y + hA + gap, d2, C.good, 1, "compare.right");
     },
 
+    // Duplicar: una barra que crece en escala logarítmica, doblez a doblez, y va pasando marcas reales.
+    // base (grosor inicial en mm) · to (nº de dobleces) · marks: [{label, mm, hl?}] · countLabel · sizeLabel · source
+    doubling(sc, lt, d) {
+      const base = sc.base || 0.1, to = sc.to || 42, from = sc.from || 0;
+      const t0 = sc.startAt ?? 0.6, t1 = Math.max(t0 + 1, d - (sc.hold ?? 2.2));
+      // Empieza despacio y acelera, como la propia duplicación.
+      const p = clamp((lt - t0) / (t1 - t0));
+      const n = Math.floor(from + (to - from) * (p * p * 0.35 + p * 0.65) + 1e-9);
+      const nf = from + (to - from) * (p * p * 0.35 + p * 0.65);
+      const mm = base * Math.pow(2, n);
+      // HUD
+      const hudY = SAFE.top + 10, hudH = 170, gap = 24, hw = (CW - gap) / 2;
+      const box = (x, label, value, col, key) => {
+        ctx.fillStyle = C.surface; roundRect(ctx, x, hudY, hw, hudH, 24); ctx.fill();
+        ctx.strokeStyle = hexA(C.muted, 0.35); ctx.lineWidth = 2; roundRect(ctx, x, hudY, hw, hudH, 24); ctx.stroke();
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillStyle = C.muted; ctx.font = font(400, 34); ctx.fillText(label, x + hw / 2, hudY + 44);
+        let sz = 72; ctx.font = font(800, sz);
+        while (ctx.measureText(value).width > hw - 40 && sz > 30) { sz -= 4; ctx.font = font(800, sz); }
+        ctx.fillStyle = col; ctx.fillText(value, x + hw / 2, hudY + 112);
+        if (collect) collect.push({ scene: currentLabel, label: key, x, y: hudY, w: hw, h: hudH });
+      };
+      ctx.save();
+      ctx.globalAlpha *= clamp(lt / 0.3);
+      box(SAFE.left, sc.countLabel || "Dobleces", String(n), C.text, "doubling.count");
+      box(SAFE.left + hw + gap, sc.sizeLabel || "Grosor", fmtLen(mm), C.accent, "doubling.size");
+      // Eje logarítmico
+      const yB = SAFE.bottom - (sc.axisNote ? 90 : 40), yT = hudY + hudH + 110;
+      const lo = Math.log10(base), hi = Math.log10(base * Math.pow(2, to)) + 0.15;
+      const Y = (v) => yB - ((Math.log10(v) - lo) / (hi - lo)) * (yB - yT);
+      const barX = SAFE.left + 30, barW = 110;
+      ctx.strokeStyle = hexA(C.muted, 0.5); ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(barX - 20, yB); ctx.lineTo(SAFE.right, yB); ctx.stroke();
+      // Barra: una capa por doblez (en escala log cada doblez mide lo mismo)
+      const smooth = base * Math.pow(2, Math.min(nf, to));
+      const top = Y(Math.max(base, smooth));
+      ctx.fillStyle = hexA(C.accent, 0.9);
+      ctx.fillRect(barX, top, barW, yB - top);
+      ctx.strokeStyle = hexA(C.bg, 0.55); ctx.lineWidth = 2;
+      for (let k = 1; k <= n; k++) { const y = Y(base * Math.pow(2, k)); if (y > top) { ctx.beginPath(); ctx.moveTo(barX, y); ctx.lineTo(barX + barW, y); ctx.stroke(); } }
+      if (sc.axisNote) {
+        ctx.font = font(400, 36); ctx.fillStyle = C.muted; ctx.textAlign = "left"; ctx.textBaseline = "top";
+        ctx.fillText(sc.axisNote, barX - 20, yB + 24);
+        if (collect) collect.push({ scene: currentLabel, label: "doubling.axisNote", x: barX - 20, y: yB + 24, w: ctx.measureText(sc.axisNote).width, h: 44 });
+      }
+      // Marcas reales
+      for (const [i, m] of (sc.marks || []).entries()) {
+        const y = Y(m.mm);
+        const passed = mm >= m.mm;
+        const col = passed ? (m.hl ? C.accent2 : C.accent) : C.muted;
+        ctx.save();
+        ctx.setLineDash([10, 10]); ctx.strokeStyle = hexA(col, passed ? 0.9 : 0.45); ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(barX - 20, y); ctx.lineTo(SAFE.right, y); ctx.stroke();
+        ctx.restore();
+        const sz = 40;
+        ctx.font = font(700, sz);
+        const tw = ctx.measureText(m.label).width, ph = sz * 1.7, pw = tw + sz * 1.4;
+        const px = SAFE.right - pw, py = y - ph - 10;
+        ctx.fillStyle = passed ? col : C.bg;
+        roundRect(ctx, px, py, pw, ph, ph / 2); ctx.fill();
+        ctx.strokeStyle = col; ctx.lineWidth = 3; roundRect(ctx, px, py, pw, ph, ph / 2); ctx.stroke();
+        ctx.fillStyle = passed ? C.onAccent : col;
+        ctx.textAlign = "left"; ctx.textBaseline = "middle";
+        ctx.fillText(m.label, px + sz * 0.7, py + ph / 2 + 1);
+        if (collect) collect.push({ scene: currentLabel, label: `doubling.mark${i + 1}`, x: px, y: py, w: pw, h: ph });
+      }
+      ctx.restore();
+    },
+
     // Expediente: ficha de papel con datos a máquina y sello final.
     // rows: [{k, v}] · title · stamp · cps (caracteres por segundo)
     casefile(sc, lt, d) {
@@ -973,10 +1042,23 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
   };
 }
 
+// Longitud en mm -> texto legible en español: "0,4 mm", "10 cm", "107 km", "439.805 km".
+function fmtLen(mm) {
+  const num = (v, dec) => {
+    const [i, f] = v.toFixed(dec).split(".");
+    const g = i.length > 3 ? i.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : i;
+    return f ? `${g},${f}` : g;
+  };
+  if (mm < 10) return `${num(mm, mm < 1 ? 1 : 1)} mm`;
+  if (mm < 1000) return `${num(mm / 10, mm < 100 ? 1 : 0)} cm`;
+  if (mm < 1e6) return `${num(mm / 1000, mm < 1e4 ? 1 : 0)} m`;
+  return `${num(mm / 1e6, mm < 1e7 ? 1 : 0)} km`;
+}
+
 function hexA(hex, a) {
   const h = hex.replace("#", "");
   const n = parseInt(h.length === 3 ? h.split("").map((c) => c + c).join("") : h, 16);
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
 }
 
-export const SCENE_TYPES = ["hook", "statement", "list", "number", "compare", "casefile", "theories", "panel", "cta"];
+export const SCENE_TYPES = ["hook", "statement", "list", "number", "compare", "doubling", "casefile", "theories", "panel", "cta"];
