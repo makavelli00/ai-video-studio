@@ -31,3 +31,9 @@ Nuevo dibujo `exercise` en el motor: figura de trazo en la prensa a 45° y en la
 Los dibujos entran con un iris opaco: con transparencia se veían los cruces de los trazos.
 check: 6 contadores a 0 · 4 avisos de lectura (los mismos más el beat 7, por 0,2 s).
 Veredicto: ✅ exportar.
+
+## Vuelta 4 (2026-10-19, petición de pablo: textos y gráficas más llamativos)
+Barra a 46 px con las palabras clave en caja blanca. Etiqueta en mayúsculas y negrita. Cifras de `compare` más grandes y contando desde 0, con la ganadora en caja roja (beats 3 y 6). Barras más anchas, cifras a 70 px que cuentan y columna rosa detrás de las destacadas. Sin @, la línea DATA baja y el dibujo gana sitio.
+Fallo: el rotulador partía «casi empate» entre dos líneas y dejaba huecos entre palabras. Arreglo: espacio duro dentro de la frase destacada; `parseRich` ya no corta por él.
+check: 6 contadores a 0 · 4 avisos de lectura.
+Veredicto: ✅ exportar.

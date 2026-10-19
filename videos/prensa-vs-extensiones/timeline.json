@@ -31,7 +31,7 @@
     {
       "type": "ficha",
       "duration": 4.71,
-      "bar": "En el cuádriceps entero, casi empate.",
+      "bar": "En el cuádriceps entero, *casi empate*.",
       "label": "volumen tras 12 semanas",
       "viz": {
         "kind": "compare",
@@ -52,7 +52,7 @@
     {
       "type": "ficha",
       "duration": 5.39,
-      "bar": "Salvo un músculo: el *recto femoral* solo creció con extensiones.",
+      "bar": "Salvo un músculo: el *recto femoral* solo creció con extensiones.",
       "label": "recto femoral",
       "viz": {
         "kind": "compare",
@@ -65,7 +65,8 @@
           },
           {
             "label": "Extensiones",
-            "value": "+13,2 %"
+            "value": "+13,2 %",
+            "win": true
           }
         ]
       },
@@ -74,7 +75,7 @@
     {
       "type": "ficha",
       "duration": 5.39,
-      "bar": "Es el único de los cuatro que cruza dos articulaciones.",
+      "bar": "Es el único de los cuatro que cruza *dos articulaciones*.",
       "label": "recto femoral",
       "viz": {
         "kind": "counter",
@@ -89,7 +90,7 @@
     {
       "type": "ficha",
       "duration": 6.06,
-      "bar": "Pero la prensa ganó en lo demás: glúteo y aductor solo crecieron con ella.",
+      "bar": "Pero la prensa ganó en lo demás: *glúteo* y *aductor* solo crecieron con ella.",
       "label": "crecimiento en 12 semanas (%)",
       "viz": {
         "kind": "bars",
@@ -128,14 +129,15 @@
     {
       "type": "ficha",
       "duration": 5.39,
-      "bar": "Sumando todo, la pierna creció más con prensa.",
+      "bar": "Sumando todo, la pierna creció *más con prensa*.",
       "label": "músculo total de la pierna",
       "viz": {
         "kind": "compare",
         "items": [
           {
             "label": "Prensa",
-            "value": "+6,3 %"
+            "value": "+6,3 %",
+            "win": true
           },
           {
             "label": "Extensiones",
@@ -149,7 +151,7 @@
     {
       "type": "ficha",
       "duration": 5.39,
-      "bar": "Ojo: eran principiantes y solo 17. En gente entrenada puede salir distinto.",
+      "bar": "Ojo: eran *principiantes* y solo 17. En gente entrenada puede salir distinto.",
       "label": "en resumen",
       "viz": {
         "kind": "exercise",

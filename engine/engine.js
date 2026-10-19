@@ -85,7 +85,7 @@ function mergeStyle(style = {}) {
 export function parseRich(text = "") {
   const words = [];
   let hl = false;
-  for (const raw of String(text).split(/\s+/)) {
+  for (const raw of String(text).split(/[ \t\n\r]+/)) {
     if (!raw) continue;
     const segs = [];
     for (const part of raw.split(/(\*)/)) {
@@ -241,6 +241,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     const {
       x, y, align = "center", color = C.text,
       t = Infinity, delay = 0, stagger = S.motion.wordStagger, label = "texto", hlColor = C.accent,
+      markBg = C.accent, markFg = C.onAccent,
     } = opts;
     const L = opts.layout || layoutRich(opts);
     const marker = L.hlMode === "marker";
@@ -266,10 +267,10 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
           if (s.hl && marker) {
             const left = sx - (s.startRun ? L.padX : 0);
             const right = sx + s.width + (s.endRun ? L.padX : 0) + (si === wd.segs.length - 1 && wd.joinNext ? L.space : 0);
-            ctx.fillStyle = C.accent;
+            ctx.fillStyle = markBg;
             roundRect(ctx, left, mid - L.size * 0.56 + dy, Math.max(0, (right - left) * me), L.size * 1.12, L.size * 0.14);
             ctx.fill();
-            ctx.fillStyle = me > 0.35 ? C.onAccent : color;
+            ctx.fillStyle = me > 0.35 ? markFg : color;
           } else {
             ctx.fillStyle = s.hl ? hlColor : color;
           }
@@ -909,20 +910,29 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     const int = i.length > 3 ? i.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : i;
     return (v < 0 ? "−" : "") + int + (f ? "," + f : "");
   };
+  // "+13,2 %" a mitad de cuenta (p de 0 a 1); si no es una cifra, el texto tal cual
+  const countUp = (str, p) => {
+    const m = /^([+−-]?)(\d{1,3}(?:\.\d{3})+|\d+(?:,\d+)?)(.*)$/.exec(String(str));
+    if (!m || p >= 1) return String(str);
+    const thousands = m[2].includes(".");
+    const dec = thousands ? 0 : (m[2].split(",")[1] || "").length;
+    const n = parseFloat(thousands ? m[2].replace(/\./g, "") : m[2].replace(",", "."));
+    return m[1] + fmtNum(n * p, dec) + m[3];
+  };
   const barText = (s) => (s.type === "cta" ? s.text : s.bar) || "";
   const ED = (() => {
     if (!EDITORIAL) return null;
     const head = layoutRich({ text: timeline.headline || "", maxWidth: CW, size: timeline.headlineSize || 84, weight: 900, lh: 1.04, hlMode: "color", face: "serif" });
     const catY = SAFE.top, headY = catY + 56;
     const barY = headY + head.h + 24;
-    const bar = { padX: 26, padY: 18, size: 40 };
-    const barLayout = (s) => (barText(s) ? layoutRich({ text: barText(s), maxWidth: CW - bar.padX * 2, size: bar.size, weight: 700, lh: 1.24, hlMode: "color" }) : null);
+    const bar = { padX: 30, padY: 22, size: 46 };
+    const barLayout = (s) => (barText(s) ? layoutRich({ text: barText(s), maxWidth: CW - bar.padX * 2, size: bar.size, weight: 800, lh: 1.3, hlMode: "marker" }) : null);
     const barH = (L) => (L ? L.h + bar.padY * 2 : 0);
     const layouts = sched.map((e) => barLayout(e.s));
     const maxBar = Math.max(0, ...layouts.map(barH));
     const labelY = barY + maxBar + 28;
     const handleY = SAFE.bottom - 36;
-    const dataY = handleY - 24 - 2 * 28 * 1.3;
+    const dataY = (S.brand.handle ? handleY - 24 : SAFE.bottom) - 2 * 28 * 1.3;
     const vizTop = labelY + 34 + 26, vizBottom = dataY - 36;
     return { head, catY, headY, barY, bar, layouts, barH, labelY, dataY, handleY, area: { x: SAFE.left, y: vizTop, w: CW, h: vizBottom - vizTop } };
   })();
@@ -983,25 +993,26 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const items = v.items || [];
       const max = v.max || Math.max(...items.map((it) => it.value));
       const top = A.y + (v.caption ? 60 : 0) + 74, base = A.y + A.h - 92;
-      const colW = A.w / items.length, bw = Math.min(150, colW * 0.56);
+      const colW = A.w / items.length, bw = Math.min(170, colW * 0.62);
       if (v.caption) monoText(v.caption.toUpperCase(), A.x, A.y, { size: 26, color: C.muted, label: "viz.caption", spacing: 1 });
       ctx.fillStyle = C.text; ctx.fillRect(A.x, base, A.w, 3);
       items.forEach((it, i) => {
         const cx = A.x + colW * (i + 0.5);
         const g = cont ? 1 : spring(lt - 0.2 - i * 0.22, SPRINGS.settle);
         const h = (base - top) * (it.value / max) * g;
+        if (it.hl) { ctx.fillStyle = C.barHl || "#FFD9D3"; ctx.fillRect(cx - colW / 2 + 8, top - 90, colW - 16, (base - top + 90) * clamp(g)); }
         ctx.fillStyle = it.hl ? C.accent : C.soft || "#E6E4DC";
         ctx.fillRect(cx - bw / 2, base - h, bw, h);
         const a = cont ? 1 : clamp((lt - 0.45 - i * 0.22) / 0.25);
         ctx.save(); ctx.globalAlpha *= a;
-        const txt = it.text ?? fmtNum(it.value);
-        ctx.font = serif(900, 56);
+        const txt = countUp(it.text ?? fmtNum(it.value), cont ? 1 : clamp(g));
+        ctx.font = serif(900, 70);
         ctx.fillStyle = it.hl ? C.accent : C.text;
         ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
         ctx.fillText(txt, cx, base - (base - top) * (it.value / max) - 18);
         const tw = ctx.measureText(txt).width;
-        reg(`viz.bar${i + 1}.value`, cx - tw / 2, base - (base - top) * (it.value / max) - 66, tw, 52);
-        monoText(String(it.label), cx, base + 16, { size: 28, align: "center", label: `viz.bar${i + 1}.label` });
+        reg(`viz.bar${i + 1}.value`, cx - tw / 2, base - (base - top) * (it.value / max) - 80, tw, 64);
+        monoText(String(it.label), cx, base + 16, { size: 30, weight: 700, align: "center", label: `viz.bar${i + 1}.label` });
         if (it.sub) monoText(String(it.sub), cx, base + 52, { size: 22, color: C.muted, align: "center", label: `viz.bar${i + 1}.sub` });
         ctx.restore();
       });
@@ -1056,21 +1067,33 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const items = v.items || [];
       const colW = A.w / items.length;
       // un solo tamaño para todas las columnas (el de la que menos cabe), para que se lean como pareja
-      let size = v.size || 150;
+      let size = v.size || 176;
       ctx.font = serif(900, size);
-      while (items.some((it) => ctx.measureText(it.value).width > colW - 30) && size > 60) { size -= 6; ctx.font = serif(900, size); }
+      const fits = (it) => ctx.measureText(it.value).width + (it.win ? size * 0.36 : 0) <= colW - 70;
+      while (items.some((it) => !fits(it)) && size > 60) { size -= 6; ctx.font = serif(900, size); }
       items.forEach((it, i) => {
         const cx = A.x + colW * (i + 0.5);
         const a = cont ? 1 : clamp((lt - 0.15 - i * 0.35) / 0.3);
         const e = cont ? 1 : spring(lt - 0.15 - i * 0.35, SPRINGS.land);
         ctx.save(); ctx.globalAlpha *= a;
         const cy = A.y + A.h * 0.5;
-        tagPill(String(it.label).toUpperCase(), cx, cy - 170, { size: 28, label: `viz.col${i + 1}.label` });
+        tagPill(String(it.label).toUpperCase(), cx, cy - size * 0.55 - 70, { size: 30, label: `viz.col${i + 1}.label` });
         ctx.font = serif(900, size);
-        ctx.fillStyle = it.dim ? C.muted : C.accent;
-        ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-        ctx.fillText(it.value, cx, cy + size * 0.35 + (1 - e) * 30);
         const vw = ctx.measureText(it.value).width;
+        const pc = cont ? 1 : easeOutCubic(clamp((lt - 0.2 - i * 0.35) / 0.9));
+        const vy = cy + size * 0.35 + (1 - e) * 30;
+        if (it.win) {
+          // la que gana: caja roja que salta cuando termina de contar
+          const b = cont ? 1 : spring(lt - 1.0 - i * 0.35, SPRINGS.bounce);
+          const bw = vw + size * 0.36, bh = size * 1.02;
+          ctx.save(); ctx.translate(cx, cy - size * 0.02); ctx.scale(b, b);
+          ctx.fillStyle = C.accent; ctx.fillRect(-bw / 2, -bh / 2, bw, bh);
+          ctx.restore();
+        }
+        const boxed = it.win && (cont || lt - 1.0 - i * 0.35 > 0.08);
+        ctx.fillStyle = boxed ? C.onAccent : it.dim ? C.muted : C.accent;
+        ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+        ctx.fillText(countUp(it.value, pc), cx, vy);
         reg(`viz.col${i + 1}.value`, cx - vw / 2, cy - size * 0.45, vw, size * 0.82);
         if (it.caption) wrapMono(it.caption.toUpperCase(), colW - 40, 24, 500).forEach((ln, k) =>
           monoText(ln, cx, cy + size * 0.35 + 30 + k * 30, { size: 24, color: C.muted, align: "center", label: `viz.col${i + 1}.cap${k}` }));
@@ -1210,14 +1233,14 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const same = prev && barText(prev) === barText(s), sameNext = next && barText(next) === barText(s);
       ctx.save();
       ctx.globalAlpha *= layerAlpha(same, sameNext, lt, d, isLast, intro + 0.08);
-      drawRich({ layout: L, x: SAFE.left + ED.bar.padX, y: ED.barY + ED.bar.padY, align: "left", t: same ? Infinity : lt, delay: intro + 0.08, stagger: 0.012, color: C.onAccent, hlColor: C.barHl || C.onAccent, label: "barra", maxWidth: CW - ED.bar.padX * 2 });
+      drawRich({ layout: L, x: SAFE.left + ED.bar.padX, y: ED.barY + ED.bar.padY, align: "left", t: same ? Infinity : lt, delay: intro + 0.08, stagger: 0.012, color: C.onAccent, markBg: C.onAccent, markFg: C.accent, label: "barra", maxWidth: CW - ED.bar.padX * 2 });
       ctx.restore();
     }
     // etiqueta del beat
     if (s.label) {
       ctx.save();
       ctx.globalAlpha *= layerAlpha(prev?.label === s.label, next?.label === s.label, lt, d, isLast, intro + 0.2);
-      monoText(s.label, SAFE.left, ED.labelY, { size: 30, color: C.text, label: "etiqueta" });
+      monoText(s.label.toUpperCase(), SAFE.left, ED.labelY, { size: 30, weight: 700, color: C.text, label: "etiqueta", spacing: 2 });
       ctx.restore();
     }
     // dibujo
