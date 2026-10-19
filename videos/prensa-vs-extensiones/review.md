@@ -37,3 +37,8 @@ Barra a 46 px con las palabras clave en caja blanca. Etiqueta en mayúsculas y n
 Fallo: el rotulador partía «casi empate» entre dos líneas y dejaba huecos entre palabras. Arreglo: espacio duro dentro de la frase destacada; `parseRich` ya no corta por él.
 check: 6 contadores a 0 · 4 avisos de lectura.
 Veredicto: ✅ exportar.
+
+## Vuelta 5 (2026-10-19, petición de pablo: dibujos fijos y gráficas al lado)
+`figures` en el timeline: prensa arriba y extensiones abajo, todo el reel, con las repeticiones al reloj global. Cada beat pone sus cifras en la fila de su ejercicio (`rows`), con el músculo que creció en rojo (glúteo en el beat 5). Titular a 58 px y barras de los beats 1 y 5 acortadas para que quepan los dibujos. El contador y el botón se centran en su zona y no en la pantalla.
+check: 6 contadores a 0 · 2 avisos de lectura.
+Veredicto: ✅ exportar.

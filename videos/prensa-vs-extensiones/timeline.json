@@ -5,24 +5,40 @@
   "height": 1920,
   "audio": "music-loop.wav",
   "category": "Entrenamiento · Pierna",
-  "headlineSize": 74,
+  "headlineSize": 58,
   "headline": "La *prensa* hizo crecer más la pierna. Las *extensiones*, el músculo que la prensa no toca.",
+  "figures": [
+    {
+      "move": "prensa",
+      "label": "Prensa"
+    },
+    {
+      "move": "extension",
+      "label": "Extensiones"
+    }
+  ],
   "scenes": [
     {
       "type": "ficha",
       "duration": 8.78,
-      "bar": "17 principiantes, 12 semanas. Una pierna hizo prensa; la otra, extensiones.",
+      "bar": "17 principiantes, 12 semanas. Cada pierna hizo un ejercicio.",
       "label": "5 × 10 al 70 %, 2 días por semana",
       "viz": {
-        "kind": "exercise",
+        "kind": "rows",
         "items": [
           {
-            "label": "Pierna A · Prensa",
-            "move": "prensa"
+            "stats": [
+              {
+                "value": "Pierna A"
+              }
+            ]
           },
           {
-            "label": "Pierna B · Extensión",
-            "move": "extension"
+            "stats": [
+              {
+                "value": "Pierna B"
+              }
+            ]
           }
         ]
       },
@@ -34,16 +50,23 @@
       "bar": "En el cuádriceps entero, *casi empate*.",
       "label": "volumen tras 12 semanas",
       "viz": {
-        "kind": "compare",
-        "id": "quad",
+        "kind": "rows",
         "items": [
           {
-            "label": "Prensa",
-            "value": "+4,9 %"
+            "stats": [
+              {
+                "value": "+4,9 %",
+                "caption": "cuádriceps"
+              }
+            ]
           },
           {
-            "label": "Extensiones",
-            "value": "+7,1 %"
+            "stats": [
+              {
+                "value": "+7,1 %",
+                "caption": "cuádriceps"
+              }
+            ]
           }
         ]
       },
@@ -55,18 +78,25 @@
       "bar": "Salvo un músculo: el *recto femoral* solo creció con extensiones.",
       "label": "recto femoral",
       "viz": {
-        "kind": "compare",
+        "kind": "rows",
         "items": [
           {
-            "label": "Prensa",
-            "value": "+1,1 %",
-            "dim": true,
-            "caption": "no significativo"
+            "stats": [
+              {
+                "value": "+1,1 %",
+                "dim": true,
+                "caption": "no significativo"
+              }
+            ]
           },
           {
-            "label": "Extensiones",
-            "value": "+13,2 %",
-            "win": true
+            "stats": [
+              {
+                "value": "+13,2 %",
+                "win": true,
+                "caption": "recto femoral"
+              }
+            ]
           }
         ]
       },
@@ -90,41 +120,52 @@
     {
       "type": "ficha",
       "duration": 6.06,
-      "bar": "Pero la prensa ganó en lo demás: *glúteo* y *aductor* solo crecieron con ella.",
-      "label": "crecimiento en 12 semanas (%)",
+      "bar": "*Glúteo* y *aductor* solo crecieron con la prensa.",
+      "label": "crecimiento en 12 semanas",
       "viz": {
-        "kind": "bars",
-        "max": 16,
+        "kind": "rows",
         "items": [
           {
-            "label": "Glúteo",
-            "sub": "prensa",
-            "value": 15.4,
-            "text": "+15,4",
-            "hl": true
+            "stats": [
+              {
+                "value": "+15,4 %",
+                "win": true,
+                "caption": "glúteo"
+              },
+              {
+                "value": "+6,2 %",
+                "win": true,
+                "caption": "aductor"
+              }
+            ]
           },
           {
-            "label": "Glúteo",
-            "sub": "extensión",
-            "value": 0.2,
-            "text": "≈0"
-          },
-          {
-            "label": "Aductor",
-            "sub": "prensa",
-            "value": 6.2,
-            "text": "+6,2",
-            "hl": true
-          },
-          {
-            "label": "Aductor",
-            "sub": "extensión",
-            "value": 0.05,
-            "text": "≈0"
+            "stats": [
+              {
+                "value": "≈0",
+                "dim": true,
+                "caption": "glúteo"
+              },
+              {
+                "value": "≈0",
+                "dim": true,
+                "caption": "aductor"
+              }
+            ]
           }
         ]
       },
-      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia"
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia",
+      "fig": [
+        {
+          "hl": [
+            "gluteo"
+          ]
+        },
+        {
+          "hl": []
+        }
+      ]
     },
     {
       "type": "ficha",
@@ -132,21 +173,42 @@
       "bar": "Sumando todo, la pierna creció *más con prensa*.",
       "label": "músculo total de la pierna",
       "viz": {
-        "kind": "compare",
+        "kind": "rows",
         "items": [
           {
-            "label": "Prensa",
-            "value": "+6,3 %",
-            "win": true
+            "stats": [
+              {
+                "value": "+6,3 %",
+                "win": true,
+                "caption": "pierna entera"
+              }
+            ]
           },
           {
-            "label": "Extensiones",
-            "value": "+2,8 %",
-            "dim": true
+            "stats": [
+              {
+                "value": "+2,8 %",
+                "dim": true,
+                "caption": "pierna entera"
+              }
+            ]
           }
         ]
       },
-      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia"
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia",
+      "fig": [
+        {
+          "hl": [
+            "cuadriceps",
+            "gluteo"
+          ]
+        },
+        {
+          "hl": [
+            "cuadriceps"
+          ]
+        }
+      ]
     },
     {
       "type": "ficha",
@@ -154,25 +216,38 @@
       "bar": "Ojo: eran *principiantes* y solo 17. En gente entrenada puede salir distinto.",
       "label": "en resumen",
       "viz": {
-        "kind": "exercise",
+        "kind": "rows",
         "items": [
           {
-            "label": "Recto femoral",
-            "move": "extension",
-            "caption": "extensiones"
+            "stats": [
+              {
+                "value": "Toda la pierna"
+              }
+            ]
           },
           {
-            "label": "Toda la pierna",
-            "move": "prensa",
-            "hl": [
-              "cuadriceps",
-              "gluteo"
-            ],
-            "caption": "prensa"
+            "stats": [
+              {
+                "value": "Recto femoral"
+              }
+            ]
           }
         ]
       },
-      "data": "Límites según los autores: solo principiantes · cadera fija a 90°"
+      "data": "Límites según los autores: solo principiantes · cadera fija a 90°",
+      "fig": [
+        {
+          "hl": [
+            "cuadriceps",
+            "gluteo"
+          ]
+        },
+        {
+          "hl": [
+            "cuadriceps"
+          ]
+        }
+      ]
     },
     {
       "type": "cta",

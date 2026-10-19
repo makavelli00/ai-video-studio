@@ -934,7 +934,12 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     const handleY = SAFE.bottom - 36;
     const dataY = (S.brand.handle ? handleY - 24 : SAFE.bottom) - 2 * 28 * 1.3;
     const vizTop = labelY + 34 + 26, vizBottom = dataY - 36;
-    return { head, catY, headY, barY, bar, layouts, barH, labelY, dataY, handleY, area: { x: SAFE.left, y: vizTop, w: CW, h: vizBottom - vizTop } };
+    const area = { x: SAFE.left, y: vizTop, w: CW, h: vizBottom - vizTop };
+    // dibujos fijos (timeline.figures): columna a la izquierda todo el vídeo; el dibujo del beat va a su lado
+    const figs = timeline.figures || [];
+    const figW = figs.length ? Math.round(CW * 0.44) : 0;
+    const side = figs.length ? { x: SAFE.left + figW + 30, y: area.y, w: CW - figW - 30, h: area.h } : area;
+    return { head, catY, headY, barY, bar, layouts, barH, labelY, dataY, handleY, area, side, figs, figW };
   })();
 
   const reg = (label, x, y, w, h) => { if (collect) collect.push({ scene: currentLabel, label, x, y, w, h }); };
@@ -962,6 +967,82 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
   const layerAlpha = (same, sameNext, lt, d, isLast, delay = 0) =>
     (same ? 1 : clamp((lt - delay) / 0.25)) * (sameNext || isLast ? 1 : 1 - clamp((lt - (d - 0.2)) / 0.2));
 
+  // Dibujo de un ejercicio (vista lateral, figura de trazo) en la caja de centro (cx, cy).
+  // Postura en unidades (muslo = espinilla = 1, y hacia arriba); p: 0 flexión, 1 extensión.
+  const POSE = {
+    prensa(p) {
+      const H = [0, 0], dir = [Math.SQRT1_2, Math.SQRT1_2], n = [-Math.SQRT1_2, Math.SQRT1_2];
+      const d = 1.3 + 0.62 * p;
+      const F = [dir[0] * d, dir[1] * d];
+      const k = Math.sqrt(Math.max(0, 1 - (d / 2) ** 2));
+      const K = [F[0] / 2 + n[0] * k, F[1] / 2 + n[1] * k];
+      const ta = (150 * Math.PI) / 180, S = [Math.cos(ta) * 1.15, Math.sin(ta) * 1.15];
+      const pl = (o) => [F[0] + 0.1 * dir[0] + n[0] * o, F[1] + 0.1 * dir[1] + n[1] * o];
+      return {
+        H, K, F, S, head: [S[0] + Math.cos(ta) * 0.32, S[1] + Math.sin(ta) * 0.32 + 0.05],
+        hand: [0.05, -0.18], elbow: [(S[0] + 0.05) / 2 - 0.05, (S[1] - 0.18) / 2 - 0.2],
+        toe: [F[0] + n[0] * 0.3, F[1] + n[1] * 0.3],
+        machine: [
+          [[-1.55, -0.25], [0.15, -0.25]], // asiento
+          [[-0.15, -0.3], [-1.55, 0.27]], // respaldo
+          [[dir[0] * 1.25 - n[0] * 0.55, dir[1] * 1.25 - n[1] * 0.55], [dir[0] * 2.3 - n[0] * 0.55, dir[1] * 2.3 - n[1] * 0.55]], // raíl a 45°
+          [pl(-0.55), pl(0.45)], // plataforma
+        ],
+        box: [-1.6, -0.4, 2.05, 2.0],
+      };
+    },
+    extension(p) {
+      const H = [0, 0], K = [1, 0];
+      const a = (-88 + 80 * p) * Math.PI / 180;
+      const F = [K[0] + Math.cos(a), K[1] + Math.sin(a)];
+      const ta = (98 * Math.PI) / 180, S = [Math.cos(ta) * 1.15, Math.sin(ta) * 1.15];
+      const pad = [F[0] + Math.cos(a) * 0.02 - Math.sin(a) * 0.17, F[1] + Math.sin(a) * 0.02 + Math.cos(a) * 0.17];
+      return {
+        H, K, F, S, head: [S[0] + Math.cos(ta) * 0.32, S[1] + Math.sin(ta) * 0.32 + 0.05],
+        hand: [0.15, -0.12], elbow: [(S[0] + 0.15) / 2 + 0.12, (S[1] - 0.12) / 2 - 0.1],
+        toe: [F[0] + Math.cos(a + Math.PI / 2) * -0.28, F[1] + Math.sin(a + Math.PI / 2) * -0.28],
+        pad,
+        machine: [
+          [[-0.35, -0.27], [1.05, -0.27]], // asiento
+          [[-0.38, -0.25], [-0.6, 1.25]], // respaldo
+          [[0.35, -0.27], [0.35, -1.25]], // poste
+          [[1.05, 0], pad], // palanca desde la rodilla
+        ],
+        box: [-0.8, -1.3, 2.15, 1.75],
+      };
+    },
+  };
+  const repPhase = (t, T = 2.4) => 0.5 - 0.5 * Math.cos((2 * Math.PI * Math.max(0, t)) / T);
+  function drawFigure({ move, hl = ["cuadriceps"], cx, cy, boxW, boxH, p, iris = 1, label = "fig" }) {
+    const pose = POSE[move];
+    if (!pose || iris <= 0) return;
+    const P = pose(p);
+    const [bx0, by0, bx1, by1] = P.box;
+    const u = Math.min(boxW / (bx1 - bx0), boxH / (by1 - by0));
+    const ox = cx - ((bx0 + bx1) / 2) * u, oy = cy + ((by0 + by1) / 2) * u;
+    const X = (q) => [ox + q[0] * u, oy - q[1] * u];
+    const seg = (q0, q1, w, color) => {
+      const [x0, y0] = X(q0), [x1, y1] = X(q1);
+      ctx.strokeStyle = color; ctx.lineWidth = w * u; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    };
+    const H = new Set(hl);
+    ctx.save();
+    // entra con un iris (opaco: con transparencia se ven los cruces de los trazos)
+    if (iris < 1) { ctx.beginPath(); ctx.arc(cx, cy, iris * Math.hypot(boxW, boxH) * 0.6, 0, Math.PI * 2); ctx.clip(); }
+    P.machine.forEach(([q0, q1], j) => seg(q0, q1, move === "prensa" && j === 3 ? 0.13 : 0.09, C.soft || "#E6E4DC"));
+    if (P.pad) { const [px, py] = X(P.pad); ctx.fillStyle = C.soft || "#E6E4DC"; ctx.beginPath(); ctx.arc(px, py, 0.13 * u, 0, Math.PI * 2); ctx.fill(); }
+    // glúteo: detrás de la cadera, del lado del asiento, debajo del tronco y del muslo
+    if (H.has("gluteo")) { const [gx, gy] = X([P.H[0] - 0.14, P.H[1] - 0.12]); ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(gx, gy, 0.25 * u, 0, Math.PI * 2); ctx.fill(); }
+    seg(P.S, P.elbow, 0.12, C.text); seg(P.elbow, P.hand, 0.11, C.text);
+    seg(P.H, P.S, 0.36, C.text);
+    seg(P.K, P.F, 0.17, C.text); seg(P.F, P.toe, 0.1, C.text);
+    seg(P.H, P.K, 0.3, H.has("cuadriceps") ? C.accent : C.text);
+    const [hx, hy] = X(P.head); ctx.fillStyle = C.text; ctx.beginPath(); ctx.arc(hx, hy, 0.21 * u, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    reg(label, ox + bx0 * u, oy - by1 * u, (bx1 - bx0) * u, (by1 - by0) * u);
+  }
+
   const VIZ = {
     // Cifra grande que cuenta. value · from? · prefix? · suffix? · decimals? · caption? · sub?
     counter(v, lt, A, cont) {
@@ -980,12 +1061,12 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       ctx.font = serif(900, size); // layoutRich del sub cambia la fuente
       ctx.fillStyle = v.dim ? C.muted : C.accent;
       ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-      ctx.fillText(shown, W / 2, y + size * 0.78);
+      ctx.fillText(shown, (A.x + A.w / 2), y + size * 0.78);
       const fw = ctx.measureText(final).width;
-      reg("viz.counter", W / 2 - fw / 2, y, fw, size * 0.82);
+      reg("viz.counter", (A.x + A.w / 2) - fw / 2, y, fw, size * 0.82);
       y += size * 0.82 + Math.max(26, size * 0.18); // deja sitio a comas y descendentes
-      if (v.caption) { monoText(v.caption.toUpperCase(), W / 2, y, { size: 34, align: "center", label: "viz.caption", spacing: 2 }); y += 34 * 1.15; }
-      if (sub) drawRich({ layout: sub, x: W / 2, y: y + 22, t: lt, delay: 0.5, stagger: 0.02, color: C.muted, label: "viz.sub", maxWidth: A.w - 80 });
+      if (v.caption) { monoText(v.caption.toUpperCase(), (A.x + A.w / 2), y, { size: 34, align: "center", label: "viz.caption", spacing: 2 }); y += 34 * 1.15; }
+      if (sub) drawRich({ layout: sub, x: (A.x + A.w / 2), y: y + 22, t: lt, delay: 0.5, stagger: 0.02, color: C.muted, label: "viz.sub", maxWidth: A.w - 80 });
     },
 
     // Barras verticales. items[{label, value, text?, sub?, hl?}] · max? · caption?
@@ -1101,96 +1182,61 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       });
     },
 
-    // Dibujo del ejercicio en movimiento (vista lateral, figura de trazo).
-    // items[{label, move: "prensa"|"extension", hl?: ["cuadriceps","gluteo"], caption?}] · period?
+    // Dibujos del ejercicio en columnas. items[{label, move: "prensa"|"extension", hl?, caption?}] · period?
     exercise(v, lt, A, cont) {
       const items = v.items || [];
       const colW = A.w / items.length;
-      const T = v.period || 2.4;
-      // Postura de cada máquina en unidades (muslo = espinilla = 1, y hacia arriba); p: 0 flexión, 1 extensión.
-      const POSE = {
-        prensa(p) {
-          const H = [0, 0], dir = [Math.SQRT1_2, Math.SQRT1_2], n = [-Math.SQRT1_2, Math.SQRT1_2];
-          const d = 1.3 + 0.62 * p;
-          const F = [dir[0] * d, dir[1] * d];
-          const k = Math.sqrt(Math.max(0, 1 - (d / 2) ** 2));
-          const K = [F[0] / 2 + n[0] * k, F[1] / 2 + n[1] * k];
-          const ta = (150 * Math.PI) / 180, S = [Math.cos(ta) * 1.15, Math.sin(ta) * 1.15];
-          const pl = (o) => [F[0] + 0.1 * dir[0] + n[0] * o, F[1] + 0.1 * dir[1] + n[1] * o];
-          return {
-            H, K, F, S, head: [S[0] + Math.cos(ta) * 0.32, S[1] + Math.sin(ta) * 0.32 + 0.05],
-            hand: [0.05, -0.18], elbow: [(S[0] + 0.05) / 2 - 0.05, (S[1] - 0.18) / 2 - 0.2],
-            toe: [F[0] + n[0] * 0.3, F[1] + n[1] * 0.3],
-            machine: [
-              [[-1.55, -0.25], [0.15, -0.25]], // asiento
-              [[-0.15, -0.3], [-1.55, 0.27]], // respaldo
-              [[dir[0] * 1.25 - n[0] * 0.55, dir[1] * 1.25 - n[1] * 0.55], [dir[0] * 2.3 - n[0] * 0.55, dir[1] * 2.3 - n[1] * 0.55]], // raíl a 45°
-              [pl(-0.55), pl(0.45)], // plataforma
-            ],
-            box: [-1.6, -0.4, 2.05, 2.0],
-          };
-        },
-        extension(p) {
-          const H = [0, 0], K = [1, 0];
-          const a = (-88 + 80 * p) * Math.PI / 180;
-          const F = [K[0] + Math.cos(a), K[1] + Math.sin(a)];
-          const ta = (98 * Math.PI) / 180, S = [Math.cos(ta) * 1.15, Math.sin(ta) * 1.15];
-          const pad = [F[0] + Math.cos(a) * 0.02 - Math.sin(a) * 0.17, F[1] + Math.sin(a) * 0.02 + Math.cos(a) * 0.17];
-          return {
-            H, K, F, S, head: [S[0] + Math.cos(ta) * 0.32, S[1] + Math.sin(ta) * 0.32 + 0.05],
-            hand: [0.15, -0.12], elbow: [(S[0] + 0.15) / 2 + 0.12, (S[1] - 0.12) / 2 - 0.1],
-            toe: [F[0] + Math.cos(a + Math.PI / 2) * -0.28, F[1] + Math.sin(a + Math.PI / 2) * -0.28],
-            pad,
-            machine: [
-              [[-0.35, -0.27], [1.05, -0.27]], // asiento
-              [[-0.38, -0.25], [-0.6, 1.25]], // respaldo
-              [[0.35, -0.27], [0.35, -1.25]], // poste
-              [[1.05, 0], pad], // palanca desde la rodilla
-            ],
-            box: [-0.8, -1.3, 2.15, 1.75],
-          };
-        },
-      };
       items.forEach((it, i) => {
-        const pose = POSE[it.move];
-        if (!pose) return;
         const cx = A.x + colW * (i + 0.5);
         const a = cont ? 1 : clamp((lt - 0.15 - i * 0.35) / 0.3);
-        // repeticiones: empieza flexionado, empuja y vuelve
-        const p = 0.5 - 0.5 * Math.cos((2 * Math.PI * Math.max(0, lt - 0.4 - i * 0.35)) / T);
-        const P = pose(p);
-        const [bx0, by0, bx1, by1] = P.box;
         const top = A.y + 60, capH = it.caption ? 40 : 0;
         const boxW = colW - 30, boxH = A.h - 60 - capH - 10;
-        const u = Math.min(boxW / (bx1 - bx0), boxH / (by1 - by0));
-        const ox = cx - ((bx0 + bx1) / 2) * u, oy = top + boxH / 2 + ((by0 + by1) / 2) * u;
-        const X = (q) => [ox + q[0] * u, oy - q[1] * u];
-        const seg = (q0, q1, w, color) => {
-          const [x0, y0] = X(q0), [x1, y1] = X(q1);
-          ctx.strokeStyle = color; ctx.lineWidth = w * u; ctx.lineCap = "round";
-          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
-        };
-        const hl = new Set(it.hl || ["cuadriceps"]);
         ctx.save(); ctx.globalAlpha *= a;
         tagPill(String(it.label).toUpperCase(), cx, A.y, { size: 28, label: `viz.ex${i + 1}.label` });
         ctx.restore();
-        // el dibujo entra con un iris (opaco: con transparencia se ven los cruces de los trazos)
-        const iris = cont ? 1 : clamp(spring(lt - 0.15 - i * 0.35, SPRINGS.settle));
-        if (iris <= 0) return;
-        ctx.save();
-        ctx.beginPath(); ctx.arc(cx, top + boxH / 2, iris * Math.hypot(boxW, boxH) * 0.6, 0, Math.PI * 2); ctx.clip();
-        P.machine.forEach(([q0, q1], j) => seg(q0, q1, it.move === "prensa" && j === 3 ? 0.13 : 0.09, C.soft || "#E6E4DC"));
-        if (P.pad) { const [px, py] = X(P.pad); ctx.fillStyle = C.soft || "#E6E4DC"; ctx.beginPath(); ctx.arc(px, py, 0.13 * u, 0, Math.PI * 2); ctx.fill(); }
-        // glúteo: detrás de la cadera, del lado del asiento, debajo del tronco y del muslo
-        if (hl.has("gluteo")) { const [gx, gy] = X([P.H[0] - 0.14, P.H[1] - 0.12]); ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(gx, gy, 0.25 * u, 0, Math.PI * 2); ctx.fill(); }
-        seg(P.S, P.elbow, 0.12, C.text); seg(P.elbow, P.hand, 0.11, C.text);
-        seg(P.H, P.S, 0.36, C.text);
-        seg(P.K, P.F, 0.17, C.text); seg(P.F, P.toe, 0.1, C.text);
-        seg(P.H, P.K, 0.3, hl.has("cuadriceps") ? C.accent : C.text);
-        const [hx, hy] = X(P.head); ctx.fillStyle = C.text; ctx.beginPath(); ctx.arc(hx, hy, 0.21 * u, 0, Math.PI * 2); ctx.fill();
-        reg(`viz.ex${i + 1}.fig`, ox + bx0 * u, oy - by1 * u, (bx1 - bx0) * u, (by1 - by0) * u);
+        drawFigure({ move: it.move, hl: it.hl, cx, cy: top + boxH / 2, boxW, boxH, p: repPhase(lt - 0.4 - i * 0.35, v.period),
+          iris: cont ? 1 : clamp(spring(lt - 0.15 - i * 0.35, SPRINGS.settle)), label: `viz.ex${i + 1}.fig` });
         if (it.caption) monoText(it.caption.toUpperCase(), cx, top + boxH + 14, { size: 24, color: C.muted, align: "center", label: `viz.ex${i + 1}.cap` });
-        ctx.restore();
+      });
+    },
+
+    // Una fila por dibujo fijo (timeline.figures): cifras al lado de su ejercicio.
+    // items[{stats: [{value, caption?, dim?, win?}]}] en el mismo orden que los dibujos.
+    rows(v, lt, A, cont) {
+      const items = v.items || [];
+      const rowH = A.h / Math.max(1, items.length);
+      items.forEach((row, r) => {
+        const stats = row.stats || [];
+        const cw = A.w / Math.max(1, stats.length);
+        let size = v.size || 128;
+        ctx.font = serif(900, size);
+        const fits = (st) => ctx.measureText(st.value).width + (st.win ? size * 0.36 : 0) <= cw - 30;
+        while (stats.some((st) => !fits(st)) && size > 50) { size -= 4; ctx.font = serif(900, size); }
+        stats.forEach((st, k) => {
+          const d0 = 0.15 + r * 0.3 + k * 0.2;
+          const cx = A.x + cw * (k + 0.5), cy = A.y + rowH * (r + 0.5) - (st.caption ? 18 : 0);
+          const a = cont ? 1 : clamp((lt - d0) / 0.3);
+          const e = cont ? 1 : spring(lt - d0, SPRINGS.land);
+          ctx.save(); ctx.globalAlpha *= a;
+          ctx.font = serif(900, size);
+          const vw = ctx.measureText(st.value).width;
+          const pc = cont ? 1 : easeOutCubic(clamp((lt - d0 - 0.05) / 0.9));
+          const vy = cy + size * 0.35 + (1 - e) * 24;
+          if (st.win) {
+            const b = cont ? 1 : spring(lt - d0 - 0.85, SPRINGS.bounce);
+            const bw = vw + size * 0.36, bh = size * 1.02;
+            ctx.save(); ctx.translate(cx, cy - size * 0.02); ctx.scale(b, b);
+            ctx.fillStyle = C.accent; ctx.fillRect(-bw / 2, -bh / 2, bw, bh);
+            ctx.restore();
+          }
+          const boxed = st.win && (cont || lt - d0 - 0.85 > 0.08);
+          ctx.fillStyle = boxed ? C.onAccent : st.dim ? C.muted : C.accent;
+          ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+          ctx.fillText(countUp(st.value, pc), cx, vy);
+          reg(`viz.row${r + 1}.${k + 1}`, cx - vw / 2 - (st.win ? size * 0.18 : 0), cy - size * 0.51, vw + (st.win ? size * 0.36 : 0), size * 1.02);
+          if (st.caption) monoText(st.caption.toUpperCase(), cx, cy + size * 0.51 + 14, { size: 26, weight: 700, color: st.dim ? C.muted : C.text, align: "center", label: `viz.row${r + 1}.${k + 1}.cap`, spacing: 1 });
+          ctx.restore();
+        });
       });
     },
 
@@ -1204,13 +1250,13 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const cy = A.y + A.h * 0.42;
       ctx.save();
       ctx.globalAlpha *= clamp((lt - 0.35) / 0.2);
-      ctx.translate(W / 2, cy); ctx.scale(e, e);
+      ctx.translate((A.x + A.w / 2), cy); ctx.scale(e, e);
       ctx.fillStyle = C.accent; ctx.fillRect(-w / 2, -h / 2, w, h);
       ctx.fillStyle = C.onAccent; ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.fillText(v.button, 0, 3);
       ctx.restore();
-      reg("viz.button", W / 2 - w / 2, cy - h / 2, w, h);
-      if (v.sub) drawRich({ text: v.sub, x: W / 2, y: cy + h / 2 + 40, maxWidth: A.w - 80, size: 38, weight: 500, lh: 1.25, hlMode: "color", t: lt, delay: 0.8, stagger: 0.03, color: C.muted, label: "viz.sub" });
+      reg("viz.button", (A.x + A.w / 2) - w / 2, cy - h / 2, w, h);
+      if (v.sub) drawRich({ text: v.sub, x: (A.x + A.w / 2), y: cy + h / 2 + 40, maxWidth: A.w - 80, size: 38, weight: 500, lh: 1.25, hlMode: "color", t: lt, delay: 0.8, stagger: 0.03, color: C.muted, label: "viz.sub" });
     },
   };
 
@@ -1243,6 +1289,23 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       monoText(s.label.toUpperCase(), SAFE.left, ED.labelY, { size: 30, weight: 700, color: C.text, label: "etiqueta", spacing: 2 });
       ctx.restore();
     }
+    // dibujos fijos: no cortan entre beats y las repeticiones siguen el reloj global
+    if (ED.figs.length) {
+      const rowH = ED.area.h / ED.figs.length;
+      const intro0 = ED.head.count * 0.05 + 0.45;
+      ED.figs.forEach((f, r) => {
+        const cx = SAFE.left + ED.figW / 2, cy = ED.area.y + rowH * (r + 0.5) + 22;
+        if (r > 0) { ctx.fillStyle = C.soft || "#E6E4DC"; ctx.fillRect(SAFE.left, ED.area.y + rowH * r, CW, 3); }
+        const hl = s.fig?.[r]?.hl ?? f.hl;
+        drawFigure({ move: f.move, hl, cx, cy, boxW: ED.figW - 10, boxH: rowH - 66, p: repPhase(t - intro0 - 0.6 - r * 0.4, f.period),
+          iris: clamp(spring(t - intro0 - 0.2 - r * 0.3, SPRINGS.settle)), label: `fig${r + 1}` });
+        if (f.label) {
+          ctx.save(); ctx.globalAlpha *= clamp((t - intro0 - 0.3 - r * 0.3) / 0.3);
+          tagPill(f.label.toUpperCase(), SAFE.left, ED.area.y + rowH * r + 12, { size: 24, align: "left", label: `fig${r + 1}.label` });
+          ctx.restore();
+        }
+      });
+    }
     // dibujo
     const v = s.type === "cta" ? { kind: "follow", button: s.button, sub: s.sub } : s.viz;
     if (v && VIZ[v.kind]) {
@@ -1250,7 +1313,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const contNext = !!(v.id && next?.viz?.id === v.id);
       ctx.save();
       ctx.globalAlpha *= layerAlpha(cont, contNext, lt, d, isLast, intro);
-      VIZ[v.kind](v, lt - intro, ED.area, cont);
+      VIZ[v.kind](v, lt - intro, ED.side, cont);
       ctx.restore();
     }
     // línea DATA
