@@ -25,3 +25,9 @@ check: 6 contadores a 0 · 3 avisos de lectura (beats 1, 4 y 5; incluyen el titu
 | 3 | 0–9 s | aviso de lectura del beat 1 | +3 pulsos y barra más corta ✔ (queda aviso por el titular) |
 
 Veredicto: ✅ exportar.
+
+## Vuelta 3 (2026-10-19, petición de pablo: dibujos de los ejercicios)
+Nuevo dibujo `exercise` en el motor: figura de trazo en la prensa a 45° y en la máquina de extensiones, haciendo repeticiones (muslo en rojo; en la prensa del beat 7 también el glúteo). Beat 1: las dos máquinas en lugar de las palabras «Prensa / Extensión». Beat 7: «Recto femoral → extensiones» y «Toda la pierna → prensa» con sus dibujos.
+Los dibujos entran con un iris opaco: con transparencia se veían los cruces de los trazos.
+check: 6 contadores a 0 · 4 avisos de lectura (los mismos más el beat 7, por 0,2 s).
+Veredicto: ✅ exportar.

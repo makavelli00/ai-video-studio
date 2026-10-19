@@ -59,3 +59,4 @@ Look editorial (`studio/02-reference/presets/editorial.json`, referencia en las 
 | `bars` | `items[{label, value, text?, sub?, hl?}]`, `max?`, `caption?` | Barras verticales; `hl` en rojo, el resto en beige. |
 | `curve` | `points[[x,y]]`, `x[min,max]`, `y[min,max]`, `xTicks[]`, `yLabel?`, `band{from,to,label}?` | Curva que se dibuja y banda que marca una zona. Si la forma es aproximada, dilo en `data` ("curva ilustrativa"). |
 | `compare` | `items[{label, value, caption?, dim?}]` | 2–3 columnas enfrentadas con etiqueta negra. |
+| `exercise` | `items[{label, move, hl?, caption?}]`, `period?` | Dibujo del ejercicio haciendo repeticiones (vista lateral). `move`: `prensa` o `extension`. `hl`: músculos en rojo (`cuadriceps`, `gluteo`; por defecto el cuádriceps). |

@@ -14,15 +14,15 @@
       "bar": "17 principiantes, 12 semanas. Una pierna hizo prensa; la otra, extensiones.",
       "label": "5 × 10 al 70 %, 2 días por semana",
       "viz": {
-        "kind": "compare",
+        "kind": "exercise",
         "items": [
           {
-            "label": "Pierna A",
-            "value": "Prensa"
+            "label": "Pierna A · Prensa",
+            "move": "prensa"
           },
           {
-            "label": "Pierna B",
-            "value": "Extensión"
+            "label": "Pierna B · Extensión",
+            "move": "extension"
           }
         ]
       },
@@ -152,15 +152,21 @@
       "bar": "Ojo: eran principiantes y solo 17. En gente entrenada puede salir distinto.",
       "label": "en resumen",
       "viz": {
-        "kind": "compare",
+        "kind": "exercise",
         "items": [
           {
-            "label": "Para el recto femoral",
-            "value": "Extensión"
+            "label": "Recto femoral",
+            "move": "extension",
+            "caption": "extensiones"
           },
           {
-            "label": "Para la pierna",
-            "value": "Prensa"
+            "label": "Toda la pierna",
+            "move": "prensa",
+            "hl": [
+              "cuadriceps",
+              "gluteo"
+            ],
+            "caption": "prensa"
           }
         ]
       },

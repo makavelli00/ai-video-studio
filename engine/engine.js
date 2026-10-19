@@ -1078,6 +1078,99 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       });
     },
 
+    // Dibujo del ejercicio en movimiento (vista lateral, figura de trazo).
+    // items[{label, move: "prensa"|"extension", hl?: ["cuadriceps","gluteo"], caption?}] · period?
+    exercise(v, lt, A, cont) {
+      const items = v.items || [];
+      const colW = A.w / items.length;
+      const T = v.period || 2.4;
+      // Postura de cada máquina en unidades (muslo = espinilla = 1, y hacia arriba); p: 0 flexión, 1 extensión.
+      const POSE = {
+        prensa(p) {
+          const H = [0, 0], dir = [Math.SQRT1_2, Math.SQRT1_2], n = [-Math.SQRT1_2, Math.SQRT1_2];
+          const d = 1.3 + 0.62 * p;
+          const F = [dir[0] * d, dir[1] * d];
+          const k = Math.sqrt(Math.max(0, 1 - (d / 2) ** 2));
+          const K = [F[0] / 2 + n[0] * k, F[1] / 2 + n[1] * k];
+          const ta = (150 * Math.PI) / 180, S = [Math.cos(ta) * 1.15, Math.sin(ta) * 1.15];
+          const pl = (o) => [F[0] + 0.1 * dir[0] + n[0] * o, F[1] + 0.1 * dir[1] + n[1] * o];
+          return {
+            H, K, F, S, head: [S[0] + Math.cos(ta) * 0.32, S[1] + Math.sin(ta) * 0.32 + 0.05],
+            hand: [0.05, -0.18], elbow: [(S[0] + 0.05) / 2 - 0.05, (S[1] - 0.18) / 2 - 0.2],
+            toe: [F[0] + n[0] * 0.3, F[1] + n[1] * 0.3],
+            machine: [
+              [[-1.55, -0.25], [0.15, -0.25]], // asiento
+              [[-0.15, -0.3], [-1.55, 0.27]], // respaldo
+              [[dir[0] * 1.25 - n[0] * 0.55, dir[1] * 1.25 - n[1] * 0.55], [dir[0] * 2.3 - n[0] * 0.55, dir[1] * 2.3 - n[1] * 0.55]], // raíl a 45°
+              [pl(-0.55), pl(0.45)], // plataforma
+            ],
+            box: [-1.6, -0.4, 2.05, 2.0],
+          };
+        },
+        extension(p) {
+          const H = [0, 0], K = [1, 0];
+          const a = (-88 + 80 * p) * Math.PI / 180;
+          const F = [K[0] + Math.cos(a), K[1] + Math.sin(a)];
+          const ta = (98 * Math.PI) / 180, S = [Math.cos(ta) * 1.15, Math.sin(ta) * 1.15];
+          const pad = [F[0] + Math.cos(a) * 0.02 - Math.sin(a) * 0.17, F[1] + Math.sin(a) * 0.02 + Math.cos(a) * 0.17];
+          return {
+            H, K, F, S, head: [S[0] + Math.cos(ta) * 0.32, S[1] + Math.sin(ta) * 0.32 + 0.05],
+            hand: [0.15, -0.12], elbow: [(S[0] + 0.15) / 2 + 0.12, (S[1] - 0.12) / 2 - 0.1],
+            toe: [F[0] + Math.cos(a + Math.PI / 2) * -0.28, F[1] + Math.sin(a + Math.PI / 2) * -0.28],
+            pad,
+            machine: [
+              [[-0.35, -0.27], [1.05, -0.27]], // asiento
+              [[-0.38, -0.25], [-0.6, 1.25]], // respaldo
+              [[0.35, -0.27], [0.35, -1.25]], // poste
+              [[1.05, 0], pad], // palanca desde la rodilla
+            ],
+            box: [-0.8, -1.3, 2.15, 1.75],
+          };
+        },
+      };
+      items.forEach((it, i) => {
+        const pose = POSE[it.move];
+        if (!pose) return;
+        const cx = A.x + colW * (i + 0.5);
+        const a = cont ? 1 : clamp((lt - 0.15 - i * 0.35) / 0.3);
+        // repeticiones: empieza flexionado, empuja y vuelve
+        const p = 0.5 - 0.5 * Math.cos((2 * Math.PI * Math.max(0, lt - 0.4 - i * 0.35)) / T);
+        const P = pose(p);
+        const [bx0, by0, bx1, by1] = P.box;
+        const top = A.y + 60, capH = it.caption ? 40 : 0;
+        const boxW = colW - 30, boxH = A.h - 60 - capH - 10;
+        const u = Math.min(boxW / (bx1 - bx0), boxH / (by1 - by0));
+        const ox = cx - ((bx0 + bx1) / 2) * u, oy = top + boxH / 2 + ((by0 + by1) / 2) * u;
+        const X = (q) => [ox + q[0] * u, oy - q[1] * u];
+        const seg = (q0, q1, w, color) => {
+          const [x0, y0] = X(q0), [x1, y1] = X(q1);
+          ctx.strokeStyle = color; ctx.lineWidth = w * u; ctx.lineCap = "round";
+          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+        };
+        const hl = new Set(it.hl || ["cuadriceps"]);
+        ctx.save(); ctx.globalAlpha *= a;
+        tagPill(String(it.label).toUpperCase(), cx, A.y, { size: 28, label: `viz.ex${i + 1}.label` });
+        ctx.restore();
+        // el dibujo entra con un iris (opaco: con transparencia se ven los cruces de los trazos)
+        const iris = cont ? 1 : clamp(spring(lt - 0.15 - i * 0.35, SPRINGS.settle));
+        if (iris <= 0) return;
+        ctx.save();
+        ctx.beginPath(); ctx.arc(cx, top + boxH / 2, iris * Math.hypot(boxW, boxH) * 0.6, 0, Math.PI * 2); ctx.clip();
+        P.machine.forEach(([q0, q1], j) => seg(q0, q1, it.move === "prensa" && j === 3 ? 0.13 : 0.09, C.soft || "#E6E4DC"));
+        if (P.pad) { const [px, py] = X(P.pad); ctx.fillStyle = C.soft || "#E6E4DC"; ctx.beginPath(); ctx.arc(px, py, 0.13 * u, 0, Math.PI * 2); ctx.fill(); }
+        // glúteo: detrás de la cadera, del lado del asiento, debajo del tronco y del muslo
+        if (hl.has("gluteo")) { const [gx, gy] = X([P.H[0] - 0.14, P.H[1] - 0.12]); ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(gx, gy, 0.25 * u, 0, Math.PI * 2); ctx.fill(); }
+        seg(P.S, P.elbow, 0.12, C.text); seg(P.elbow, P.hand, 0.11, C.text);
+        seg(P.H, P.S, 0.36, C.text);
+        seg(P.K, P.F, 0.17, C.text); seg(P.F, P.toe, 0.1, C.text);
+        seg(P.H, P.K, 0.3, hl.has("cuadriceps") ? C.accent : C.text);
+        const [hx, hy] = X(P.head); ctx.fillStyle = C.text; ctx.beginPath(); ctx.arc(hx, hy, 0.21 * u, 0, Math.PI * 2); ctx.fill();
+        reg(`viz.ex${i + 1}.fig`, ox + bx0 * u, oy - by1 * u, (bx1 - bx0) * u, (by1 - by0) * u);
+        if (it.caption) monoText(it.caption.toUpperCase(), cx, top + boxH + 14, { size: 24, color: C.muted, align: "center", label: `viz.ex${i + 1}.cap` });
+        ctx.restore();
+      });
+    },
+
     // Cierre: botón grande. button · sub?
     follow(v, lt, A) {
       if (!v.button) return;
