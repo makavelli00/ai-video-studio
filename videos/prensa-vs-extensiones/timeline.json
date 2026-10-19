@@ -1,0 +1,260 @@
+{
+  "title": "Prensa o extensiones",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "audio": "music-loop.wav",
+  "category": "Entrenamiento · Pierna",
+  "headlineSize": 58,
+  "headline": "La *prensa* hizo crecer más la pierna. Las *extensiones*, el músculo que la prensa no toca.",
+  "figures": [
+    {
+      "move": "prensa",
+      "label": "Prensa"
+    },
+    {
+      "move": "extension",
+      "label": "Extensiones"
+    }
+  ],
+  "scenes": [
+    {
+      "type": "ficha",
+      "duration": 8.78,
+      "bar": "17 principiantes, 12 semanas. Cada pierna hizo un ejercicio.",
+      "label": "5 × 10 al 70 %, 2 días por semana",
+      "viz": {
+        "kind": "rows",
+        "items": [
+          {
+            "stats": [
+              {
+                "value": "Pierna A"
+              }
+            ]
+          },
+          {
+            "stats": [
+              {
+                "value": "Pierna B"
+              }
+            ]
+          }
+        ]
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 4.71,
+      "bar": "En el cuádriceps entero, *casi empate*.",
+      "label": "volumen tras 12 semanas",
+      "viz": {
+        "kind": "rows",
+        "items": [
+          {
+            "stats": [
+              {
+                "value": "+4,9 %",
+                "caption": "cuádriceps"
+              }
+            ]
+          },
+          {
+            "stats": [
+              {
+                "value": "+7,1 %",
+                "caption": "cuádriceps"
+              }
+            ]
+          }
+        ]
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia · diferencia no significativa"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "Salvo un músculo: el *recto femoral* solo creció con extensiones.",
+      "label": "recto femoral",
+      "viz": {
+        "kind": "rows",
+        "items": [
+          {
+            "stats": [
+              {
+                "value": "+1,1 %",
+                "dim": true,
+                "caption": "no significativo"
+              }
+            ]
+          },
+          {
+            "stats": [
+              {
+                "value": "+13,2 %",
+                "win": true,
+                "caption": "recto femoral"
+              }
+            ]
+          }
+        ]
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "Es el único de los cuatro que cruza *dos articulaciones*.",
+      "label": "recto femoral",
+      "viz": {
+        "kind": "counter",
+        "value": 2,
+        "from": 0,
+        "countDuration": 0.6,
+        "caption": "cadera y rodilla",
+        "sub": "Los otros tres, solo la *rodilla*."
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 6.06,
+      "bar": "*Glúteo* y *aductor* solo crecieron con la prensa.",
+      "label": "crecimiento en 12 semanas",
+      "viz": {
+        "kind": "rows",
+        "items": [
+          {
+            "stats": [
+              {
+                "value": "+15,4 %",
+                "win": true,
+                "caption": "glúteo"
+              },
+              {
+                "value": "+6,2 %",
+                "win": true,
+                "caption": "aductor"
+              }
+            ]
+          },
+          {
+            "stats": [
+              {
+                "value": "≈0",
+                "dim": true,
+                "caption": "glúteo"
+              },
+              {
+                "value": "≈0",
+                "dim": true,
+                "caption": "aductor"
+              }
+            ]
+          }
+        ]
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia",
+      "fig": [
+        {
+          "hl": [
+            "gluteo"
+          ]
+        },
+        {
+          "hl": []
+        }
+      ]
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "Sumando todo, la pierna creció *más con prensa*.",
+      "label": "músculo total de la pierna",
+      "viz": {
+        "kind": "rows",
+        "items": [
+          {
+            "stats": [
+              {
+                "value": "+6,3 %",
+                "win": true,
+                "caption": "pierna entera"
+              }
+            ]
+          },
+          {
+            "stats": [
+              {
+                "value": "+2,8 %",
+                "dim": true,
+                "caption": "pierna entera"
+              }
+            ]
+          }
+        ]
+      },
+      "data": "Kinoshita 2026, Med Sci Sports Exerc · 17 principiantes · resonancia",
+      "fig": [
+        {
+          "hl": [
+            "cuadriceps",
+            "gluteo"
+          ]
+        },
+        {
+          "hl": [
+            "cuadriceps"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ficha",
+      "duration": 5.39,
+      "bar": "Ojo: eran *principiantes* y solo 17. En gente entrenada puede salir distinto.",
+      "label": "en resumen",
+      "viz": {
+        "kind": "rows",
+        "items": [
+          {
+            "stats": [
+              {
+                "value": "Toda la pierna"
+              }
+            ]
+          },
+          {
+            "stats": [
+              {
+                "value": "Recto femoral"
+              }
+            ]
+          }
+        ]
+      },
+      "data": "Límites según los autores: solo principiantes · cadera fija a 90°",
+      "fig": [
+        {
+          "hl": [
+            "cuadriceps",
+            "gluteo"
+          ]
+        },
+        {
+          "hl": [
+            "cuadriceps"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "book": false,
+      "duration": 3.77,
+      "text": "Guárdalo para tu próximo día de pierna.",
+      "button": "Guardar"
+    }
+  ]
+}

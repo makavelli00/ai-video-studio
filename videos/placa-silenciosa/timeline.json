@@ -1,0 +1,165 @@
+{
+ "title": "La placa silenciosa",
+ "fps": 30,
+ "width": 1080,
+ "height": 1920,
+ "category": "Salud cardiovascular",
+ "headline": "Ninguno tenía síntomas. Más de la mitad ya tenía *placa* en las arterias.",
+ "headlineSize": 76,
+ "scenes": [
+  {
+   "type": "ficha",
+   "duration": 6.76,
+   "bar": "Un estudio miró las arterias de 16.808 adultos de España y Dinamarca.",
+   "label": "18 a 70 años",
+   "viz": {
+    "kind": "counter",
+    "value": 16808,
+    "caption": "adultos"
+   },
+   "data": "Bundgaard 2026, NEJM · estudio REACT · 16.808 adultos"
+  },
+  {
+   "type": "ficha",
+   "duration": 5.39,
+   "bar": "Buscaron placa en tres sitios: cuello, ingles y corazón.",
+   "label": "pruebas de imagen",
+   "viz": {
+    "kind": "compare",
+    "size": 96,
+    "items": [
+     {
+      "label": "Carótida",
+      "value": "Cuello"
+     },
+     {
+      "label": "Femoral",
+      "value": "Ingle"
+     },
+     {
+      "label": "Coronaria",
+      "value": "Corazón"
+     }
+    ]
+   },
+   "data": "Bundgaard 2026, NEJM · estudio REACT · 16.808 adultos"
+  },
+  {
+   "type": "ficha",
+   "duration": 4.71,
+   "bar": "El *57 %* tenía placa. Sin síntomas ni diagnóstico previo.",
+   "label": "todas las edades",
+   "viz": {
+    "kind": "counter",
+    "value": 57.1,
+    "decimals": 1,
+    "suffix": " %",
+    "caption": "con placa"
+   },
+   "data": "Bundgaard 2026, NEJM · estudio REACT · 16.808 adultos"
+  },
+  {
+   "type": "ficha",
+   "duration": 5.39,
+   "bar": "Y no solo en mayores: ya aparece en *1 de cada 13* menores de 30.",
+   "viz": {
+    "kind": "bars",
+    "id": "edad",
+    "max": 100,
+    "caption": "% con placa en al menos una arteria",
+    "items": [
+     {
+      "label": "18–29",
+      "sub": "años",
+      "value": 7.7,
+      "text": "1 de 13",
+      "hl": true
+     },
+     {
+      "label": "60–70",
+      "sub": "años",
+      "value": 90,
+      "text": "9 de 10"
+     }
+    ]
+   },
+   "data": "Bundgaard 2026, NEJM · estudio REACT · 16.808 adultos · ≈7,7 % y ≈90 %"
+  },
+  {
+   "type": "ficha",
+   "duration": 6.06,
+   "bar": "En hombres aparece 5–10 años antes. En mujeres se dispara entre los 40 y los 60.",
+   "label": "hombres y mujeres",
+   "viz": {
+    "kind": "compare",
+    "size": 120,
+    "items": [
+     {
+      "label": "Hombres",
+      "value": "5–10",
+      "caption": "años antes"
+     },
+     {
+      "label": "Mujeres",
+      "value": "40–60",
+      "caption": "subida más fuerte"
+     }
+    ]
+   },
+   "data": "Bundgaard 2026, NEJM · estudio REACT · 16.808 adultos"
+  },
+  {
+   "type": "ficha",
+   "duration": 4.71,
+   "bar": "Las calculadoras de riesgo habituales solo detectaban a una pequeña parte.",
+   "label": "SCORE2 y similares",
+   "viz": {
+    "kind": "compare",
+    "size": 120,
+    "items": [
+     {
+      "label": "Calculadora",
+      "value": "Estima",
+      "dim": true
+     },
+     {
+      "label": "Imagen",
+      "value": "Ve"
+     }
+    ]
+   },
+   "data": "Bundgaard 2026, NEJM · estudio REACT · 16.808 adultos"
+  },
+  {
+   "type": "ficha",
+   "duration": 5.39,
+   "bar": "Ojo: tener placa no garantiza un infarto. Y no se sabe si hacer pruebas a todos ayuda.",
+   "label": "lo que no demuestra",
+   "viz": {
+    "kind": "compare",
+    "size": 110,
+    "items": [
+     {
+      "label": "Sabemos",
+      "value": "Es común"
+     },
+     {
+      "label": "Aún no sabemos",
+      "value": "¿Ayuda?",
+      "dim": true,
+      "caption": "hacer pruebas a todos"
+     }
+    ]
+   },
+   "data": "REACT fase 1 · el ensayo de cribado aún no está hecho"
+  },
+  {
+   "type": "cta",
+   "book": false,
+   "duration": 3.59,
+   "text": "Sigue la cuenta para más estudios explicados.",
+   "button": "Seguir"
+  }
+ ],
+ "audio": "music-loop.wav"
+}
