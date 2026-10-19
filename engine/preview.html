@@ -61,6 +61,7 @@ async function load(force) {
     for (const k of Object.keys(o)) style[k] = typeof o[k] === "object" ? { ...(style[k] || {}), ...o[k] } : o[k];
     await Promise.all([500, 600, 700, 800, 900].map((w) => document.fonts.load(`${w} 100px Inter`)));
   await Promise.all([400, 700].map((w) => document.fonts.load(`${w} 100px "Liberation Mono"`)));
+  await Promise.all([400, 700, 800].map((w) => document.fonts.load(`${w} 100px "JetBrains Mono"`, "¿Áñ0")));
   await document.fonts.load(`400 100px IPAGothic`, "事件");
     studio = createStudio(canvas, timeline, style, await loadImages(timeline, `../videos/${slug}`));
     document.getElementById("title").textContent = timeline.title || slug;

@@ -42,6 +42,9 @@ let total = 0;
       if (!s.source) warnings.push(`${id}: cifra sin "source". No publiques datos sin fuente verificable.`); break;
     case "compare": for (const k of ["left", "right"]) { if (!s[k]?.label || !s[k]?.text) errors.push(`${id}: "${k}" necesita label y text`); }
       texts.push(s.title, s.left?.text, s.right?.text); break;
+    case "folding":
+    case "doubling": texts.push(s.countLabel, s.sizeLabel, ...(s.marks || []).map((m) => m.label));
+      if (!s.source) warnings.push(`${id}: marcas sin "source". Cada altura o distancia tiene que tener fuente.`); break;
     case "cta": need("text"); texts.push(s.text, s.button, s.sub); break;
     case "casefile": if (!s.rows?.length) errors.push(`${id}: necesita "rows" [{k, v}]`);
       texts.push(s.title, s.stamp, ...(s.rows || []).flatMap((r) => [r.k, r.v]));

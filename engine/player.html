@@ -14,6 +14,7 @@ import { createStudio, loadImages } from "./engine.js";
 async function loadFonts() {
   await Promise.all([500, 600, 700, 800, 900].map((w) => document.fonts.load(`${w} 100px Inter`)));
   await Promise.all([400, 700].map((w) => document.fonts.load(`${w} 100px "Liberation Mono"`)));
+  await Promise.all([400, 700, 800].map((w) => document.fonts.load(`${w} 100px "JetBrains Mono"`, "¿Áñ0")));
   await document.fonts.load(`400 100px IPAGothic`, "事件");
   await document.fonts.ready;
 }

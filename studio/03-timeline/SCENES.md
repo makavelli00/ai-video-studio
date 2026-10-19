@@ -17,6 +17,8 @@ Usa `*asteriscos*` para destacar palabras con el color de acento.
 | `list` | `items[]`, `title?`, `itemSize?`, `itemDelay?` | 2–5 puntos que aparecen uno a uno. |
 | `number` | `value`, `prefix?`, `suffix?`, `decimals?`, `label?`, `source` | Cifra que cuenta hacia arriba. **`source` obligatorio** si es un dato. |
 | `compare` | `left{label,text}`, `right{label,text}`, `title?`, `secondDelay?` | Antes / después, mal / bien. |
+| `doubling` | `base` (mm), `to`, `marks[{label, mm, hl?}]`, `countLabel?`, `sizeLabel?`, `axisNote?`, `hold?`, `source` | Crecimiento por duplicación: barra en escala logarítmica con contador de pasos y grosor, que va pasando marcas reales. **`source` obligatorio.** |
+| `folding` | `base` (mm), `to`, `front?` (dobleces en vista frontal), `marks[{label, mm, kind: hoop\|tower\|mountain\|station\|moon, hl?}]`, `step?`, `zoom?`, `source` | Un folio que se dobla de verdad y luego crece de lado mientras la cámara se aleja y pasan monumentos a escala real. **`source` obligatorio.** |
 | `cta` | `text`, `button?`, `sub?`, `book?` | Cierre con la portada del ebook (título en `style.json`). Con `"book": false`, cierre sin portada (seguir / parte 2). |
 | `casefile` | `rows[{k,v,hl?}]`, `title?`, `stamp?`, `cps?`, `source` | Ficha de expediente en papel, datos a máquina y sello final. Para misterios. |
 | `theories` | `items[{text, ruled?}]`, `title?`, `ruleAt?` | Teorías que aparecen una a una; las `ruled: true` se tachan. |
