@@ -485,8 +485,9 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const t0 = sc.startAt ?? 0.6, t1 = Math.max(t0 + 1, d - (sc.hold ?? 2.2));
       // Empieza despacio y acelera, como la propia duplicación.
       const p = clamp((lt - t0) / (t1 - t0));
-      const n = Math.floor(from + (to - from) * (p * p * 0.35 + p * 0.65) + 1e-9);
-      const nf = from + (to - from) * (p * p * 0.35 + p * 0.65);
+      const rate = (to - from) / (t1 - t0); // dobleces por segundo
+      const nf = from + (to - from) * p;
+      const n = Math.floor(nf + 1e-9);
       const mm = base * Math.pow(2, n);
       // HUD
       const hudY = SAFE.top + 10, hudH = 170, gap = 24, hw = (CW - gap) / 2;
@@ -536,12 +537,19 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         ctx.font = font(700, sz);
         const tw = ctx.measureText(m.label).width, ph = sz * 1.7, pw = tw + sz * 1.4;
         const px = SAFE.right - pw, py = y - ph - 10;
+        // Al pasar la marca, la etiqueta da un pequeño salto amortiguado desde el instante del cruce.
+        const kCross = Math.ceil(Math.log2(m.mm / base) - 1e-9);
+        const since = (nf - kCross) / rate;
+        const k = passed && since >= 0 ? 1 + 0.25 * Math.exp(-since * 6) * Math.cos(since * 14) : 1;
+        ctx.save();
+        ctx.translate(px + pw, py + ph / 2); ctx.scale(k, k); ctx.translate(-(px + pw), -(py + ph / 2));
         ctx.fillStyle = passed ? col : C.bg;
         roundRect(ctx, px, py, pw, ph, ph / 2); ctx.fill();
         ctx.strokeStyle = col; ctx.lineWidth = 3; roundRect(ctx, px, py, pw, ph, ph / 2); ctx.stroke();
         ctx.fillStyle = passed ? C.onAccent : col;
         ctx.textAlign = "left"; ctx.textBaseline = "middle";
         ctx.fillText(m.label, px + sz * 0.7, py + ph / 2 + 1);
+        ctx.restore();
         if (collect) collect.push({ scene: currentLabel, label: `doubling.mark${i + 1}`, x: px, y: py, w: pw, h: ph });
       }
       ctx.restore();

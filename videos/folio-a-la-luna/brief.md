@@ -30,6 +30,8 @@ Aún no hay ebook. Cierre pidiendo guardar o seguir.
 ## Datos reales / fuentes
 - Grosor de un folio de 80 g/m²: ~0,1 mm (dato habitual de fabricante; se presenta como "unos 0,1 mm").
 - Grosor tras n dobleces = 0,1 mm × 2ⁿ (cálculo propio): n=10 → 102,4 mm; n=20 → 104,9 m; n=30 → 107,4 km; n=41 → 219.902 km; n=42 → 439.805 km.
+- Altura de la canasta: 3,05 m (reglamento oficial FIBA).
+- Torre Eiffel: 330 m (toureiffel.paris). Everest: 8.849 m (medición China–Nepal, 2020). Estación Espacial: ~400 km de órbita (NASA).
 - Distancia media Tierra–Luna: 384.400 km (NASA, Moon Fact Sheet).
 - Récord de dobleces de una hoja: 12, Britney Gallivan, 2002 (con un rollo de papel de más de 1 km).
 
