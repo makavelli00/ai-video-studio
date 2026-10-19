@@ -1070,9 +1070,10 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     },
 
     // Regla de edad: una fila por capacidad. x[min,max] · ticks[] · focus? (índice de la fila que manda)
-    // items[{label, hold?[a,b], drop?, dropLabel?, fast?, show?, new?}]
+    // items[{label, hold?[a,b], drop?, dropLabel?, fast?, pts?, show?, new?}]
     //   hold: tramo en su mejor momento (negro) · drop: edad desde la que baja (rojo hasta el final)
     //   fast: desde aquí la bajada se dibuja más gruesa · new: la fila entra en este beat
+    //   pts[[edad, nivel 0–1]]: la fila es una curva (área) que sube y baja con la edad; negro hasta drop, rojo después
     agebar(v, lt, A, cont) {
       const [x0, x1] = v.x || [20, 80];
       const items = v.items || [];
@@ -1080,6 +1081,23 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const axisY = A.y + A.h - 46;
       const rowH = (axisY - A.y - 10) / Math.max(1, items.length);
       const X = (age) => L + ((age - x0) / (x1 - x0)) * (R - L);
+      const yMin = v.yMin ?? 0.4;
+      const level = (pts, age) => {
+        for (let k = 1; k < pts.length; k++) if (age <= pts[k][0]) {
+          // Catmull-Rom: curva suave que pasa por todos los puntos, sin escalones
+          const [a0, v1] = pts[k - 1], [a1, v2] = pts[k];
+          const v0 = (pts[k - 2] || pts[k - 1])[1], v3 = (pts[k + 1] || pts[k])[1];
+          const u = (age - a0) / (a1 - a0 || 1);
+          return 0.5 * (2 * v1 + (-v0 + v2) * u + (2 * v0 - 5 * v1 + 4 * v2 - v3) * u * u + (-v0 + 3 * v1 - 3 * v2 + v3) * u * u * u);
+        }
+        return pts[pts.length - 1][1];
+      };
+      // barrido de la edad: lento, para que se vea subir y bajar
+      const anyNew = items.some((it) => it.new && it.show !== false);
+      const curveMode = items.some((it) => it.pts);
+      const sweepT = v.sweep || 2.6;
+      const gS = anyNew ? easeInOut(clamp((lt - 0.3) / sweepT)) : 1;
+      const sweepAge = x0 + (x1 - x0) * gS;
       // eje
       ctx.fillStyle = C.text; ctx.fillRect(L, axisY, R - L, 3);
       (v.ticks || [20, 30, 40, 50, 60, 70, 80]).forEach((a, k, arr) => {
@@ -1092,8 +1110,45 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         const g = fresh ? clamp(spring(lt - 0.25, SPRINGS.settle)) : 1;
         const a = fresh ? clamp((lt - 0.15) / 0.3) : 1;
         const dim = v.focus !== undefined && v.focus !== i;
-        const cy = A.y + 10 + rowH * (i + 0.5);
+        const top = A.y + 10 + rowH * i;
+        const cy = top + rowH * 0.5;
         ctx.save(); ctx.globalAlpha *= a * (dim ? 0.3 : 1);
+        if (it.pts || curveMode) {
+          // curva: el suelo de la fila es yMin, el techo su mejor momento
+          const base = top + rowH - 14, peakY = top + 34;
+          const Y = (lv) => base - ((lv - yMin) / (1 - yMin)) * (base - peakY);
+          monoText(String(it.label).toUpperCase(), A.x, peakY - 6, { size: 30, weight: 700, label: `viz.age${i + 1}.label`, spacing: 1 });
+          ctx.fillStyle = C.soft || "#E6E4DC"; ctx.fillRect(L, base, R - L, 3);
+          if (!it.pts) { ctx.restore(); return; } // fila aún sin datos
+          const end = fresh ? sweepAge : x1;
+          const drop = it.drop ?? x1;
+          const area = (from, to, color) => {
+            if (to <= from) return;
+            ctx.beginPath(); ctx.moveTo(X(from), base);
+            for (let ag = from; ag <= to + 1e-6; ag += 0.5) ctx.lineTo(X(Math.min(ag, to)), Y(level(it.pts, Math.min(ag, to))));
+            ctx.lineTo(X(to), Y(level(it.pts, to))); ctx.lineTo(X(to), base); ctx.closePath();
+            ctx.fillStyle = color; ctx.fill();
+          };
+          area(x0, Math.min(end, drop), C.text);
+          area(drop, end, C.accent);
+          // punto que viaja con la edad
+          if (fresh && gS < 1) {
+            ctx.fillStyle = end > drop ? C.accent : C.text;
+            ctx.beginPath(); ctx.arc(X(end), Y(level(it.pts, end)), 11, 0, Math.PI * 2); ctx.fill();
+          }
+          if (it.dropLabel && end >= drop) {
+            const m = fresh ? clamp(spring(lt - 0.3 - sweepT * ((drop - x0) / (x1 - x0)), SPRINGS.bounce)) : 1;
+            const dy = Y(level(it.pts, drop));
+            ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(X(drop), dy, 15 * m, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = C.onAccent; ctx.beginPath(); ctx.arc(X(drop), dy, 6 * m, 0, Math.PI * 2); ctx.fill();
+            ctx.save(); ctx.globalAlpha *= m;
+            monoText(String(it.dropLabel).toUpperCase(), R, peakY - 30, { size: 24, weight: 700, color: C.accent, align: "right", label: `viz.age${i + 1}.drop` });
+            ctx.restore();
+          }
+          reg(`viz.age${i + 1}.row`, L, peakY, R - L, base - peakY);
+          ctx.restore();
+          return;
+        }
         monoText(String(it.label).toUpperCase(), A.x, cy - 17, { size: 30, weight: 700, label: `viz.age${i + 1}.label`, spacing: 1 });
         ctx.fillStyle = C.soft || "#E6E4DC"; ctx.fillRect(L, cy - 3, R - L, 6);
         const sweep = x0 + (x1 - x0) * g; // todo se dibuja de izquierda a derecha
@@ -1120,6 +1175,17 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         reg(`viz.age${i + 1}.row`, L, cy - 22, R - L, 44);
         ctx.restore();
       });
+      // cursor de la edad mientras barre
+      if (anyNew && gS > 0 && gS < 1) {
+        ctx.fillStyle = C.text; ctx.fillRect(X(sweepAge) - 1.5, A.y, 3, axisY - A.y);
+        const tag = `${Math.round(sweepAge)} AÑOS`;
+        ctx.font = mono(700, 24);
+        const tw = ctx.measureText(tag).width + 20;
+        const tx = Math.min(Math.max(X(sweepAge) - tw / 2, L), R - tw);
+        ctx.fillStyle = C.text; ctx.fillRect(tx, axisY + 8, tw, 38);
+        ctx.fillStyle = C.onAccent; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+        ctx.fillText(tag, tx + 10, axisY + 28);
+      }
     },
 
     // Barras verticales. items[{label, value, text?, sub?, hl?}] · max? · caption?

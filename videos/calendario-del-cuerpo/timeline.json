@@ -11,42 +11,161 @@
     {
       "type": "ficha",
       "duration": 6.76,
-      "bar": "Tres capacidades, tres edades distintas en las que empiezan a bajar.",
-      "label": "edad · negro: pico · rojo: baja",
+      "bar": "Cada capacidad empieza a bajar a una edad distinta.",
+      "label": "nivel según la edad · rojo: baja",
       "viz": {
         "kind": "agebar",
         "id": "cal",
         "items": [
           {
             "label": "Fondo",
-            "new": true
+            "new": true,
+            "pts": [
+              [
+                20,
+                1
+              ],
+              [
+                30,
+                0.955
+              ],
+              [
+                40,
+                0.91
+              ],
+              [
+                50,
+                0.84
+              ],
+              [
+                60,
+                0.75
+              ],
+              [
+                70,
+                0.64
+              ],
+              [
+                80,
+                0.5
+              ]
+            ],
+            "drop": 20,
+            "dropLabel": "desde los 20"
           },
           {
             "label": "Fuerza",
-            "new": true
+            "new": true,
+            "pts": [
+              [
+                20,
+                0.9
+              ],
+              [
+                29,
+                1
+              ],
+              [
+                40,
+                1
+              ],
+              [
+                50,
+                0.95
+              ],
+              [
+                60,
+                0.88
+              ],
+              [
+                70,
+                0.79
+              ],
+              [
+                80,
+                0.68
+              ]
+            ],
+            "drop": 40,
+            "dropLabel": "desde los ~40"
           },
           {
             "label": "Músculo",
-            "new": true
+            "new": true,
+            "pts": [
+              [
+                20,
+                1
+              ],
+              [
+                50,
+                0.98
+              ],
+              [
+                60,
+                0.93
+              ],
+              [
+                70,
+                0.87
+              ],
+              [
+                80,
+                0.8
+              ]
+            ],
+            "drop": 50,
+            "dropLabel": "desde finales de los 40"
           }
-        ]
+        ],
+        "yMin": 0.5
       },
-      "data": "Medias de población de tres estudios · ver fuentes en cada dato"
+      "data": "Medias de población de tres estudios · ver fuentes en cada dato · curva ilustrativa"
     },
     {
       "type": "ficha",
       "duration": 5.39,
       "bar": "El *fondo* es el primero: baja un *3–6 %* por década desde los 20.",
-      "label": "edad · negro: pico · rojo: baja",
+      "label": "nivel según la edad · rojo: baja",
       "viz": {
         "kind": "agebar",
         "id": "cal",
         "items": [
           {
             "label": "Fondo",
+            "new": true,
+            "pts": [
+              [
+                20,
+                1
+              ],
+              [
+                30,
+                0.955
+              ],
+              [
+                40,
+                0.91
+              ],
+              [
+                50,
+                0.84
+              ],
+              [
+                60,
+                0.75
+              ],
+              [
+                70,
+                0.64
+              ],
+              [
+                80,
+                0.5
+              ]
+            ],
             "drop": 20,
-            "dropLabel": "desde los 20",
-            "new": true
+            "dropLabel": "desde los 20"
           },
           {
             "label": "Fuerza"
@@ -55,25 +174,55 @@
             "label": "Músculo"
           }
         ],
-        "focus": 0
+        "focus": 0,
+        "yMin": 0.5
       },
-      "data": "Fleg 2005, Circulation · capacidad aeróbica (VO2 pico) medida en adultos sanos"
+      "data": "Fleg 2005, Circulation · capacidad aeróbica (VO2 pico) medida en adultos sanos · curva ilustrativa"
     },
     {
       "type": "ficha",
       "duration": 4.04,
       "bar": "Y se acelera: más de un *20 %* por década desde los 70.",
-      "label": "edad · negro: pico · rojo: baja",
+      "label": "nivel según la edad · rojo: baja",
       "viz": {
         "kind": "agebar",
         "id": "cal",
         "items": [
           {
             "label": "Fondo",
+            "new": true,
+            "pts": [
+              [
+                20,
+                1
+              ],
+              [
+                30,
+                0.955
+              ],
+              [
+                40,
+                0.91
+              ],
+              [
+                50,
+                0.84
+              ],
+              [
+                60,
+                0.75
+              ],
+              [
+                70,
+                0.64
+              ],
+              [
+                80,
+                0.5
+              ]
+            ],
             "drop": 20,
-            "dropLabel": "desde los 20",
-            "fast": 70,
-            "new": true
+            "dropLabel": "desde los 20"
           },
           {
             "label": "Fuerza"
@@ -82,42 +231,99 @@
             "label": "Músculo"
           }
         ],
-        "focus": 0
+        "focus": 0,
+        "yMin": 0.5
       },
-      "data": "Fleg 2005, Circulation · capacidad aeróbica (VO2 pico) medida en adultos sanos"
+      "data": "Fleg 2005, Circulation · capacidad aeróbica (VO2 pico) medida en adultos sanos · curva ilustrativa"
     },
     {
       "type": "ficha",
       "duration": 5.39,
       "bar": "La *fuerza* de agarre toca techo entre los 26 y los 42 años.",
-      "label": "edad · negro: pico · rojo: baja",
+      "label": "nivel según la edad · rojo: baja",
       "viz": {
         "kind": "agebar",
         "id": "cal",
         "items": [
           {
             "label": "Fondo",
+            "pts": [
+              [
+                20,
+                1
+              ],
+              [
+                30,
+                0.955
+              ],
+              [
+                40,
+                0.91
+              ],
+              [
+                50,
+                0.84
+              ],
+              [
+                60,
+                0.75
+              ],
+              [
+                70,
+                0.64
+              ],
+              [
+                80,
+                0.5
+              ]
+            ],
             "drop": 20,
-            "dropLabel": "desde los 20",
-            "fast": 70
+            "dropLabel": "desde los 20"
           },
           {
             "label": "Fuerza",
-            "hold": [
-              26,
-              42
+            "new": true,
+            "pts": [
+              [
+                20,
+                0.9
+              ],
+              [
+                29,
+                1
+              ],
+              [
+                40,
+                1
+              ],
+              [
+                50,
+                0.95
+              ],
+              [
+                60,
+                0.88
+              ],
+              [
+                70,
+                0.79
+              ],
+              [
+                80,
+                0.68
+              ]
             ],
-            "drop": 42,
-            "dropLabel": "desde los ~40",
-            "new": true
+            "drop": 40,
+            "dropLabel": "desde los ~40"
           },
           {
             "label": "Músculo"
           }
         ],
-        "focus": 1
+        "focus": 1,
+        "yMin": 0.5
       },
-      "data": "Dodds 2014, PLoS One · 49.964 personas · pico: hombres 29–39 años, mujeres 26–42"
+      "data": "Dodds 2014, PLoS One · 49.964 personas · pico: hombres 29–39 años, mujeres 26–42 · curva ilustrativa"
     },
     {
       "type": "ficha",
@@ -143,40 +349,114 @@
       "type": "ficha",
       "duration": 5.39,
       "bar": "El *músculo* es el último: no baja de forma clara hasta finales de los 40.",
-      "label": "edad · negro: pico · rojo: baja",
+      "label": "nivel según la edad · rojo: baja",
       "viz": {
         "kind": "agebar",
         "id": "cal",
         "items": [
           {
             "label": "Fondo",
+            "pts": [
+              [
+                20,
+                1
+              ],
+              [
+                30,
+                0.955
+              ],
+              [
+                40,
+                0.91
+              ],
+              [
+                50,
+                0.84
+              ],
+              [
+                60,
+                0.75
+              ],
+              [
+                70,
+                0.64
+              ],
+              [
+                80,
+                0.5
+              ]
+            ],
             "drop": 20,
-            "dropLabel": "desde los 20",
-            "fast": 70
+            "dropLabel": "desde los 20"
           },
           {
             "label": "Fuerza",
-            "hold": [
-              26,
-              42
+            "pts": [
+              [
+                20,
+                0.9
+              ],
+              [
+                29,
+                1
+              ],
+              [
+                40,
+                1
+              ],
+              [
+                50,
+                0.95
+              ],
+              [
+                60,
+                0.88
+              ],
+              [
+                70,
+                0.79
+              ],
+              [
+                80,
+                0.68
+              ]
             ],
-            "drop": 42,
+            "drop": 40,
             "dropLabel": "desde los ~40"
           },
           {
             "label": "Músculo",
-            "hold": [
-              20,
-              50
+            "new": true,
+            "pts": [
+              [
+                20,
+                1
+              ],
+              [
+                50,
+                0.98
+              ],
+              [
+                60,
+                0.93
+              ],
+              [
+                70,
+                0.87
+              ],
+              [
+                80,
+                0.8
+              ]
             ],
             "drop": 50,
-            "dropLabel": "desde finales de los 40",
-            "new": true
+            "dropLabel": "desde finales de los 40"
           }
         ],
-        "focus": 2
+        "focus": 2,
+        "yMin": 0.5
       },
-      "data": "Janssen 2000, J Appl Physiol · 468 personas · resonancia de cuerpo entero"
+      "data": "Janssen 2000, J Appl Physiol · 468 personas · resonancia de cuerpo entero · curva ilustrativa"
     },
     {
       "type": "ficha",
@@ -204,38 +484,115 @@
       "type": "ficha",
       "duration": 4.71,
       "bar": "Son medias de población: no dicen cómo envejecerás tú.",
-      "label": "edad · negro: pico · rojo: baja",
+      "label": "nivel según la edad · rojo: baja",
       "viz": {
         "kind": "agebar",
         "id": "cal",
         "items": [
           {
             "label": "Fondo",
+            "pts": [
+              [
+                20,
+                1
+              ],
+              [
+                30,
+                0.955
+              ],
+              [
+                40,
+                0.91
+              ],
+              [
+                50,
+                0.84
+              ],
+              [
+                60,
+                0.75
+              ],
+              [
+                70,
+                0.64
+              ],
+              [
+                80,
+                0.5
+              ]
+            ],
             "drop": 20,
             "dropLabel": "desde los 20",
-            "fast": 70
+            "new": true
           },
           {
             "label": "Fuerza",
-            "hold": [
-              26,
-              42
+            "pts": [
+              [
+                20,
+                0.9
+              ],
+              [
+                29,
+                1
+              ],
+              [
+                40,
+                1
+              ],
+              [
+                50,
+                0.95
+              ],
+              [
+                60,
+                0.88
+              ],
+              [
+                70,
+                0.79
+              ],
+              [
+                80,
+                0.68
+              ]
             ],
-            "drop": 42,
-            "dropLabel": "desde los ~40"
+            "drop": 40,
+            "dropLabel": "desde los ~40",
+            "new": true
           },
           {
             "label": "Músculo",
-            "hold": [
-              20,
-              50
+            "pts": [
+              [
+                20,
+                1
+              ],
+              [
+                50,
+                0.98
+              ],
+              [
+                60,
+                0.93
+              ],
+              [
+                70,
+                0.87
+              ],
+              [
+                80,
+                0.8
+              ]
             ],
             "drop": 50,
-            "dropLabel": "desde finales de los 40"
+            "dropLabel": "desde finales de los 40",
+            "new": true
           }
-        ]
+        ],
+        "yMin": 0.5
       },
-      "data": "Fleg 2005 · Dodds 2014 · Janssen 2000"
+      "data": "Fleg 2005 · Dodds 2014 · Janssen 2000 · curva ilustrativa"
     },
     {
       "type": "cta",

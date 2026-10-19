@@ -26,3 +26,8 @@ check: 6 contadores a 0 · 8 avisos de lectura (cuentan la etiqueta y la línea 
 Veredicto: ✅ exportar.
 
 Nota: el beat 7 decía «el que antes se pierde es el de las piernas»; Janssen 2000 dice que la pérdida es sobre todo en la parte inferior, no que sea antes. Cambiado a «Y donde más se pierde es en las *piernas*».
+
+## Vuelta 3 (2026-10-19, petición de pablo: gráfica animada que suba y baje con la edad)
+Cada fila de la regla es ahora una curva (`pts`) que se dibuja mientras un cursor «NN AÑOS» barre de 20 a 80: negra en su mejor momento y roja desde que baja. Las formas siguen lo que dicen los estudios (pico y meseta de la fuerza, músculo estable hasta los 50, fondo que baja desde los 20 y se acelera), pero los puntos intermedios están dibujados: la línea DATA dice «curva ilustrativa» y no se muestran cifras en el eje vertical. Beats 1 y 8 barren las tres curvas a la vez. Barra del beat 1 acortada a 2 líneas para dar altura a las curvas.
+check: 6 contadores a 0 · 8 avisos de lectura.
+Veredicto: ✅ exportar.
