@@ -1,6 +1,9 @@
 {
   "look": "flat",
-  "fonts": { "family": "JetBrains Mono", "mono": "JetBrains Mono" },
+  "fonts": {
+    "family": "JetBrains Mono",
+    "mono": "JetBrains Mono"
+  },
   "colors": {
     "bg": "#0C0F16",
     "surface": "#141921",
@@ -12,5 +15,13 @@
     "good": "#00FFA1",
     "bad": "#FF0081"
   },
-  "motion": { "wordStagger": 0.04, "sceneIn": 0.4, "sceneOut": 0.25 }
+  "motion": {
+    "wordStagger": 0.04,
+    "sceneIn": 0.4,
+    "sceneOut": 0.25
+  },
+  "overlay": {
+    "progress": true,
+    "handle": false
+  }
 }
