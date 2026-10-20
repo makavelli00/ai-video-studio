@@ -1193,7 +1193,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     // bands[{series, lo[[x,y]], hi[[x,y]]}]? · refs[{series, y, label}]? · focus? (índice de la serie que manda)
     lines(v, lt, A, cont) {
       const [x0, x1] = v.x, [y0, y1] = v.y;
-      const P = { l: A.x + 70, r: A.x + A.w - 150, t: A.y + 120, b: A.y + A.h - 60 };
+      const P = { l: A.x + 80, r: A.x + A.w - 170, t: A.y + 120, b: A.y + A.h - 60 };
       const X = (x) => P.l + ((x - x0) / (x1 - x0)) * (P.r - P.l);
       const Y = (y) => P.b - ((y - y0) / (y1 - y0)) * (P.b - P.t);
       const at = (pts, x) => {
@@ -1211,15 +1211,15 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       const fa = fresh ? clamp((lt - 0.05) / 0.3) : 1;
       // ejes y rejilla
       ctx.save(); ctx.globalAlpha *= fa;
-      if (v.yLabel) monoText(v.yLabel.toUpperCase(), A.x, A.y + 70, { size: 24, color: C.muted, label: "viz.ylabel", spacing: 1 });
+      if (v.yLabel) monoText(v.yLabel.toUpperCase(), A.x, A.y + 66, { size: 28, color: C.muted, label: "viz.ylabel", spacing: 1 });
       (v.yTicks || []).forEach((y) => {
         ctx.fillStyle = C.soft || "#E6E4DC"; ctx.fillRect(P.l, Y(y) - 1, P.r - P.l, 2);
-        monoText(fmtNum(y), P.l - 14, Y(y) - 13, { size: 24, color: C.muted, align: "right", label: `viz.y${y}` });
+        monoText(fmtNum(y), P.l - 14, Y(y) - 16, { size: 30, color: C.muted, align: "right", label: `viz.y${y}` });
       });
       ctx.fillStyle = C.text; ctx.fillRect(P.l, P.b, P.r - P.l, 3);
       (v.xTicks || []).forEach((x) => {
         ctx.fillRect(X(x) - 1.5, P.b, 3, 12);
-        monoText(String(x), X(x), P.b + 18, { size: 24, align: "center", color: C.muted, label: `viz.x${x}` });
+        monoText(String(x), X(x), P.b + 18, { size: 30, align: "center", color: C.muted, label: `viz.x${x}` });
       });
       ctx.restore();
       // bandas de percentiles (p. ej. del 10 al 90)
@@ -1242,7 +1242,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         ctx.save(); ctx.globalAlpha *= ra;
         ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.setLineDash([10, 10]);
         ctx.beginPath(); ctx.moveTo(P.l, Y(r.y)); ctx.lineTo(P.r, Y(r.y)); ctx.stroke(); ctx.setLineDash([]);
-        if (r.label) monoText(r.label.toUpperCase(), P.l + 10, Y(r.y) + 8, { size: 22, weight: 700, color: col, label: `viz.ref${k + 1}` });
+        if (r.label) monoText(r.label.toUpperCase(), P.l + 10, Y(r.y) + 8, { size: 26, weight: 700, color: col, label: `viz.ref${k + 1}` });
         ctx.restore();
       });
       // líneas hasta el cursor
@@ -1260,18 +1260,18 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         ctx.fillStyle = C.bg; ctx.beginPath(); ctx.arc(X(cx), yy, 5, 0, Math.PI * 2); ctx.fill();
         // cifra y nombre junto al punto
         const val = `${Math.round(at(s.pts, cx))}${v.unit ? " " + v.unit : ""}`;
-        const right = X(cx) + 26 + 150 <= A.x + A.w;
-        ctx.font = serif(900, 52);
+        const right = X(cx) + 26 + 170 <= A.x + A.w;
+        ctx.font = serif(900, 60);
         ctx.fillStyle = col; ctx.textAlign = right ? "left" : "right"; ctx.textBaseline = "alphabetic";
         const lx = right ? X(cx) + 26 : X(cx) - 26;
         // fondo bajo la cifra: los umbrales discontinuos no la tachan
-        const bw = Math.max(ctx.measureText(val).width, 130) + 12;
-        ctx.fillStyle = C.bg; ctx.fillRect(right ? lx - 6 : lx - bw + 6, yy - 40, bw, 82);
+        const bw = Math.max(ctx.measureText(val).width, 150) + 12;
+        if (v.refs?.length) { ctx.fillStyle = C.bg; ctx.fillRect(right ? lx - 6 : lx - bw + 6, yy - 46, bw, 96); }
         ctx.fillStyle = col;
         ctx.fillText(val, lx, yy + 4);
         const vw = ctx.measureText(val).width;
-        reg(`viz.line${i + 1}.value`, right ? lx : lx - vw, yy - 38, vw, 46);
-        monoText(String(s.label).toUpperCase(), lx, yy + 14, { size: 22, weight: 700, color: col, align: right ? "left" : "right", label: `viz.line${i + 1}.label`, spacing: 1 });
+        reg(`viz.line${i + 1}.value`, right ? lx : lx - vw, yy - 44, vw, 52);
+        monoText(String(s.label).toUpperCase(), lx, yy + 16, { size: 26, weight: 700, color: col, align: right ? "left" : "right", label: `viz.line${i + 1}.label`, spacing: 1 });
         ctx.restore();
       });
       // cursor y edad

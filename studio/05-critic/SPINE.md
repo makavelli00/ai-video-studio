@@ -13,3 +13,5 @@ Cada fallo que encuentren los sensores, el crítico o el usuario va aquí. Si un
 | 2026-10-15 | prensa-vs-extensiones | Contador con `sub` dibujado diminuto (la fuente del sub pisaba la de la cifra) | `engine.js` restablece la fuente antes de dibujar la cifra | 1 | — |
 | 2026-10-15 | prensa-vs-extensiones | Cuatro `compare` seguidos | Beat 4 pasa a contador | 1 | — |
 | 2026-10-19 | prensa-vs-extensiones | Palabras destacadas en caja partidas entre líneas, con huecos entre ellas | Espacio duro dentro de la frase; `parseRich` no corta por U+00A0 | 1 | — |
+| 2026-10-20 | agarre-por-edad | Palabras destacadas partidas entre líneas en la barra («30 y los / 40», «19 / kg») | Espacio duro (U+00A0) dentro de los `*…*` | 2 | Sensor en `scripts/check.mjs`: error si un destacado del look editorial lleva espacios normales |
+| 2026-10-20 | agarre-por-edad | Textos del viz `lines` pequeños en móvil y tachados por umbrales | Tamaños 26–30 y fondo bajo las cifras (engine) | 1 | — |

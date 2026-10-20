@@ -54,6 +54,10 @@ let total = 0;
     case "theories": need("items"); texts.push(s.title, ...(s.items || []).map((it) => (typeof it === "string" ? it : it.text))); break;
   }
   texts.filter(Boolean).forEach((t) => { if (stars(t)) errors.push(`${id}: asteriscos sin cerrar en "${t}"`); });
+  // en el look editorial lo destacado va en caja: si tiene espacios normales, la caja se parte entre líneas (spine 2026-10-19 y 2026-10-20)
+  if (v.style.look === "editorial") [s.bar, s.text].filter(Boolean).forEach((t) => {
+    for (const m of String(t).matchAll(/\*([^*]+)\*/g)) if (/ /.test(m[1])) errors.push(`${id}: "*${m[1]}*" lleva espacios normales; únelos con espacio duro (U+00A0) para que la caja no se parta`);
+  });
   const n = texts.filter(Boolean).reduce((a, t) => a + words(t), 0);
   const min = n / READ_WPS + 0.8;
   if (s.duration && s.duration + 0.05 < min) warnings.push(`${id}: ${n} palabras en ${s.duration}s; necesita ~${min.toFixed(1)}s para leerse`);

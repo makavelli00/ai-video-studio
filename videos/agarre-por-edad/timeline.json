@@ -10,7 +10,7 @@
     {
       "type": "ficha",
       "duration": 6.0,
-      "bar": "A los 20, lo normal: *40 kg* en hombres y *28* en mujeres.",
+      "bar": "A los 20, lo normal: *40 kg* en hombres y *28* en mujeres.",
       "label": "Agarre según la edad",
       "data": "Dodds 2014, *PLoS One* · 49.964 personas de 12 estudios británicos · mediana por edad",
       "viz": {
@@ -185,7 +185,7 @@
     {
       "type": "ficha",
       "duration": 5.4,
-      "bar": "El máximo llega entre los *30 y los 40*: 51 kg y 31 kg.",
+      "bar": "El máximo llega entre los *30 y los 40*: 51 kg y 31 kg.",
       "label": "Agarre según la edad",
       "data": "Dodds 2014, *PLoS One* · 49.964 personas de 12 estudios británicos · mediana por edad",
       "viz": {
@@ -360,7 +360,7 @@
     {
       "type": "ficha",
       "duration": 5.4,
-      "bar": "Luego baja muy despacio: a los 55, solo *3 o 4 kg* menos.",
+      "bar": "Luego baja muy despacio: a los 55, solo *3 o 4 kg* menos.",
       "label": "Agarre según la edad",
       "data": "Dodds 2014, *PLoS One* · 49.964 personas de 12 estudios británicos · mediana por edad",
       "viz": {
@@ -710,7 +710,7 @@
     {
       "type": "ficha",
       "duration": 5.0,
-      "bar": "A los 80, la mediana es *32 kg* y *19 kg*.",
+      "bar": "A los 80, la mediana baja a *32* y *19 kg*.",
       "label": "Agarre según la edad",
       "data": "Dodds 2014, *PLoS One* · 49.964 personas de 12 estudios británicos · mediana por edad",
       "viz": {
@@ -1071,8 +1071,8 @@
     },
     {
       "type": "ficha",
-      "duration": 6.4,
-      "bar": "Son medianas: a los 50, el 10 % más fuerte aprieta *60 kg*; el más débil, *35*.",
+      "duration": 6.8,
+      "bar": "Y son medianas: a los 50, unos hombres aprietan *35 kg* y otros *60*.",
       "label": "Franja: del 10 % al 90 %",
       "data": "Dodds 2014 · a los 50: hombres 35–60 kg, mujeres 21–37 kg (percentiles 10 y 90)",
       "viz": {
