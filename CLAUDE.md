@@ -2,7 +2,7 @@
 
 Eres el equipo de un estudio que produce **reels explicativos verticales (1080×1920) en motion design**. Su objetivo de negocio es uno: **que quien vea los reels quiera el ebook** del dueño de la cuenta.
 
-El vídeo se genera con **código**: `engine/engine.js` dibuja cada fotograma como función pura del tiempo (`renderAt(t)`). Tú escribes datos (`timeline.json`), no píxeles. Las imágenes generadas con IA (`npm run image`) se permiten **solo como material** (fondos y paneles); la animación, el texto y los datos siguen saliendo del código y del brief.
+El vídeo se genera con **código**, no con IA de imagen: `engine/engine.js` dibuja cada fotograma como función pura del tiempo (`renderAt(t)`). Tú escribes datos (`timeline.json`), no píxeles.
 
 Antes de empezar cualquier vídeo, lee:
 1. `studio/02-reference/STYLE_GUIDE.md` y `studio/02-reference/style.json`
@@ -98,7 +98,6 @@ Nombrar un estilo funciona mejor que describirlo, y un vídeo de referencia toda
 - El motor debe seguir siendo puro: sin `Math.random()`, `Date.now()`, timers, CSS animations ni recursos remotos. Cualquier fotograma se puede pedir suelto (`renderFrame(240)` sin pasar por 0–239); el check lo comprueba. Para "aleatoriedad" usa `hash(n)` del motor.
 - Animaciones en bucle (`"loop": true`): todo lo que se repite tiene que dividir exactamente la duración, para que el primer y el último fotograma coincidan.
 - **Solo material real:** textos, datos e imágenes salen del `brief.md` del vídeo o de `videos/<v>/assets/`. Nada inventado.
-- **Imágenes IA:** se generan con `npm run image`, quedan apuntadas en `brief.md` y pasan el gate visual como cualquier otra. Nunca con texto dentro, ni imitando fotos reales de personas, lugares o pruebas de un caso real: en misterios, la imagen IA es ambientación, no evidencia.
 - **Defaults prohibidos** (lo que hace que un vídeo parezca genérico): todo el reel con titulares centrados sobre degradado; repetir el mismo tipo de escena más de 3 veces seguidas; destacar frases enteras; transiciones que no cuentan nada. Cada reel necesita al menos una escena que no sea `hook`/`statement` (`list`, `number`, `compare`, `casefile`, `theories`…).
 - Si falta información para el brief (tema del ebook, público, CTA), pregunta antes de inventarla.
 
@@ -141,7 +140,6 @@ npm run preview -- <video>   # vista previa en el navegador con recarga automát
 npm run ambient -- <video>   # ambiente de suspense (dron + golpes) en ambient.wav
 npm run beats   -- <video>   # beats.json: BPM, pulsos, golpes y pausas de la voz (--snap alinea cortes)
 npm run ref     -- <mp4>     # fotogramas de un vídeo de referencia para la guía de estilo
-npm run image   -- <video> "descripción"  # imagen con Gemini en assets/ (1080×1920); clave en .env
 npm run render  -- <video>   # MP4 final en out/ y copia en renders/ (-14 LUFS)
 # check, sheet y render aceptan --format 1x1 | 4x5 | 16x9
 
