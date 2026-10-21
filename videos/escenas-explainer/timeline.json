@@ -1,0 +1,104 @@
+{
+  "title": "Escenas nuevas: fill, morph y timeline",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "scenes": [
+    {
+      "type": "hook",
+      "duration": 3.0,
+      "text": "Este reel no lo ha *animado* nadie"
+    },
+    {
+      "type": "timeline",
+      "duration": 11.2,
+      "kicker": "Del brief al MP4",
+      "items": [
+        {
+          "at": "Gate 1",
+          "text": "Brief: idea, público y *gancho*"
+        },
+        {
+          "at": "Gate 2",
+          "text": "Guion: una idea por *escena*"
+        },
+        {
+          "at": "Gate 3",
+          "text": "Visual: hoja de contactos y *crítica*"
+        },
+        {
+          "at": "Gate 4",
+          "text": "Exportación: el MP4 y el *texto*"
+        }
+      ]
+    },
+    {
+      "type": "fill",
+      "duration": 9.4,
+      "title": "Receta de un reel de *25 s*",
+      "total": "25 s",
+      "items": [
+        {
+          "label": "Gancho",
+          "amount": "3 s",
+          "value": 3
+        },
+        {
+          "label": "Problema",
+          "amount": "4 s",
+          "value": 4
+        },
+        {
+          "label": "Explicación",
+          "amount": "4 s",
+          "value": 4
+        },
+        {
+          "label": "Lista",
+          "amount": "5 s",
+          "value": 5
+        },
+        {
+          "label": "Comparación",
+          "amount": "5 s",
+          "value": 5
+        },
+        {
+          "label": "Llamada final",
+          "amount": "4 s",
+          "value": 4
+        }
+      ]
+    },
+    {
+      "type": "morph",
+      "duration": 10.9,
+      "title": "El bucle de *crítica*",
+      "states": [
+        {
+          "kicker": "1 · check",
+          "text": "Seis contadores a *cero*"
+        },
+        {
+          "kicker": "2 · sheet",
+          "text": "Mirar la hoja de *contactos*"
+        },
+        {
+          "kicker": "3 · review",
+          "text": "Los 3 peores *defectos*"
+        },
+        {
+          "kicker": "4 · otra vuelta",
+          "text": "Corregir y *repetir*"
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "book": false,
+      "duration": 4.0,
+      "text": "¿Qué escena *quieres* ver?",
+      "button": "Coméntalo"
+    }
+  ]
+}

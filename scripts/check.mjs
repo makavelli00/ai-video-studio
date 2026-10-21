@@ -47,6 +47,15 @@ let total = 0;
       texts.push(s.title, s.stamp, ...(s.rows || []).flatMap((r) => [r.k, r.v]));
       if (!s.source) warnings.push(`${id}: expediente sin "source". En misterios, cada dato tiene que poder comprobarse.`); break;
     case "panel": need("text"); need("image"); texts.push(s.kicker, s.text, s.note); break;
+    case "fill": need("items"); texts.push(s.title, s.total, ...(s.items || []).flatMap((it) => [it.label, it.amount]));
+      if (s.items && (s.items.length < 2 || s.items.length > 6)) warnings.push(`${id}: ${s.items.length} capas; lo ideal es 2–6`);
+      for (const [j, it] of (s.items || []).entries()) if (!it.label) errors.push(`${id}: la capa ${j + 1} necesita "label"`); break;
+    case "morph": if (!s.states?.length) errors.push(`${id}: necesita "states" [{text, kicker?}]`);
+      texts.push(s.title, ...(s.states || []).flatMap((st) => [st.kicker, st.text]));
+      if (s.states && s.states.length > 5) warnings.push(`${id}: ${s.states.length} estados; con más de 5 no da tiempo a leerlos`); break;
+    case "timeline": if (!s.items?.length) errors.push(`${id}: necesita "items" [{at, text}]`);
+      texts.push(s.kicker, ...(s.items || []).flatMap((it) => [it.at, it.text]));
+      if (s.items && s.items.length > 6) warnings.push(`${id}: ${s.items.length} hitos; mejor ≤ 6`); break;
     case "theories": need("items"); texts.push(s.title, ...(s.items || []).map((it) => (typeof it === "string" ? it : it.text))); break;
   }
   texts.filter(Boolean).forEach((t) => { if (stars(t)) errors.push(`${id}: asteriscos sin cerrar en "${t}"`); });

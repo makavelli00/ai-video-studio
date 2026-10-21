@@ -631,6 +631,234 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       });
     },
 
+    // Receta: un vaso que se llena por capas; cada ingrediente cae, sube el nivel y se etiqueta al lado.
+    // items: [{label, amount?, value?, color?}] · title? · total? · itemDelay?
+    fill(sc, lt) {
+      const items = sc.items || [];
+      const n = Math.max(1, items.length);
+      const title = sc.title ? layoutRich({ text: sc.title, maxWidth: CW, size: sc.size || 92, weight: 900, lh: 1.1 }) : null;
+      const gT = (title ? 70 : 0) + (sc.total ? 80 : 0);
+      const glassH = Math.min(860, SAFE.bottom - SAFE.top - (title ? title.h + gT : 0) - 40);
+      const glassW = 340, taper = 30;
+      let y = CENTER_Y - ((title ? title.h + gT : 0) + glassH) / 2;
+      if (title) { drawRich({ layout: title, x: SAFE.left, y, align: "left", t: lt, label: "fill.title", maxWidth: CW }); y += title.h + gT; }
+      const gx = SAFE.left + 10, gTop = y, gBot = y + glassH;
+      const glass = () => {
+        ctx.beginPath();
+        ctx.moveTo(gx, gTop);
+        ctx.lineTo(gx + taper, gBot - 40);
+        ctx.quadraticCurveTo(gx + taper, gBot, gx + taper + 40, gBot);
+        ctx.lineTo(gx + glassW - taper - 40, gBot);
+        ctx.quadraticCurveTo(gx + glassW - taper, gBot, gx + glassW - taper, gBot - 40);
+        ctx.lineTo(gx + glassW, gTop);
+      };
+      const palette = [C.accent, C.accent2, C.good, C.bad];
+      const sum = items.reduce((a, it) => a + (Number(it.value) || 1), 0) || 1;
+      const usable = glassH * 0.9;
+      const base = 0.35 + (title ? title.count * S.motion.wordStagger : 0);
+      const step = sc.itemDelay || 0.75;
+      // capas (recortadas a la forma del vaso)
+      ctx.save();
+      glass(); ctx.closePath(); ctx.clip();
+      ctx.fillStyle = hexA(C.text, 0.05);
+      ctx.fillRect(gx, gTop, glassW, glassH);
+      let level = gBot;
+      const mids = [];
+      items.forEach((it, i) => {
+        const d0 = base + i * step;
+        const hT = (usable * (Number(it.value) || 1)) / sum;
+        const h = hT * spring(lt - d0 - 0.18, SPRINGS.settle);
+        const col = it.color || palette[i % palette.length];
+        mids.push({ y: level - hT / 2, col, d0 });
+        if (h > 0.5) {
+          // superficie que se mueve mientras cae el líquido y se calma después
+          const amp = 9 * Math.exp(-3 * Math.max(0, lt - d0 - 0.2)) * clamp((lt - d0) / 0.2);
+          ctx.fillStyle = col;
+          ctx.beginPath();
+          ctx.moveTo(gx, level + 2);
+          for (let x = 0; x <= glassW; x += 20) ctx.lineTo(gx + x, level - h + amp * Math.sin(x / 38 + lt * 9));
+          ctx.lineTo(gx + glassW, level + 2);
+          ctx.closePath(); ctx.fill();
+          ctx.fillStyle = "rgba(255,255,255,0.10)";
+          ctx.fillRect(gx, level - h, glassW, 6);
+        }
+        level -= h;
+      });
+      ctx.restore();
+      // chorro que cae del borde mientras se sirve cada capa
+      items.forEach((it, i) => {
+        const p = (lt - mids[i].d0) / 0.55;
+        if (p <= 0 || p >= 1) return;
+        const sx = gx + glassW / 2 + 40, top = gTop - 130 + 130 * clamp((p - 0.6) / 0.4);
+        const bottom = Math.min(gBot, gTop - 130 + (gBot - gTop + 130) * easeInCubic(clamp(p / 0.45)));
+        ctx.fillStyle = mids[i].col;
+        roundRect(ctx, sx - 9, top, 18, Math.max(0, bottom - top), 9); ctx.fill();
+      });
+      // contorno del vaso y brillo
+      ctx.save();
+      ctx.strokeStyle = hexA(C.text, 0.85); ctx.lineWidth = 6; ctx.lineJoin = "round";
+      glass(); ctx.stroke();
+      ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.lineWidth = 10;
+      ctx.beginPath(); ctx.moveTo(gx + 34, gTop + 40); ctx.lineTo(gx + 34 + taper * 0.7, gBot - 120); ctx.stroke();
+      ctx.restore();
+      // etiquetas: una fila por capa, de abajo arriba, unidas a su capa con una línea
+      const lx = gx + glassW + 80, lw = SAFE.right - lx, rowH = glassH / n;
+      items.forEach((it, i) => {
+        const d0 = mids[i].d0 + 0.25;
+        const a = clamp((lt - d0) / 0.25);
+        if (a <= 0) return;
+        const rowMid = gBot - (i + 0.5) * rowH;
+        const amt = it.amount ? layoutRich({ text: String(it.amount), maxWidth: lw, size: 58, weight: 900, lh: 1.05, hlMode: "color" }) : null;
+        const lab = layoutRich({ text: it.label || "", maxWidth: lw, size: 44, weight: 700, lh: 1.12, hlMode: "color" });
+        const bh = (amt ? amt.h + 4 : 0) + lab.h;
+        const ty = rowMid - bh / 2;
+        const e = spring(lt - d0, SPRINGS.snap);
+        ctx.save();
+        ctx.globalAlpha *= a;
+        ctx.strokeStyle = mids[i].col; ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(gx + glassW - taper * 0.5, mids[i].y);
+        ctx.lineTo(gx + glassW + 30, mids[i].y);
+        ctx.lineTo(lx - 24, rowMid);
+        ctx.stroke();
+        ctx.fillStyle = mids[i].col;
+        ctx.beginPath(); ctx.arc(lx - 24, rowMid, 8 * e, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+        if (amt) drawRich({ layout: amt, x: lx, y: ty, align: "left", color: mids[i].col, t: lt, delay: d0, stagger: 0.03, label: `fill.amount${i + 1}`, maxWidth: lw });
+        drawRich({ layout: lab, x: lx, y: ty + (amt ? amt.h + 4 : 0), align: "left", t: lt, delay: d0 + 0.08, stagger: 0.03, label: `fill.item${i + 1}`, maxWidth: lw });
+      });
+      if (sc.total) {
+        const td = base + items.length * step + 0.3;
+        const L = layoutRich({ text: sc.total, maxWidth: glassW + 40, size: 54, weight: 900, lh: 1.1 });
+        drawRich({ layout: L, x: gx + glassW / 2, y: gTop - L.h - 14, t: lt, delay: td, label: "fill.total", maxWidth: glassW + 40 });
+      }
+    },
+
+    // Una sola forma que nunca corta: la misma tarjeta cambia de tamaño, radio y contenido en cada estado.
+    // Un indicador de acento se estira entre los puntos (cada borde con su muelle).
+    // states: [{text, kicker?}] · title?
+    morph(sc, lt, d) {
+      const states = sc.states || [];
+      const n = Math.max(1, states.length);
+      const title = sc.title ? layoutRich({ text: sc.title, maxWidth: CW, size: sc.size || 88, weight: 900, lh: 1.1 }) : null;
+      const pad = 64, kSize = 38, kH = kSize * 1.7, gK = 30;
+      const L = states.map((st) => layoutRich({ text: st.text, maxWidth: CW - pad * 2, size: sc.textSize || 84, weight: 900, lh: 1.12 }));
+      const box = states.map((st, i) => {
+        ctx.font = font(800, kSize);
+        const kw = st.kicker ? ctx.measureText(String(st.kicker).toUpperCase()).width + kSize * 1.4 : 0;
+        const w = Math.min(CW, Math.max(L[i].w, kw, 360) + pad * 2);
+        const h = L[i].h + (st.kicker ? kH + gK : 0) + pad * 2;
+        return { w, h, r: i % 2 ? 40 : Math.min(h / 2, 120) };
+      });
+      const top0 = title ? SAFE.top + 20 : SAFE.top;
+      if (title) drawRich({ layout: title, x: SAFE.left, y: top0, align: "left", t: lt, label: "morph.title", maxWidth: CW });
+      const cy = title ? (top0 + title.h + SAFE.bottom) / 2 : CENTER_Y;
+      const t0 = title ? 0.3 + title.count * S.motion.wordStagger : 0.15;
+      const seg = (d - t0) / n;
+      const ts = states.map((_, i) => t0 + i * seg);
+      const keys = (f) => box.map((b, i) => ({ t: i === 0 ? -1 : ts[i], v: f(b) }));
+      const w = track(lt, keys((b) => b.w)), h = track(lt, keys((b) => b.h)), r = track(lt, keys((b) => b.r));
+      const grow = spring(lt - t0 + 0.15, SPRINGS.settle);
+      ctx.save();
+      ctx.translate(W / 2, cy);
+      ctx.scale(grow, grow);
+      ctx.fillStyle = C.surface;
+      roundRect(ctx, -w / 2, -h / 2, w, h, Math.max(0, r)); ctx.fill();
+      ctx.strokeStyle = hexA(C.accent, 0.9); ctx.lineWidth = 5;
+      roundRect(ctx, -w / 2, -h / 2, w, h, Math.max(0, r)); ctx.stroke();
+      ctx.restore();
+      // contenido: entra cuando la forma ya se mueve y sale antes del siguiente cambio
+      const cur = Math.max(0, ts.filter((x) => lt >= x).length - 1);
+      const st = states[cur];
+      if (st) {
+        const cin = ts[cur] + 0.18, cout = cur < n - 1 ? ts[cur + 1] - 0.12 : Infinity;
+        const a = clamp((lt - cin) / 0.2) * (1 - clamp((lt - cout) / 0.12));
+        if (a > 0) {
+          const b = box[cur];
+          let yy = cy - b.h / 2 + pad;
+          ctx.save();
+          ctx.globalAlpha *= a;
+          const blur = (1 - a) * 10;
+          if (blur > 0.5) ctx.filter = `blur(${blur.toFixed(1)}px)`;
+          if (st.kicker) { pill(String(st.kicker).toUpperCase(), W / 2, yy, { size: kSize, align: "center", label: "morph.kicker" }); yy += kH + gK; }
+          drawRich({ layout: L[cur], x: W / 2, y: yy, t: lt, delay: cin, stagger: 0.04, label: "morph.text", maxWidth: CW - pad * 2 });
+          ctx.restore();
+        }
+      }
+      // indicador de pasos: el acento se estira entre puntos (borde delantero rápido, trasero lento)
+      if (n > 1) {
+        const gap = 64, dy = cy + h / 2 * grow + 70, x0 = W / 2 - ((n - 1) * gap) / 2;
+        ctx.save();
+        ctx.globalAlpha *= clamp((lt - t0) / 0.3);
+        for (let i = 0; i < n; i++) { ctx.fillStyle = hexA(C.text, 0.25); ctx.beginPath(); ctx.arc(x0 + i * gap, dy, 9, 0, Math.PI * 2); ctx.fill(); }
+        const idx = ts.map((x, i) => ({ t: i === 0 ? -1 : x, v: x0 + i * gap }));
+        const lead = track(lt, idx, SPRINGS.snap), tail = track(lt, idx, { stiffness: 90, damping: 18 });
+        const a1 = Math.min(lead, tail) - 13, a2 = Math.max(lead, tail) + 13;
+        ctx.fillStyle = C.accent;
+        roundRect(ctx, a1, dy - 13, a2 - a1, 26, 13); ctx.fill();
+        ctx.restore();
+      }
+    },
+
+    // Línea de tiempo vertical: la cámara baja de hito en hito y la línea crece con ella.
+    // items: [{at, text}] · kicker? · itemDelay?
+    timeline(sc, lt, d) {
+      const items = sc.items || [];
+      const n = Math.max(1, items.length);
+      const gap = sc.gap || 420;
+      const lineX = SAFE.left + 26, tx = SAFE.left + 90, tw = CW - 90;
+      const t0 = 0.25;
+      const step = sc.itemDelay || (d - t0 - 0.6) / n;
+      const ts = items.map((_, i) => t0 + i * step);
+      const keys = ts.map((x, i) => ({ t: i === 0 ? -1 : x - 0.15, v: i * gap }));
+      const cam = track(lt, keys, SPRINGS.glide);
+      const sy = (i) => CENTER_Y + 40 + i * gap - cam;
+      // línea: crece desde arriba hasta el último hito alcanzado
+      const reach = track(lt, keys, SPRINGS.settle);
+      ctx.save();
+      const lg = ctx.createLinearGradient(0, SAFE.top, 0, CENTER_Y);
+      lg.addColorStop(0, hexA(C.accent, 0)); lg.addColorStop(1, hexA(C.accent, 0.9));
+      ctx.fillStyle = lg;
+      const yEnd = CENTER_Y + 40 + reach - cam;
+      ctx.fillRect(lineX - 3, Math.min(SAFE.top, yEnd), 6, Math.max(0, yEnd - SAFE.top));
+      ctx.restore();
+      items.forEach((it, i) => {
+        if (lt < ts[i] - 0.15) return;
+        const y = sy(i);
+        const dist = Math.abs(y - CENTER_Y - 40);
+        const a = clamp(1 - dist / (gap * 1.25));
+        if (a <= 0.02) return;
+        const pop = spring(lt - ts[i], SPRINGS.snap);
+        ctx.save();
+        ctx.globalAlpha *= a;
+        ctx.fillStyle = C.accent;
+        ctx.beginPath(); ctx.arc(lineX, y, 24 * pop, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = C.bg;
+        ctx.beginPath(); ctx.arc(lineX, y, 9 * pop, 0, Math.PI * 2); ctx.fill();
+        const A = layoutRich({ text: String(it.at || ""), maxWidth: tw, size: sc.atSize || 92, weight: 900, lh: 1.0 });
+        const T = layoutRich({ text: it.text || "", maxWidth: tw, size: sc.itemSize || 62, weight: 800, lh: 1.16, hlMode: "color" });
+        // los hitos que quedan atrás se ven de contexto, pero solo el actual cuenta para el control de zonas
+        const saved = collect; if (dist > gap * 0.3) collect = null;
+        drawRich({ layout: A, x: tx, y: y - A.lineH / 2, align: "left", color: C.accent, t: lt, delay: ts[i], stagger: 0.04, label: `timeline.at${i + 1}`, maxWidth: tw });
+        drawRich({ layout: T, x: tx, y: y + A.lineH / 2 + 18, align: "left", t: lt, delay: ts[i] + 0.15, stagger: 0.035, label: `timeline.item${i + 1}`, maxWidth: tw });
+        collect = saved;
+        ctx.restore();
+      });
+      if (sc.kicker) {
+        // franja con el color de fondo para que los hitos pasados se escondan bajo la etiqueta
+        const band = ctx.createLinearGradient(0, SAFE.top, 0, SAFE.top + 200);
+        band.addColorStop(0, hexA(C.bg, 1)); band.addColorStop(1, hexA(C.bg, 0));
+        ctx.fillStyle = band; ctx.fillRect(0, 0, W, SAFE.top + 200);
+        ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, SAFE.top);
+        const e = spring(lt, SPRINGS.snap);
+        ctx.save();
+        ctx.globalAlpha *= clamp(lt / 0.25);
+        ctx.translate(-80 * (1 - e), 0);
+        pill(String(sc.kicker).toUpperCase(), SAFE.left, SAFE.top + 10, { size: 40, label: "timeline.kicker" });
+        ctx.restore();
+      }
+    },
+
     // Llamada a la acción con portada del ebook.
     cta(sc, lt) {
       if (sc.book === false) return SCENES.follow(sc, lt);
@@ -968,4 +1196,4 @@ function hexA(hex, a) {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
 }
 
-export const SCENE_TYPES = ["hook", "statement", "list", "number", "compare", "casefile", "theories", "panel", "cta"];
+export const SCENE_TYPES = ["hook", "statement", "list", "number", "compare", "casefile", "theories", "panel", "fill", "morph", "timeline", "cta"];
