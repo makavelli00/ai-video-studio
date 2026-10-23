@@ -1,3 +1,5 @@
+Canal: <deporte | ciencia | tdah> (lee channels/<canal>/CANAL.md)
+
 # Brief del reel
 
 > Capa 1 · Director. Un brief corto y concreto. Si no cabe aquí, son dos reels.
