@@ -444,6 +444,11 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       ctx.restore();
       if (collect) { ctx.font = font(900, size); const fw = ctx.measureText(final).width; collect.push({ scene: currentLabel, label: "number.value", x: W / 2 - fw / 2, y: top, w: fw, h: numH }); }
       if (label) drawRich({ layout: label, x: W / 2, y: top + numH + gap, t: lt, delay: 0.6, label: "number.label", maxWidth: CW });
+      // Fuente visible: el vídeo se tiene que poder comprobar sin sonido.
+      if (sc.source && !sc.hideSource) {
+        const src = layoutRich({ text: `Fuente: ${sc.source}`, maxWidth: CW, size: 40, weight: 600, lh: 1.2, hlMode: "color" });
+        drawRich({ layout: src, x: W / 2, y: top + numH + (label ? gap + label.h : 0) + 56, t: lt, delay: 1.0, stagger: 0.02, color: C.muted, label: "number.source", maxWidth: CW });
+      }
     },
 
     // Comparación: tarjeta ANTES / DESPUÉS.

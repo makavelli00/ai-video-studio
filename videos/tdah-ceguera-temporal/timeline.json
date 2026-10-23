@@ -14,11 +14,11 @@
       "duration": 4.8,
       "title": "El mismo rato",
       "left": {
-        "label": "Lo que crees",
+        "label": "Tu cabeza",
         "text": "5 minutos"
       },
       "right": {
-        "label": "Lo que pasa",
+        "label": "El reloj",
         "text": "40 minutos"
       }
     },
