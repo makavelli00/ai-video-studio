@@ -9,7 +9,7 @@
   "scenes": [
     {
       "type": "ficha",
-      "duration": 6.0,
+      "duration": 5.0,
       "bar": "A los 20, lo normal: *40 kg* en hombres y *28* en mujeres.",
       "label": "Agarre según la edad",
       "data": "Dodds 2014, *PLoS One* · 49.964 personas de 12 estudios británicos · mediana por edad",
@@ -184,7 +184,7 @@
     },
     {
       "type": "ficha",
-      "duration": 5.4,
+      "duration": 4.6,
       "bar": "El máximo llega entre los *30 y los 40*: 51 kg y 31 kg.",
       "label": "Agarre según la edad",
       "data": "Dodds 2014, *PLoS One* · 49.964 personas de 12 estudios británicos · mediana por edad",
@@ -359,8 +359,8 @@
     },
     {
       "type": "ficha",
-      "duration": 5.4,
-      "bar": "Luego baja muy despacio: a los 55, solo *3 o 4 kg* menos.",
+      "duration": 5.0,
+      "bar": "Baja despacio hasta los 60 y desde ahí se *acelera*.",
       "label": "Agarre según la edad",
       "data": "Dodds 2014, *PLoS One* · 49.964 personas de 12 estudios británicos · mediana por edad",
       "viz": {
@@ -528,364 +528,14 @@
         ],
         "at": [
           35,
-          55
-        ]
-      }
-    },
-    {
-      "type": "ficha",
-      "duration": 4.8,
-      "bar": "Desde los 60, la bajada se *acelera*.",
-      "label": "Agarre según la edad",
-      "data": "Dodds 2014, *PLoS One* · 49.964 personas de 12 estudios británicos · mediana por edad",
-      "viz": {
-        "kind": "lines",
-        "id": "agarre",
-        "x": [
-          20,
-          90
-        ],
-        "y": [
-          10,
-          65
-        ],
-        "xTicks": [
-          20,
-          30,
-          40,
-          50,
-          60,
-          70,
-          80,
-          90
-        ],
-        "yTicks": [
-          20,
-          30,
-          40,
-          50,
-          60
-        ],
-        "yLabel": "kg de agarre",
-        "unit": "kg",
-        "series": [
-          {
-            "label": "Hombres",
-            "pts": [
-              [
-                20,
-                40
-              ],
-              [
-                25,
-                48
-              ],
-              [
-                30,
-                51
-              ],
-              [
-                35,
-                51
-              ],
-              [
-                40,
-                50
-              ],
-              [
-                45,
-                49
-              ],
-              [
-                50,
-                48
-              ],
-              [
-                55,
-                47
-              ],
-              [
-                60,
-                45
-              ],
-              [
-                65,
-                43
-              ],
-              [
-                70,
-                39
-              ],
-              [
-                75,
-                35
-              ],
-              [
-                80,
-                32
-              ],
-              [
-                85,
-                29
-              ],
-              [
-                90,
-                25
-              ]
-            ]
-          },
-          {
-            "label": "Mujeres",
-            "pts": [
-              [
-                20,
-                28
-              ],
-              [
-                25,
-                30
-              ],
-              [
-                30,
-                31
-              ],
-              [
-                35,
-                31
-              ],
-              [
-                40,
-                31
-              ],
-              [
-                45,
-                30
-              ],
-              [
-                50,
-                29
-              ],
-              [
-                55,
-                28
-              ],
-              [
-                60,
-                27
-              ],
-              [
-                65,
-                25
-              ],
-              [
-                70,
-                24
-              ],
-              [
-                75,
-                21
-              ],
-              [
-                80,
-                19
-              ],
-              [
-                85,
-                17
-              ],
-              [
-                90,
-                14
-              ]
-            ],
-            "color": "#C31F15"
-          }
-        ],
-        "at": [
-          55,
           70
         ]
       }
     },
     {
       "type": "ficha",
-      "duration": 5.0,
-      "bar": "A los 80, la mediana baja a *32* y *19 kg*.",
-      "label": "Agarre según la edad",
-      "data": "Dodds 2014, *PLoS One* · 49.964 personas de 12 estudios británicos · mediana por edad",
-      "viz": {
-        "kind": "lines",
-        "id": "agarre",
-        "x": [
-          20,
-          90
-        ],
-        "y": [
-          10,
-          65
-        ],
-        "xTicks": [
-          20,
-          30,
-          40,
-          50,
-          60,
-          70,
-          80,
-          90
-        ],
-        "yTicks": [
-          20,
-          30,
-          40,
-          50,
-          60
-        ],
-        "yLabel": "kg de agarre",
-        "unit": "kg",
-        "series": [
-          {
-            "label": "Hombres",
-            "pts": [
-              [
-                20,
-                40
-              ],
-              [
-                25,
-                48
-              ],
-              [
-                30,
-                51
-              ],
-              [
-                35,
-                51
-              ],
-              [
-                40,
-                50
-              ],
-              [
-                45,
-                49
-              ],
-              [
-                50,
-                48
-              ],
-              [
-                55,
-                47
-              ],
-              [
-                60,
-                45
-              ],
-              [
-                65,
-                43
-              ],
-              [
-                70,
-                39
-              ],
-              [
-                75,
-                35
-              ],
-              [
-                80,
-                32
-              ],
-              [
-                85,
-                29
-              ],
-              [
-                90,
-                25
-              ]
-            ]
-          },
-          {
-            "label": "Mujeres",
-            "pts": [
-              [
-                20,
-                28
-              ],
-              [
-                25,
-                30
-              ],
-              [
-                30,
-                31
-              ],
-              [
-                35,
-                31
-              ],
-              [
-                40,
-                31
-              ],
-              [
-                45,
-                30
-              ],
-              [
-                50,
-                29
-              ],
-              [
-                55,
-                28
-              ],
-              [
-                60,
-                27
-              ],
-              [
-                65,
-                25
-              ],
-              [
-                70,
-                24
-              ],
-              [
-                75,
-                21
-              ],
-              [
-                80,
-                19
-              ],
-              [
-                85,
-                17
-              ],
-              [
-                90,
-                14
-              ]
-            ],
-            "color": "#C31F15"
-          }
-        ],
-        "at": [
-          70,
-          80
-        ]
-      }
-    },
-    {
-      "type": "ficha",
-      "duration": 5.8,
-      "bar": "Y 1 de cada 4 ya está por debajo del umbral de agarre *débil*.",
+      "duration": 5.6,
+      "bar": "A los 80, 1 de cada 4 ya tiene el agarre *débil*.",
       "label": "Agarre según la edad",
       "data": "Dodds 2014 · agarre débil: 27 kg o menos en hombres, 16 kg o menos en mujeres · a los 80: 23 % y 27 %",
       "viz": {
@@ -1052,7 +702,7 @@
           }
         ],
         "at": [
-          80,
+          70,
           80
         ],
         "refs": [
@@ -1071,7 +721,7 @@
     },
     {
       "type": "ficha",
-      "duration": 6.8,
+      "duration": 5.8,
       "bar": "Y son medianas: a los 50, unos hombres aprietan *35 kg* y otros *60*.",
       "label": "Franja: del 10 % al 90 %",
       "data": "Dodds 2014 · a los 50: hombres 35–60 kg, mujeres 21–37 kg (percentiles 10 y 90)",
@@ -1502,7 +1152,7 @@
     },
     {
       "type": "cta",
-      "duration": 4.2,
+      "duration": 3.8,
       "button": "Guardar",
       "book": false,
       "text": "Guárdalo y mídete la próxima vez que veas un *dinamómetro*."

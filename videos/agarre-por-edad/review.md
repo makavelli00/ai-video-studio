@@ -18,3 +18,6 @@
 - Sensor nuevo en el check (destacados con espacios normales en el look editorial) cazó «40 kg» y «35 kg»: corregidos con espacio duro.
 - Beat 7: la frase no decía que la franja de 35–60 kg es de hombres → «unos hombres aprietan…»; cajas blancas de las cifras solo cuando hay umbrales (sobre la franja quedaban como parches). Duración 6.8 s.
 - Veredicto: ✅ exportar.
+
+## Versión corta (2026-10-24)
+pablo pidió el vídeo más corto: 43.4 → 29.8 s. Beats 3+4 unidos (35→70, «Baja despacio hasta los 60 y desde ahí se acelera»), beats 5+6 unidos (70→80 con umbrales). Check a 0; avisos de lectura algo más justos, aceptados porque el titular es fijo.
