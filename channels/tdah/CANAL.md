@@ -1,4 +1,4 @@
-# Canal: TDAH
+# Canal: TDAH con datos
 
 - **Temática:** qué es el TDAH en adultos, por qué pasa lo que pasa (procrastinar, hiperfoco, ceguera temporal) y estrategias con respaldo.
 - **Público:** adultos de 20–45 con TDAH (diagnosticado o sospechado) y gente de su entorno.
@@ -10,4 +10,5 @@
 - **CTA:** seguir / guardar / comentar su caso.
 - **Fuentes:** guías clínicas (NICE, DSM-5-TR), metaanálisis, asociaciones (CHADD, FEAADAH). Distinguir lo probado de lo que "se cree".
 - **Línea roja:** no es consejo médico. No hablar de medicación más allá de lo que digan las guías. Cuando toque, "habla con un profesional".
-- **Nombre / handle:** pendiente.
+- **Nombre:** TDAH con datos (elegido 2026-10-24). Lema: «tu cabeza, explicada». Logo y avatar en `brand/` (reloj de arena blanco y dorado sobre negro). Handle: pendiente de confirmar.
+- **Formato probado:** reel 3D «resulta que» con `explainer3d/` (piloto: tdah-ceguera-temporal) con voz de ElevenLabs.

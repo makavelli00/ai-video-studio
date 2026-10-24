@@ -10,7 +10,7 @@ Cada vídeo sigue viviendo en `videos/<video>/`. En su `brief.md`, primera líne
 |---|---|---|
 | `deporte/` | Cuerpo con Datos (fitness y salud con estudios) | 5 reels hechos (PR #4 y #5) |
 | `ciencia/` | Datos científicos (curiosidades de ciencia, sin fitness) | sin nombre · sin reels |
-| `tdah/` | TDAH explicado con estudios | sin nombre · sin reels |
+| `tdah/` | TDAH con datos (TDAH explicado con estudios) | 1 reel: tdah-ceguera-temporal (3D) |
 
 Reglas comunes a todos: las del `CLAUDE.md` raíz (gates, fuentes reales, 20–45 s, sin emojis).
 Voz: la graba pablo (no hay TTS). El vídeo se tiene que entender igual sin sonido.
