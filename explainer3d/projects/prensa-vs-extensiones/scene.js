@@ -72,6 +72,7 @@ export default function (api) {
     root.add(sphere(.035, [-.07, .03, -.03], [1, 1.3, .8]));
     const hip = sphere(.048, [0, 0, 0]); root.add(hip);
     const glute = muscle([[-.19, .15, .0], [-.16, .05, .04], [-.11, -.05, .06], [-.04, -.1, .065]], .11, { peak: .45, sx: 1.25, sz: .85, sharp: .8 }); root.add(glute);
+    const glute0 = glute.position.clone();
 
     const thigh = new THREE.Group(); root.add(thigh);
     thigh.add(bone(.022, .027, .44, [0, -.23, 0]), sphere(.034, [-.025, -.04, .045], [1, 1.2, 1]));
@@ -115,6 +116,8 @@ export default function (api) {
     let restLen = null;
     function pose(hipDeg, kneeDeg) {
       thigh.rotation.z = hipDeg * D; shin.rotation.z = kneeDeg * D;
+      // the glute rolls under the hip as it flexes (half the hip angle), so a seated body sits on it
+      const gr = clamp(hipDeg, 0, 80) * D * .5; glute.position.copy(glute0).applyAxisAngle(Z, gr); glute.rotation.z = gr;
       const pts = anchors(); const curve = new THREE.CatmullRomCurve3(pts);
       rf.geometry.dispose(); rf.geometry = spindle(pts, .05, { peak: .4, rMin: .01, sharp: .9, sz: 1.1, segs: 48 });
       pt.geometry.dispose(); pt.geometry = spindle([toRoot(thigh, v(.08, -.46)), toRoot(shin, v(.055, -.04)), toRoot(shin, v(.04, -.08))], .016, { rMin: .012, sz: 1.4, segs: 12 });
@@ -126,38 +129,95 @@ export default function (api) {
   }
   const rfAll = L => L.userData.rf;
 
-  // ---------- machines ----------
+  // ---------- body: two anatomical legs + écorché upper body, origin = hip joint ----------
+  const TH = .46, SH = .44; // thigh and shin length
+  // 2-bone IK in the leg plane: foot target (dx, dy) relative to the hip -> [hipDeg, kneeDeg], knee bends forward/up
+  function ik(dx, dy) {
+    const L = Math.min(Math.hypot(dx, dy), TH + SH - .005), phi = Math.atan2(dx, -dy);
+    const al = Math.acos(clamp((TH * TH + L * L - SH * SH) / (2 * TH * L), -1, 1)), be = Math.acos(clamp((TH * TH + SH * SH - L * L) / (2 * TH * SH), -1, 1));
+    return [(phi + al) / D, -(Math.PI - be) / D];
+  }
+  // recline: torso tilt back from vertical (deg); hand: hand point relative to the hip [x, y, |z|]
+  function makeBody(recline, hand) {
+    const g = new THREE.Group(), legs = [makeLeg(), makeLeg()];
+    legs[0].position.z = .1; legs[1].position.z = -.1; g.add(...legs);
+    const up = new THREE.Group(); up.rotation.z = recline * D; g.add(up);
+    const tm = muscleMat();
+    up.add(muscle([[-.03, .02, 0], [-.01, .22, 0], [0, .44, 0]], .125, { peak: .62, sharp: .45, sx: .85, sz: 1.45 }, tm));
+    up.add(muscle([[.07, .04, 0], [.1, .17, 0], [.1, .3, 0]], .06, { peak: .5, sz: 1.5 }, tm)); // abdominals
+    for (const s of [1, -1]) {
+      up.add(muscle([[.05, .27, s * .1], [.1, .35, s * .08], [.06, .42, s * .05]], .055, { peak: .5, sz: 1.3 }, tm)); // pectoral
+      up.add(muscle([[-.03, .48, s * .14], [.01, .44, s * .19], [.02, .37, s * .2]], .05, { peak: .4 }, tm)); // deltoid
+    }
+    up.add(muscle([[0, .44, 0], [.01, .52, 0], [.02, .58, 0]], .045, { rMin: .03, sz: 1.1 }, tm)); // neck
+    const skull = new THREE.Mesh(new THREE.SphereGeometry(.085, 40, 24), boneMat()); skull.position.set(.03, .66, 0); skull.scale.set(1.05, 1.15, .88); up.add(skull);
+    const jaw = new THREE.Mesh(new THREE.SphereGeometry(.05, 32, 16), boneMat()); jaw.position.set(.08, .6, 0); jaw.scale.set(1, .7, .9); up.add(jaw);
+    // arms: shoulder -> elbow (bent back) -> hand on the handle
+    g.updateMatrixWorld(true);
+    for (const s of [1, -1]) {
+      const S = g.worldToLocal(up.localToWorld(new THREE.Vector3(0, .42, s * .2))), Hd = new THREE.Vector3(hand[0], hand[1], s * hand[2]);
+      const sh = Hd.clone().sub(S), half = sh.length() / 2;
+      const perp = new THREE.Vector3(sh.y, -sh.x, 0).normalize(); if (perp.x > 0) perp.negate();
+      const E = S.clone().add(Hd).multiplyScalar(.5).addScaledVector(perp, Math.sqrt(Math.max(0, .27 * .27 - half * half)));
+      g.add(muscle([S.toArray(), S.clone().lerp(E, .5).toArray(), E.toArray()], .045, { peak: .45 }, tm));
+      g.add(muscle([E.toArray(), E.clone().lerp(Hd, .5).toArray(), Hd.toArray()], .036, { peak: .3 }, tm));
+      const fist = new THREE.Mesh(new THREE.SphereGeometry(.032, 24, 16), boneMat()); fist.position.copy(Hd); g.add(fist);
+    }
+    g.userData = { legs };
+    return g;
+  }
+  const handle = (m, x, y, z) => { const h = new THREE.Mesh(new THREE.CylinderGeometry(.016, .016, .12, 16), m); h.rotation.z = Math.PI / 2; h.position.set(x, y, z); return h; };
+
+  // ---------- machines, each with its athlete ----------
+  // set(k, kFar): k drives the near leg, kFar the far one (defaults to k)
   function makePress() {
-    const g = new THREE.Group(), dark = mat.metal('#3d4048'), steel = mat.metal('#b9bdc4');
+    const g = new THREE.Group(), dark = mat.metal('#3d4048'), steel = mat.metal('#b9bdc4'), pad = mat.plastic('#22252b', .7);
+    const H = new THREE.Vector3(-.24, .35, 0), R = 45; // hip on the seat, torso reclined 45°
     const base = new THREE.Mesh(geo.rbox(1.25, .07, .55, .03), dark); base.position.set(.2, 0, 0); g.add(base);
-    const seat = new THREE.Mesh(geo.rbox(.5, .07, .46, .03), mat.plastic('#22252b', .7)); seat.position.set(-.18, .22, 0); seat.rotation.z = 28 * D; g.add(seat);
-    const back = new THREE.Mesh(geo.rbox(.6, .07, .46, .03), mat.plastic('#22252b', .7)); back.position.set(-.52, .45, 0); back.rotation.z = 55 * D; g.add(back);
+    const seat = new THREE.Mesh(geo.rbox(.42, .07, .46, .03), pad); seat.position.set(-.25, .23, 0); seat.rotation.z = 18 * D; g.add(seat);
+    const u = new THREE.Vector2(-Math.sin(R * D), Math.cos(R * D)), f = new THREE.Vector2(u.y, -u.x);
+    const back = new THREE.Mesh(geo.rbox(.62, .07, .46, .03), pad); back.position.set(H.x + u.x * .3 - f.x * .14, H.y + u.y * .3 - f.y * .14, 0); back.rotation.z = (90 + R) * D; g.add(back);
     const post = new THREE.Mesh(geo.rbox(.08, .22, .3, .02), dark); post.position.set(-.25, .1, 0); g.add(post);
-    const a = new THREE.Vector3(.05, .05, 0), b = new THREE.Vector3(.85, .8, 0), dir = b.clone().sub(a), L = dir.length();
+    const strut = new THREE.Mesh(geo.rbox(.06, back.position.y, .3, .02), dark); strut.position.set(back.position.x, back.position.y / 2, 0); g.add(strut);
+    for (const z of [-.26, .26]) g.add(handle(steel, H.x + .05, H.y - .06, z));
+    const a = new THREE.Vector3(.05, .05, 0), b = new THREE.Vector3(.85, .8, 0), dir = b.clone().sub(a), L = dir.length(), dn = dir.clone().normalize();
     for (const z of [-.2, .2]) {
       const rail = new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, L, 16), steel);
-      rail.position.copy(a.clone().add(b).multiplyScalar(.5)).setZ(z); rail.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize()); g.add(rail);
+      rail.position.copy(a.clone().add(b).multiplyScalar(.5)).setZ(z); rail.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dn); g.add(rail);
     }
     const sled = new THREE.Group(); g.add(sled);
     const plate = new THREE.Mesh(geo.rbox(.06, .5, .52, .02), steel); plate.rotation.z = Math.atan2(dir.y, dir.x); sled.add(plate);
     for (const z of [-.3, .3]) { const disc = new THREE.Mesh(new THREE.CylinderGeometry(.17, .17, .05, 40), mat.gold()); disc.rotation.x = Math.PI / 2; disc.position.set(.12, .1, z); sled.add(disc); }
+    const body = makeBody(R, [.05, -.06, .26]); body.position.copy(H); g.add(body);
     const sh = contactShadow(1.8, 1, .6); sh.position.y = -.035; g.add(sh);
-    g.userData.set = k => { const p = a.clone().lerp(b, lerp(.42, .72, k)); sled.position.copy(p); };
+    const sledAt = k => a.clone().lerp(b, lerp(.42, .72, k));
+    const legTo = (leg, k) => { const F = sledAt(k).addScaledVector(dn, -.06).sub(H); leg.userData.pose(...ik(F.x, F.y)); };
+    g.userData.set = (k, kFar = k) => { sled.position.copy(sledAt(k)); legTo(body.userData.legs[0], k); legTo(body.userData.legs[1], kFar); };
+    g.userData.body = body;
     g.userData.set(0);
     return g;
   }
   function makeExt() {
-    const g = new THREE.Group(), dark = mat.metal('#3d4048'), steel = mat.metal('#b9bdc4');
+    const g = new THREE.Group(), dark = mat.metal('#3d4048'), steel = mat.metal('#b9bdc4'), pad = mat.plastic('#22252b', .7);
     const base = new THREE.Mesh(geo.rbox(.8, .07, .55, .03), dark); g.add(base);
     const col = new THREE.Mesh(geo.rbox(.1, .42, .3, .02), dark); col.position.set(-.05, .22, 0); g.add(col);
-    const seat = new THREE.Mesh(geo.rbox(.5, .08, .46, .03), mat.plastic('#22252b', .7)); seat.position.set(-.05, .46, 0); g.add(seat);
-    const back = new THREE.Mesh(geo.rbox(.08, .6, .46, .03), mat.plastic('#22252b', .7)); back.position.set(-.3, .78, 0); back.rotation.z = -8 * D; g.add(back);
-    const arm = new THREE.Group(); arm.position.set(.24, .46, .26); g.add(arm);
+    const seat = new THREE.Mesh(geo.rbox(.5, .08, .46, .03), pad); seat.position.set(-.05, .46, 0); g.add(seat);
+    const back = new THREE.Mesh(geo.rbox(.08, .6, .46, .03), pad); back.position.set(-.37, .8, 0); back.rotation.z = -8 * D; g.add(back);
+    // knee sits on the lever pivot; the hip is one thigh-length behind it
+    const piv = new THREE.Vector3(.24, .46, 0), hipDeg = 72.3;
+    const H = piv.clone().sub(new THREE.Vector3(Math.sin(hipDeg * D), -Math.cos(hipDeg * D), 0).multiplyScalar(TH));
+    for (const z of [-.27, .27]) g.add(handle(steel, H.x + .06, .5, z));
+    const arm = new THREE.Group(); arm.position.set(piv.x, piv.y, .26); g.add(arm);
     const bar = new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, .42, 16), steel); bar.position.y = -.21; arm.add(bar);
-    const roller = new THREE.Mesh(new THREE.CylinderGeometry(.06, .06, .5, 32), mat.gold()); roller.rotation.x = Math.PI / 2; roller.position.set(.02, -.4, -.26); arm.add(roller);
-    const stack = new THREE.Mesh(geo.rbox(.16, .5, .26, .02), steel); stack.position.set(-.32, .3, -.0); stack.visible = false; g.add(stack);
+    const roller = new THREE.Mesh(new THREE.CylinderGeometry(.06, .06, .5, 32), mat.gold()); roller.rotation.x = Math.PI / 2; roller.position.set(.06, -.4, -.26); arm.add(roller);
+    const body = makeBody(10, [.06, .5 - H.y, .27]); body.position.copy(H); g.add(body);
     const sh = contactShadow(1.3, 1, .6); sh.position.y = -.035; g.add(sh);
-    g.userData.set = k => { arm.rotation.z = lerp(0, 75 * D, k); };
+    const ang = k => lerp(0, 75, k);
+    g.userData.set = (k, kFar = k) => {
+      arm.rotation.z = ang(k) * D;
+      body.userData.legs[0].userData.pose(hipDeg, ang(k) - hipDeg); body.userData.legs[1].userData.pose(hipDeg, ang(kFar) - hipDeg);
+    };
+    g.userData.body = body;
     g.userData.set(0);
     return g;
   }
@@ -204,18 +264,18 @@ export default function (api) {
 
   // ===== 3 · DISEÑO: 17 · 12 semanas · una pierna en cada máquina =====
   {
-    const group = new THREE.Group(), A = makeLeg(), B = makeLeg();
-    A.position.set(-.55, 0, 0); B.position.set(.55, 0, 0); group.add(A, B);
-    const frame0 = new THREE.Group(); group.add(frame0);
+    const group = new THREE.Group(), press = makePress(), ext = makeExt();
+    press.position.set(-.85, 0, 0); ext.position.set(.95, 0, 0); group.add(press, ext);
     shots.push({ start: at('17'), group, update(lt, { t, ov }) {
-      pressPose(A, cyc(lt, 1.5)); extPose(B, cyc(lt + .4, 1.5));
-      fit(group, { dir: [0, .1, 1], fill: lerp(.9, 1.05, prog(t, at('una') - .2, at('una') + .5)), screenY: .64, offset: [0, .05, 0] });
+      // the near leg works, the far one rests: one leg per machine
+      press.userData.set(cyc(lt, 1.5), 0); ext.userData.set(cyc(lt + .4, 1.5), 0);
+      fit(group, { dir: [0, .12, 1], fill: lerp(.92, 1.0, prog(t, at('una') - .2, at('una') + .5)), screenY: .66 });
       const a1 = prog(lt, 0, .3, ease.out), a2 = prog(t, at('12') - .1, at('12') + .2, ease.out);
       ov.label('17', 330, 640, { color: WHITE, size: 150, weight: 800, alpha: a1, glowBlur: 0 }); ov.text('PRINCIPIANTES', 330, 735, { size: 30, color: GREY, alpha: a1 });
       ov.label('12', 750, 640, { color: WHITE, size: 150, weight: 800, alpha: a2, glowBlur: 0 }); ov.text('SEMANAS', 750, 735, { size: 30, color: GREY, alpha: a2 });
       const a3 = prog(t, at('maquina') - .3, at('maquina'));
-      const [ax, ay] = project([-.55, -.75, 0]), [bx, by] = project([.55, -.75, 0]);
-      tag(ov, 'PIERNA A · PRENSA', ax, Math.min(1690, ay + 60), a3, GOLD); tag(ov, 'PIERNA B · EXTENSIONES', bx, Math.min(1690, by + 60), a3, CYAN);
+      const [ax, ay] = project([-.65, -.15, .3]), [bx, by] = project([.95, -.15, .3]);
+      tag(ov, 'PIERNA A · PRENSA', clamp(ax, 230, 850), Math.min(1690, ay + 60), a3, GOLD); tag(ov, 'PIERNA B · EXTENSIONES', clamp(bx, 230, 850), Math.min(1690, by + 60), a3, CYAN);
       ov.text('5 × 10 al 70 % · 2 días por semana', 540, 1750, { size: 28, weight: 500, color: GREY, alpha: a3 });
       src(ov, a1);
     } });
