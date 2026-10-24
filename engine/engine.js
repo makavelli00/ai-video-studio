@@ -937,9 +937,13 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     const area = { x: SAFE.left, y: vizTop, w: CW, h: vizBottom - vizTop };
     // dibujos fijos (timeline.figures): columna a la izquierda todo el vídeo; el dibujo del beat va a su lado
     const figs = timeline.figures || [];
-    const figW = figs.length ? Math.round(CW * 0.44) : 0;
-    const side = figs.length ? { x: SAFE.left + figW + 30, y: area.y, w: CW - figW - 30, h: area.h } : area;
-    return { head, catY, headY, barY, bar, layouts, barH, labelY, dataY, handleY, area, side, figs, figW };
+    const cols = figs.length && timeline.figuresLayout === "columns";
+    const figW = figs.length && !cols ? Math.round(CW * 0.44) : 0;
+    // columnas: los dibujos van lado a lado arriba y la cifra de cada uno, debajo
+    const band = cols ? { y: area.y, h: Math.round(area.h * 0.5) } : null;
+    const side = cols ? { x: area.x, y: area.y + band.h + 16, w: CW, h: area.h - band.h - 16 }
+      : figs.length ? { x: SAFE.left + figW + 30, y: area.y, w: CW - figW - 30, h: area.h } : area;
+    return { head, catY, headY, barY, bar, layouts, barH, labelY, dataY, handleY, area, side, figs, figW, band };
   })();
 
   const reg = (label, x, y, w, h) => { if (collect) collect.push({ scene: currentLabel, label, x, y, w, h }); };
@@ -1011,6 +1015,47 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         box: [-0.8, -1.3, 2.15, 1.75],
       };
     },
+    // Curl femoral sentado: cadera doblada (tronco vertical), muslo horizontal; rodilla de 90° (p=0) a casi recta (p=1).
+    curl_sentado(p) {
+      const H = [0, 0], K = [1, 0];
+      const a = ((-100 + 90 * p) * Math.PI) / 180, d = [Math.cos(a), Math.sin(a)];
+      const F = [K[0] + d[0], K[1] + d[1]], n = [d[1], -d[0]]; // n: lado de la pantorrilla
+      const ta = (96 * Math.PI) / 180, S = [Math.cos(ta) * 1.15, Math.sin(ta) * 1.15];
+      const pad = [F[0] - d[0] * 0.12 + n[0] * 0.2, F[1] - d[1] * 0.12 + n[1] * 0.2];
+      return {
+        H, K, F, S, back: -1, head: [S[0] + Math.cos(ta) * 0.32, S[1] + Math.sin(ta) * 0.32 + 0.05],
+        hand: [0.45, -0.02], elbow: [(S[0] + 0.45) / 2 + 0.05, (S[1] - 0.02) / 2 - 0.15],
+        toe: [F[0] - n[0] * 0.28, F[1] - n[1] * 0.28],
+        pad, pads: [[0.78, 0.33]],
+        machine: [
+          [[-0.35, -0.3], [1.0, -0.3]], // asiento
+          [[-0.4, -0.25], [-0.6, 1.25]], // respaldo
+          [[0.3, -0.3], [0.3, -1.3]], // poste
+          [[1.0, 0], pad], // palanca desde la rodilla
+        ],
+        box: [-0.85, -1.4, 2.25, 1.75],
+      };
+    },
+    // Curl femoral tumbado: boca abajo, cadera casi estirada; la espinilla sube de horizontal (p=1) a vertical (p=0).
+    curl_tumbado(p) {
+      const H = [0, 0], K = [1, 0];
+      const a = ((88 - 90 * p) * Math.PI) / 180, d = [Math.cos(a), Math.sin(a)];
+      const F = [K[0] + d[0], K[1] + d[1]], n = [-d[1], d[0]]; // n: lado de la pantorrilla (arriba)
+      const ta = (176 * Math.PI) / 180, S = [Math.cos(ta) * 1.15, Math.sin(ta) * 1.15];
+      const pad = [F[0] - d[0] * 0.12 + n[0] * 0.2, F[1] - d[1] * 0.12 + n[1] * 0.2];
+      return {
+        H, K, F, S, back: 1, head: [S[0] + Math.cos(ta) * 0.34, S[1] + Math.sin(ta) * 0.34 + 0.06],
+        hand: [-1.5, -0.42], elbow: [-1.22, -0.12],
+        toe: [F[0] - n[0] * 0.28, F[1] - n[1] * 0.28],
+        pad,
+        machine: [
+          [[-1.75, -0.3], [1.0, -0.3]], // banco
+          [[-1.1, -0.3], [-1.1, -0.95]], [[0.6, -0.3], [0.6, -0.95]], // patas
+          [[1.0, 0], pad], // palanca desde la rodilla
+        ],
+        box: [-1.95, -1.0, 2.25, 1.35],
+      };
+    },
   };
   const repPhase = (t, T = 2.4) => 0.5 - 0.5 * Math.cos((2 * Math.PI * Math.max(0, t)) / T);
   function drawFigure({ move, hl = ["cuadriceps"], cx, cy, boxW, boxH, p, iris = 1, label = "fig" }) {
@@ -1031,6 +1076,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     // entra con un iris (opaco: con transparencia se ven los cruces de los trazos)
     if (iris < 1) { ctx.beginPath(); ctx.arc(cx, cy, iris * Math.hypot(boxW, boxH) * 0.6, 0, Math.PI * 2); ctx.clip(); }
     P.machine.forEach(([q0, q1], j) => seg(q0, q1, move === "prensa" && j === 3 ? 0.13 : 0.09, C.soft || "#E6E4DC"));
+    (P.pads || []).forEach((q) => { const [px, py] = X(q); ctx.fillStyle = C.soft || "#E6E4DC"; ctx.beginPath(); ctx.arc(px, py, 0.13 * u, 0, Math.PI * 2); ctx.fill(); });
     if (P.pad) { const [px, py] = X(P.pad); ctx.fillStyle = C.soft || "#E6E4DC"; ctx.beginPath(); ctx.arc(px, py, 0.13 * u, 0, Math.PI * 2); ctx.fill(); }
     // glúteo: detrás de la cadera, del lado del asiento, debajo del tronco y del muslo
     if (H.has("gluteo")) { const [gx, gy] = X([P.H[0] - 0.14, P.H[1] - 0.12]); ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(gx, gy, 0.25 * u, 0, Math.PI * 2); ctx.fill(); }
@@ -1038,6 +1084,21 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     seg(P.H, P.S, 0.36, C.text);
     seg(P.K, P.F, 0.17, C.text); seg(P.F, P.toe, 0.1, C.text);
     seg(P.H, P.K, 0.3, H.has("cuadriceps") ? C.accent : C.text);
+    if (P.back && (H.has("isquios") || H.has("isquios_dim"))) {
+      // isquiotibiales: huso en la cara de atrás del muslo (abajo sentado, arriba tumbado)
+      const tx = P.K[0] - P.H[0], ty = P.K[1] - P.H[1], L = Math.hypot(tx, ty);
+      const nb = [(-ty / L) * P.back, (tx / L) * P.back];
+      ctx.fillStyle = H.has("isquios") ? C.accent : C.muted;
+      ctx.beginPath();
+      for (let k = 0; k <= 32; k++) {
+        const side = k <= 16 ? 1 : -1, u = k <= 16 ? k / 16 : (32 - k) / 16;
+        const f = 0.08 + 0.84 * u, w = Math.pow(Math.sin(Math.PI * u), 0.6) * 0.085;
+        const off = 0.1 + side * w;
+        const [x, y] = X([P.H[0] + tx * f + nb[0] * off, P.H[1] + ty * f + nb[1] * off]);
+        k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.closePath(); ctx.fill();
+    }
     const [hx, hy] = X(P.head); ctx.fillStyle = C.text; ctx.beginPath(); ctx.arc(hx, hy, 0.21 * u, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
     reg(label, ox + bx0 * u, oy - by1 * u, (bx1 - bx0) * u, (by1 - by0) * u);
@@ -1277,7 +1338,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         const e = cont ? 1 : spring(lt - 0.15 - i * 0.35, SPRINGS.land);
         ctx.save(); ctx.globalAlpha *= a;
         const cy = A.y + A.h * 0.5;
-        tagPill(String(it.label).toUpperCase(), cx, cy - size * 0.55 - 70, { size: 30, label: `viz.col${i + 1}.label` });
+        if (it.label) tagPill(String(it.label).toUpperCase(), cx, cy - size * 0.55 - 70, { size: 30, label: `viz.col${i + 1}.label` });
         ctx.font = serif(900, size);
         const vw = ctx.measureText(it.value).width;
         const pc = cont ? 1 : easeOutCubic(clamp((lt - 0.2 - i * 0.35) / 0.9));
@@ -1359,6 +1420,123 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       });
     },
 
+    // Condiciones del estudio en columnas: cifras y una rejilla de puntos que se rellena.
+    // items[{value, caption}] · dots? (número de puntos) · dotsCols? · dotsCaption?
+    study(v, lt, A, cont) {
+      const items = v.items || [];
+      const n = items.length + (v.dots ? 1 : 0);
+      const colW = A.w / Math.max(1, n);
+      let size = Math.min(v.size || 150, A.h * 0.55);
+      ctx.font = serif(900, size);
+      while (items.some((it) => ctx.measureText(it.value).width > colW - 20) && size > 50) { size -= 4; ctx.font = serif(900, size); }
+      const cy = A.y + A.h / 2 - 20;
+      items.forEach((it, i) => {
+        const d0 = 0.15 + i * 0.35, cx = A.x + colW * (i + 0.5);
+        const a = cont ? 1 : clamp((lt - d0) / 0.3), e = cont ? 1 : spring(lt - d0, SPRINGS.land);
+        ctx.save(); ctx.globalAlpha *= a;
+        ctx.font = serif(900, size); ctx.fillStyle = i === 0 ? C.accent : C.text;
+        ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+        ctx.fillText(countUp(it.value, cont ? 1 : easeOutCubic(clamp((lt - d0) / 0.8))), cx, cy + size * 0.3 + (1 - e) * 24);
+        const w = ctx.measureText(it.value).width;
+        reg(`viz.study${i + 1}`, cx - w / 2, cy - size * 0.52, w, size * 0.82);
+        if (it.caption) wrapMono(it.caption.toUpperCase(), colW - 20, 24, 700).forEach((ln, k) =>
+          monoText(ln, cx, cy + size * 0.3 + 18 + k * 28, { size: 24, weight: 700, color: C.muted, align: "center", label: `viz.study${i + 1}.cap${k}`, spacing: 1 }));
+        ctx.restore();
+      });
+      if (v.dots) {
+        const total = v.dots, cols = Math.min(total, v.dotsCols || 6), rows = Math.ceil(total / cols);
+        const gap = Math.min(40, (colW - 30) / cols, (A.h - 90) / rows), r = gap * 0.36;
+        const x0 = A.x + colW * items.length + (colW - gap * cols) / 2, y0 = cy - (rows * gap) / 2 - 10;
+        const t0 = 0.3 + items.length * 0.35;
+        for (let k = 0; k < total; k++) {
+          const px = x0 + gap / 2 + (k % cols) * gap, py = y0 + gap / 2 + Math.floor(k / cols) * gap;
+          const on = cont || lt > t0 + k * (v.dotsStep || 0.06);
+          ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2);
+          if (on) { ctx.fillStyle = C.accent; ctx.fill(); } else { ctx.strokeStyle = C.soft || "#E6E4DC"; ctx.lineWidth = 3; ctx.stroke(); }
+        }
+        if (v.dotsCaption) monoText(v.dotsCaption.toUpperCase(), x0 + (gap * cols) / 2, y0 + rows * gap + 14, { size: 24, weight: 700, color: C.muted, align: "center", label: "viz.dots.cap", spacing: 1 });
+      }
+    },
+
+    // Isquiotibiales vistos por detrás (esquema) en el centro y la cifra de cada dibujo en su columna.
+    // hl[]: bfl · bfs · st · sm · stats[{name, a, b, win: "a"|"b"|null}] · verdict? · verdictDim?
+    muscle(v, lt, A, cont) {
+      const H = new Set(v.hl || []);
+      const mapH = A.h - 20 - (v.verdict ? 70 : 0), mapW = Math.min(A.w * 0.24, mapH * 0.56);
+      const mx = A.x + (A.w - mapW) / 2, my = A.y + 4;
+      const P = (x, y) => [mx + x * mapW, my + y * mapH];
+      ctx.fillStyle = C.soft || "#E6E4DC";
+      ctx.beginPath();
+      [[0.05, 0], [0.95, 0], [0.86, 0.6], [0.8, 1], [0.2, 1], [0.12, 0.6]].forEach(([x, y], k) => { const [px, py] = P(x, y); k ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+      ctx.closePath(); ctx.fill();
+      const spindle = (a, b, w, id) => {
+        const on = H.has(id), k0 = on ? (cont ? 1 : clamp((lt - 0.2) / 0.4)) : 0;
+        const [x0, y0] = P(...a), [x1, y1] = P(...b);
+        const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L;
+        ctx.beginPath();
+        for (let k = 0; k <= 32; k++) {
+          const side = k <= 16 ? 1 : -1, u = k <= 16 ? k / 16 : (32 - k) / 16;
+          const ww = Math.pow(Math.sin(Math.PI * u), 0.7) * w * mapW;
+          const x = x0 + dx * u + nx * ww * side, y = y0 + dy * u + ny * ww * side;
+          k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = "#BDB8AE"; ctx.fill();
+        if (k0 > 0) { ctx.save(); ctx.globalAlpha *= k0; ctx.fillStyle = C.accent; ctx.fill(); ctx.restore(); }
+        ctx.strokeStyle = C.bg; ctx.lineWidth = 3; ctx.stroke();
+      };
+      // pierna derecha por detrás: semimembranoso y semitendinoso por dentro (izq.), bíceps femoral por fuera (der.)
+      spindle([0.3, 0.12], [0.24, 0.95], 0.15, "sm");
+      spindle([0.46, 0.04], [0.36, 0.97], 0.1, "st");
+      spindle([0.8, 0.45], [0.74, 0.96], 0.11, "bfs");
+      spindle([0.56, 0.04], [0.66, 0.97], 0.13, "bfl");
+      reg("viz.map", mx, my, mapW, mapH);
+      // cifras: columna izquierda = primer dibujo, derecha = segundo
+      const stats = v.stats || [];
+      const colW = (A.w - mapW) / 2 - 20;
+      const rowH = A.h / Math.max(1, stats.length);
+      let size = Math.min(v.size || 120, rowH * 0.5);
+      ctx.font = serif(900, size);
+      while (stats.some((st) => ctx.measureText(st.a).width + size * 0.36 > colW - 10 || ctx.measureText(st.b).width + size * 0.36 > colW - 10) && size > 44) { size -= 4; ctx.font = serif(900, size); }
+      stats.forEach((st, r) => {
+        [st.a, st.b].forEach((val, k) => {
+          const d0 = 0.35 + r * 0.3 + k * 0.15;
+          const cx = k ? A.x + A.w - colW / 2 : A.x + colW / 2;
+          const cy = A.y + rowH * (r + 0.5) - (st.name ? 16 : 0);
+          const win = st.win === (k ? "b" : "a"), dim = st.win && !win;
+          const a = cont ? 1 : clamp((lt - d0) / 0.3), e = cont ? 1 : spring(lt - d0, SPRINGS.land);
+          ctx.save(); ctx.globalAlpha *= a;
+          ctx.font = serif(900, size);
+          const vw = ctx.measureText(val).width;
+          if (win) {
+            const b = cont ? 1 : spring(lt - d0 - 0.85, SPRINGS.bounce);
+            const bw = vw + size * 0.36, bh = size * 1.02;
+            ctx.save(); ctx.translate(cx, cy - size * 0.02); ctx.scale(b, b);
+            ctx.fillStyle = C.accent; ctx.fillRect(-bw / 2, -bh / 2, bw, bh); ctx.restore();
+          }
+          const boxed = win && (cont || lt - d0 - 0.85 > 0.08);
+          ctx.fillStyle = boxed ? C.onAccent : dim ? C.muted : C.accent;
+          ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+          ctx.fillText(countUp(val, cont ? 1 : easeOutCubic(clamp((lt - d0 - 0.05) / 0.9))), cx, cy + size * 0.35 + (1 - e) * 24);
+          reg(`viz.m${r + 1}.${k + 1}`, cx - vw / 2 - (win ? size * 0.18 : 0), cy - size * 0.51, vw + (win ? size * 0.36 : 0), size * 1.02);
+          if (st.name) wrapMono(st.name.toUpperCase(), colW, 24, 700).forEach((ln, j) =>
+            monoText(ln, cx, cy + size * 0.51 + 12 + j * 28, { size: 24, weight: 700, color: dim ? C.muted : C.text, align: "center", label: `viz.m${r + 1}.${k + 1}.cap${j}`, spacing: 1 }));
+          ctx.restore();
+        });
+      });
+      // veredicto: debajo del esquema
+      if (v.verdict) {
+        const d0 = 0.35 + stats.length * 0.3 + 1.0;
+        const b = cont ? 1 : spring(lt - d0, SPRINGS.bounce);
+        if (b > 0.01) {
+          ctx.save(); ctx.globalAlpha *= cont ? 1 : clamp((lt - d0) / 0.15);
+          const y = A.y + A.h - 52 + (1 - Math.min(1, b)) * 24;
+          tagPill(v.verdict.toUpperCase(), A.x + A.w / 2, y, { size: 30, bg: v.verdictDim ? C.text : C.accent, label: "viz.verdict" });
+          ctx.restore();
+        }
+      }
+    },
+
     // Cierre: botón grande. button · sub?
     follow(v, lt, A) {
       if (!v.button) return;
@@ -1410,17 +1588,22 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
     }
     // dibujos fijos: no cortan entre beats y las repeticiones siguen el reloj global
     if (ED.figs.length) {
-      const rowH = ED.area.h / ED.figs.length;
+      const n = ED.figs.length;
+      const rowH = ED.band ? ED.band.h : ED.area.h / n, colW = ED.band ? CW / n : ED.figW;
       const intro0 = ED.head.count * 0.05 + 0.45;
       ED.figs.forEach((f, r) => {
-        const cx = SAFE.left + ED.figW / 2, cy = ED.area.y + rowH * (r + 0.5) + 22;
-        if (r > 0) { ctx.fillStyle = C.soft || "#E6E4DC"; ctx.fillRect(SAFE.left, ED.area.y + rowH * r, CW, 3); }
+        const x0 = ED.band ? SAFE.left + colW * r : SAFE.left, y0 = ED.band ? ED.area.y : ED.area.y + rowH * r;
+        const cx = x0 + colW / 2, cy = y0 + rowH / 2 + 22;
+        if (r > 0) {
+          ctx.fillStyle = C.soft || "#E6E4DC";
+          if (ED.band) ctx.fillRect(x0 - 1, ED.area.y, 3, ED.area.h); else ctx.fillRect(SAFE.left, y0, CW, 3);
+        }
         const hl = s.fig?.[r]?.hl ?? f.hl;
-        drawFigure({ move: f.move, hl, cx, cy, boxW: ED.figW - 10, boxH: rowH - 66, p: repPhase(t - intro0 - 0.6 - r * 0.4, f.period),
+        drawFigure({ move: f.move, hl, cx, cy, boxW: colW - (ED.band ? 40 : 10), boxH: rowH - 66, p: repPhase(t - intro0 - 0.6 - r * 0.4, f.period),
           iris: clamp(spring(t - intro0 - 0.2 - r * 0.3, SPRINGS.settle)), label: `fig${r + 1}` });
         if (f.label) {
           ctx.save(); ctx.globalAlpha *= clamp((t - intro0 - 0.3 - r * 0.3) / 0.3);
-          tagPill(f.label.toUpperCase(), SAFE.left, ED.area.y + rowH * r + 12, { size: 24, align: "left", label: `fig${r + 1}.label` });
+          tagPill(f.label.toUpperCase(), x0 + (ED.band && r > 0 ? 20 : 0), y0 + 12, { size: 24, align: "left", label: `fig${r + 1}.label` });
           ctx.restore();
         }
       });

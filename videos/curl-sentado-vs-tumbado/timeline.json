@@ -1,12 +1,230 @@
 {
-  "title": "Nuevo reel",
+  "title": "Curl femoral sentado o tumbado",
   "fps": 30,
   "width": 1080,
   "height": 1920,
+  "audio": "music-loop.wav",
+  "category": "Entrenamiento · Isquiotibiales",
+  "headlineSize": 60,
+  "headline": "¿Curl femoral *sentado* o *tumbado*? Uno hace crecer más tus isquios.",
+  "figures": [
+    {
+      "move": "curl_sentado",
+      "label": "Sentado",
+      "hl": []
+    },
+    {
+      "move": "curl_tumbado",
+      "label": "Tumbado",
+      "hl": []
+    }
+  ],
   "scenes": [
-    { "type": "hook", "duration": 2.8, "text": "Tu gancho con una *palabra* destacada", "sub": "Frase de apoyo opcional" },
-    { "type": "statement", "duration": 3.5, "kicker": "Punto 1", "text": "La idea principal en *pocas palabras*", "note": "Explicación breve o consejo práctico" },
-    { "type": "list", "duration": 4.5, "title": "Título de la lista", "items": ["Primero", "Segundo", "Tercero"] },
-    { "type": "cta", "duration": 4, "text": "Te lo explico todo en mi *ebook*", "button": "Comenta GUÍA", "sub": "y te lo envío por privado" }
-  ]
+    {
+      "type": "ficha",
+      "duration": 9.4,
+      "bar": "20 personas sin entrenar. Una pierna *sentada*, la otra *tumbada*.",
+      "label": "5 × 10 al 70 % · 2 días por semana",
+      "viz": {
+        "kind": "study",
+        "items": [
+          {
+            "value": "20",
+            "caption": "personas sin entrenar"
+          },
+          {
+            "value": "12",
+            "caption": "semanas"
+          }
+        ],
+        "dots": 24,
+        "dotsCols": 6,
+        "dotsCaption": "24 sesiones"
+      },
+      "data": "Maeo 2021, Med Sci Sports Exerc · 20 adultos sin entrenar · 12 semanas · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.2,
+      "bar": "En los isquios enteros, gana *sentado*.",
+      "label": "volumen tras 12 semanas",
+      "fig": [
+        {
+          "hl": [
+            "isquios"
+          ]
+        },
+        {
+          "hl": [
+            "isquios"
+          ]
+        }
+      ],
+      "viz": {
+        "kind": "compare",
+        "items": [
+          {
+            "label": "",
+            "value": "+14,1 %",
+            "caption": "isquiotibiales",
+            "win": true
+          },
+          {
+            "label": "",
+            "value": "+9,3 %",
+            "caption": "isquiotibiales",
+            "dim": true
+          }
+        ]
+      },
+      "data": "Maeo 2021, Med Sci Sports Exerc · 20 adultos sin entrenar · 12 semanas · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.2,
+      "bar": "Bíceps femoral largo: *más del doble*.",
+      "label": "músculo por músculo",
+      "fig": [
+        {
+          "hl": [
+            "isquios"
+          ]
+        },
+        {
+          "hl": [
+            "isquios"
+          ]
+        }
+      ],
+      "viz": {
+        "kind": "muscle",
+        "id": "mus",
+        "hl": [
+          "bfl"
+        ],
+        "stats": [
+          {
+            "name": "bíceps femoral largo",
+            "a": "+14,4 %",
+            "b": "+6,5 %",
+            "win": "a"
+          }
+        ],
+        "verdict": "Gana sentado"
+      },
+      "data": "Maeo 2021, Med Sci Sports Exerc · 20 adultos sin entrenar · 12 semanas · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.8,
+      "bar": "Semitendinoso y semimembranoso: también gana *sentado*.",
+      "label": "músculo por músculo",
+      "fig": [
+        {
+          "hl": [
+            "isquios"
+          ]
+        },
+        {
+          "hl": [
+            "isquios"
+          ]
+        }
+      ],
+      "viz": {
+        "kind": "muscle",
+        "id": "mus",
+        "hl": [
+          "st",
+          "sm"
+        ],
+        "stats": [
+          {
+            "name": "semitendinoso",
+            "a": "+23,6 %",
+            "b": "+19,3 %",
+            "win": "a"
+          },
+          {
+            "name": "semimembranoso",
+            "a": "+8,2 %",
+            "b": "+3,6 %",
+            "win": "a"
+          }
+        ],
+        "verdict": "Gana sentado"
+      },
+      "data": "Maeo 2021, Med Sci Sports Exerc · 20 adultos sin entrenar · 12 semanas · resonancia"
+    },
+    {
+      "type": "ficha",
+      "duration": 5.8,
+      "bar": "Bíceps femoral corto: *empate*. Es el único que no cruza la cadera.",
+      "label": "músculo por músculo",
+      "fig": [
+        {
+          "hl": [
+            "isquios"
+          ]
+        },
+        {
+          "hl": [
+            "isquios"
+          ]
+        }
+      ],
+      "viz": {
+        "kind": "muscle",
+        "id": "mus",
+        "hl": [
+          "bfs"
+        ],
+        "stats": [
+          {
+            "name": "bíceps femoral corto",
+            "a": "+10 %",
+            "b": "+9 %"
+          }
+        ],
+        "verdict": "Empate",
+        "verdictDim": true
+      },
+      "data": "Maeo 2021, Med Sci Sports Exerc · bíceps femoral corto: diferencia no significativa"
+    },
+    {
+      "type": "ficha",
+      "duration": 6.6,
+      "bar": "Sentado, la cadera doblada *estira* los isquios mientras trabajan.",
+      "label": "músculos que crecieron más sentado",
+      "fig": [
+        {
+          "hl": [
+            "isquios"
+          ]
+        },
+        {
+          "hl": [
+            "isquios_dim"
+          ]
+        }
+      ],
+      "viz": {
+        "kind": "counter",
+        "value": 3,
+        "suffix": " de 4",
+        "caption": "isquiotibiales",
+        "sub": "Tumbado también creció: *+9,3 %*.",
+        "size": 150
+      },
+      "data": "Maeo 2021, Med Sci Sports Exerc · 20 adultos sin entrenar · 12 semanas · resonancia"
+    },
+    {
+      "type": "cta",
+      "book": false,
+      "duration": 3.4,
+      "text": "Guárdalo para tu próximo día de pierna.",
+      "button": "Guardar"
+    }
+  ],
+  "figuresLayout": "columns"
 }
