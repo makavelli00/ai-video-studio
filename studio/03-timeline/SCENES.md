@@ -53,7 +53,7 @@ Look editorial (`studio/02-reference/presets/editorial.json`, referencia en las 
 
 Dibujos fijos: `"figures": [{move, label, hl?}]` en el timeline los deja en una columna a la izquierda todo el vídeo (no cortan entre beats); el `viz` de cada beat va a su lado. Un beat puede cambiar lo que sale en rojo con `"fig": [{hl}, …]`.
 
-`viz` de una `ficha` (`kind` + campos). En la barra, `*palabras*` salen en caja blanca; para que una frase destacada no se parta, une sus palabras con espacio duro (U+00A0). Si dos beats seguidos tienen el mismo `viz.id`, el dibujo no se vuelve a montar: se queda y solo cambia lo nuevo (colores, banda).
+`viz` de una `ficha` (`kind` + campos). En la barra, `*palabras*` salen en caja blanca; un destacado de varias palabras nunca se parte entre líneas (el motor las une solo). Si dos beats seguidos tienen el mismo `viz.id`, el dibujo no se vuelve a montar: se queda y solo cambia lo nuevo (colores, banda).
 
 | kind | Campos | Para qué |
 |---|---|---|
@@ -64,3 +64,10 @@ Dibujos fijos: `"figures": [{move, label, hl?}]` en el timeline los deja en una 
 | `exercise` | `items[{label, move, hl?, caption?}]`, `period?` | Dibujo del ejercicio haciendo repeticiones (vista lateral). `move`: `prensa` o `extension`. `hl`: músculos en rojo (`cuadriceps`, `gluteo`; por defecto el cuádriceps). |
 | `rows` | `items[{stats[{value, caption?, dim?, win?}]}]`, `size?` | Con `figures` en el timeline: una fila por dibujo fijo, con sus cifras al lado. |
 | `agebar` | `items[{label, hold?[a,b], drop?, dropLabel?, fast?, new?}]`, `x?[min,max]`, `ticks?`, `focus?` | Regla de edad: una fila por capacidad, tramo negro (en su mejor momento) y rojo desde que baja (más grueso desde `fast`). `new` dibuja la fila en ese beat; `focus` apaga las demás. Con `pts[[edad, nivel 0–1]]` la fila es una curva que sube y baja mientras un cursor barre la edad (`sweep` s, `yMin`): pon «curva ilustrativa» en `data` si la forma no sale tal cual del estudio. |
+
+### Ficha con dibujos en columnas (`figuresLayout: "columns"`)
+Con `"figuresLayout": "columns"` los `figures` van lado a lado arriba (mitad del área) y el `viz` ocupa todo el ancho debajo: la columna izquierda es el primer dibujo y la derecha el segundo. Dibujos: `curl_sentado`, `curl_tumbado` (resaltado `isquios` o `isquios_dim`), además de `prensa` y `extension`.
+- `study`: `items[{value, caption}]` en columnas y `dots` (rejilla que se rellena), `dotsCols`, `dotsCaption`.
+- `muscle`: esquema de isquiotibiales por detrás en el centro (`hl`: `bfl`, `bfs`, `st`, `sm`), `stats[{name, a, b, win: "a"|"b"}]` con la cifra de cada dibujo en su columna, y `verdict` (+ `verdictDim` para un empate).
+- `compare` admite `label: ""` cuando los dibujos ya dicen qué es cada columna.
+- Marca: `brand.mark` (p. ej. `"cd"`) dibuja el cuadrado rojo del logo antes de `brand.handle`.
