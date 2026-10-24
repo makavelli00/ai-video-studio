@@ -85,7 +85,9 @@ function mergeStyle(style = {}) {
 export function parseRich(text = "") {
   const words = [];
   let hl = false;
-  for (const raw of String(text).split(/[ \t\n\r]+/)) {
+  // un destacado de varias palabras no se parte entre líneas (en caja saldría en trozos)
+  text = String(text).replace(/\*[^*]+\*/g, (m) => m.replace(/ /g, "\u00a0"));
+  for (const raw of text.split(/[ \t\n\r]+/)) {
     if (!raw) continue;
     const segs = [];
     for (const part of raw.split(/(\*)/)) {
