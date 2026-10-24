@@ -106,7 +106,7 @@ else:
     spread(toks, a.lead, a.lead + total / a.rate)
 
 tl_path = os.path.join(P, 'timeline.json')
-tl = json.load(open(tl_path)) if os.path.exists(tl_path) else {}
+tl = json.load(open(tl_path, encoding='utf8')) if os.path.exists(tl_path) else {}
 tl.setdefault('fps', 30)
 if a.audio: tl['audio'] = a.audio
 if duration is None and a.audio: duration = audio_dur(os.path.join(P, a.audio))
@@ -118,6 +118,6 @@ if outro and outro.get('startWord'):
     if hit: outro['start'] = round(hit['s'] - 0.1, 3)
 tl['words'] = [{k: v for k, v in t.items() if v is not False} for t in toks]
 tl['duration'] = round(max(duration or 0, end_words + 0.8, (outro or {}).get('start', 0) + 3.4), 2)
-json.dump(tl, open(tl_path, 'w'), ensure_ascii=False, indent=1)
+json.dump(tl, open(tl_path, 'w', encoding='utf8'), ensure_ascii=False, indent=1)
 print(f"{len(toks)} words, {tl['duration']}s -> {tl_path}")
 for t in toks: print(f"{t['s']:6.2f} {t['e']:6.2f}  {'*' if t.get('hl') else ' '} {t['w']}")

@@ -29,7 +29,7 @@ try { ({ chromium } = await import('playwright')); } catch {
   ({ chromium } = createRequire(path.join(g, 'x.js'))('playwright'));
 }
 
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.glb': 'model/gltf-binary', '.svg': 'image/svg+xml' };
+const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.glb': 'model/gltf-binary', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
 const server = http.createServer((req, res) => {
   const u = decodeURIComponent(req.url.split('?')[0]);
   let f;
@@ -100,7 +100,7 @@ await Promise.all(pages.map((p, k) => {
   const f = path.join(projectDir, `.seg_${k}.mp4`); segs[k] = f; return renderChunk(p, a, b, f);
 }));
 const list = path.join(projectDir, '.segs.txt');
-fs.writeFileSync(list, segs.filter(Boolean).map(f => `file '${f}'`).join('\n'));
+fs.writeFileSync(list, segs.filter(Boolean).map(f => `file '${f.replace(/\\/g, '/')}'`).join('\n'));
 spawnSync('ffmpeg', ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', '-movflags', '+faststart', silent], { stdio: 'inherit' });
 segs.filter(Boolean).forEach(f => fs.unlinkSync(f)); fs.unlinkSync(list);
 await browser.close(); server.close();

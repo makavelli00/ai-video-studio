@@ -303,6 +303,7 @@ function updateOutro(root, frame, t, cfg) {
 // ---------- boot ----------
 export async function boot(project) {
   await document.fonts.load("700 50px 'Inter Display'"); await document.fonts.load("400 50px 'Inter Display'");
+  await document.fonts.load("800 50px 'Inter Display'"); await document.fonts.load("600 50px 'Inter Display'");
   const timeline = await (await fetch(`/${project}/timeline.json`)).json();
   const fps = timeline.fps || 30;
   const words = (timeline.words || []).map(w => ({ ...w }));
