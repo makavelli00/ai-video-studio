@@ -24,7 +24,7 @@ Arreglados los tres defectos. Móvil sube a 8. El esquema de isquios sigue peque
 Veredicto: ✅ exportar.
 
 ## Vuelta 3 (tras el ok de pablo)
-- Se añade la marca: cuadrado rojo "cd" + @cuerpo.con.datos bajo la línea DATA (`brand.mark`, `brand.handle` en style.json del vídeo).
+- Se añade la marca: cuadrado rojo "cd" + @cuerpocondatos bajo la línea DATA (`brand.mark`, `brand.handle` en style.json del vídeo).
 - Con menos alto, los nombres del bíceps femoral largo pisaban el veredicto: la tabla reserva su hueco.
 - "más del doble" salía en tres cajas separadas: espacios duros dentro de la frase (mismo arreglo que el 2026-10-19).
 Check 0 errores. Render 42,1 s.

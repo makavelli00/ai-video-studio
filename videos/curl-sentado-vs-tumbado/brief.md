@@ -37,7 +37,7 @@ Todavía no hay ebook. Cierre con guardar o seguir.
 Ninguno. Figuras anatómicas planas dibujadas en código: silueta y músculos como formas que se tiñen de rojo. No hay ilustraciones de terceros.
 
 ## Referencia visual
-Gramática del reel de @datakatadka (notas en /mnt/project-files/ai-video-studio/refs-datakatadka/NOTES.md): dos figuras fijas A vs B, cifras del estudio arriba con puntos de sesiones, bloques por músculo con veredicto ("empate", "gana sentado") y cierre con una cifra en caja roja. No se copia su tema (sentadilla, Kubo 2019), ni sus dibujos ni sus textos. Estilo nuestro: editorial blanco y rojo, marca cuerpo.con.datos.
+Gramática del reel de @datakatadka (notas en /mnt/project-files/ai-video-studio/refs-datakatadka/NOTES.md): dos figuras fijas A vs B, cifras del estudio arriba con puntos de sesiones, bloques por músculo con veredicto ("empate", "gana sentado") y cierre con una cifra en caja roja. No se copia su tema (sentadilla, Kubo 2019), ni sus dibujos ni sus textos. Estilo nuestro: editorial blanco y rojo, marca cuerpocondatos.
 
 ## Línea roja
 - No decir que tumbado "no sirve": también creció (+9 %).
