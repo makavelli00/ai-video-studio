@@ -13,3 +13,4 @@ Cada fallo que encuentren los sensores, el crítico o el usuario va aquí. Si un
 | 2026-10-15 | prensa-vs-extensiones | Contador con `sub` dibujado diminuto (la fuente del sub pisaba la de la cifra) | `engine.js` restablece la fuente antes de dibujar la cifra | 1 | — |
 | 2026-10-15 | prensa-vs-extensiones | Cuatro `compare` seguidos | Beat 4 pasa a contador | 1 | — |
 | 2026-10-19 | prensa-vs-extensiones | Palabras destacadas en caja partidas entre líneas, con huecos entre ellas | Espacio duro dentro de la frase; `parseRich` no corta por U+00A0 | 1 | — |
+| 2026-10-24 | curl-sentado-vs-tumbado | La música (music-loop.wav) entró en un commit y se subió: el .gitignore la ignoraba vídeo a vídeo. | Commit corregido y forzado sin el archivo; regla general `videos/*/music-loop.wav` en .gitignore. |
