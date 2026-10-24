@@ -1,0 +1,422 @@
+[
+ {
+  "word": "¿Cuánta",
+  "start": 0.0,
+  "end": 0.363
+ },
+ {
+  "word": "proteína",
+  "start": 0.363,
+  "end": 0.907
+ },
+ {
+  "word": "necesitas",
+  "start": 0.907,
+  "end": 1.632
+ },
+ {
+  "word": "de",
+  "start": 1.632,
+  "end": 1.814
+ },
+ {
+  "word": "verdad?",
+  "start": 1.814,
+  "end": 2.176
+ },
+ {
+  "word": "Hay",
+  "start": 2.783,
+  "end": 2.937
+ },
+ {
+  "word": "un",
+  "start": 2.937,
+  "end": 3.091
+ },
+ {
+  "word": "número.",
+  "start": 3.091,
+  "end": 3.554
+ },
+ {
+  "word": "La",
+  "start": 4.154,
+  "end": 4.315
+ },
+ {
+  "word": "recomendación",
+  "start": 4.315,
+  "end": 5.124
+ },
+ {
+  "word": "general",
+  "start": 5.124,
+  "end": 5.61
+ },
+ {
+  "word": "es",
+  "start": 5.61,
+  "end": 5.772
+ },
+ {
+  "word": "0,8",
+  "start": 5.772,
+  "end": 6.742
+ },
+ {
+  "word": "gramos",
+  "start": 6.742,
+  "end": 7.066
+ },
+ {
+  "word": "por",
+  "start": 7.066,
+  "end": 7.228
+ },
+ {
+  "word": "kilo.",
+  "start": 7.228,
+  "end": 7.551
+ },
+ {
+  "word": "Pero",
+  "start": 8.105,
+  "end": 8.39
+ },
+ {
+  "word": "eso",
+  "start": 8.39,
+  "end": 8.675
+ },
+ {
+  "word": "cubre",
+  "start": 8.675,
+  "end": 8.959
+ },
+ {
+  "word": "necesidades",
+  "start": 8.959,
+  "end": 9.671
+ },
+ {
+  "word": "generales,",
+  "start": 9.671,
+  "end": 10.241
+ },
+ {
+  "word": "no",
+  "start": 10.588,
+  "end": 10.768
+ },
+ {
+  "word": "busca",
+  "start": 10.768,
+  "end": 11.128
+ },
+ {
+  "word": "maximizar",
+  "start": 11.128,
+  "end": 11.848
+ },
+ {
+  "word": "músculo.",
+  "start": 11.848,
+  "end": 12.388
+ },
+ {
+  "word": "Un",
+  "start": 12.998,
+  "end": 13.166
+ },
+ {
+  "word": "metaanálisis",
+  "start": 13.166,
+  "end": 14.009
+ },
+ {
+  "word": "juntó",
+  "start": 14.009,
+  "end": 14.346
+ },
+ {
+  "word": "49",
+  "start": 14.346,
+  "end": 15.189
+ },
+ {
+  "word": "estudios",
+  "start": 15.189,
+  "end": 15.694
+ },
+ {
+  "word": "con",
+  "start": 15.694,
+  "end": 15.863
+ },
+ {
+  "word": "gente",
+  "start": 15.863,
+  "end": 16.2
+ },
+ {
+  "word": "que",
+  "start": 16.2,
+  "end": 16.369
+ },
+ {
+  "word": "entrena",
+  "start": 16.369,
+  "end": 16.874
+ },
+ {
+  "word": "fuerza.",
+  "start": 16.874,
+  "end": 17.211
+ },
+ {
+  "word": "La",
+  "start": 17.762,
+  "end": 17.943
+ },
+ {
+  "word": "proteína",
+  "start": 17.943,
+  "end": 18.487
+ },
+ {
+  "word": "extra",
+  "start": 18.487,
+  "end": 18.849
+ },
+ {
+  "word": "suma,",
+  "start": 18.849,
+  "end": 19.212
+ },
+ {
+  "word": "hasta",
+  "start": 19.476,
+  "end": 19.836
+ },
+ {
+  "word": "unos",
+  "start": 19.836,
+  "end": 20.197
+ },
+ {
+  "word": "1,6",
+  "start": 20.197,
+  "end": 21.098
+ },
+ {
+  "word": "gramos",
+  "start": 21.098,
+  "end": 21.459
+ },
+ {
+  "word": "por",
+  "start": 21.459,
+  "end": 21.639
+ },
+ {
+  "word": "kilo",
+  "start": 21.639,
+  "end": 22.0
+ },
+ {
+  "word": "al",
+  "start": 22.0,
+  "end": 22.18
+ },
+ {
+  "word": "día.",
+  "start": 22.18,
+  "end": 22.36
+ },
+ {
+  "word": "A",
+  "start": 22.879,
+  "end": 23.011
+ },
+ {
+  "word": "partir",
+  "start": 23.011,
+  "end": 23.275
+ },
+ {
+  "word": "de",
+  "start": 23.275,
+  "end": 23.407
+ },
+ {
+  "word": "ahí,",
+  "start": 23.407,
+  "end": 23.67
+ },
+ {
+  "word": "la",
+  "start": 23.938,
+  "end": 24.117
+ },
+ {
+  "word": "curva",
+  "start": 24.117,
+  "end": 24.475
+ },
+ {
+  "word": "se",
+  "start": 24.475,
+  "end": 24.655
+ },
+ {
+  "word": "aplana.",
+  "start": 24.655,
+  "end": 25.193
+ },
+ {
+  "word": "Pero",
+  "start": 25.726,
+  "end": 26.03
+ },
+ {
+  "word": "ese",
+  "start": 26.03,
+  "end": 26.334
+ },
+ {
+  "word": "1,6",
+  "start": 26.334,
+  "end": 27.094
+ },
+ {
+  "word": "es",
+  "start": 27.094,
+  "end": 27.246
+ },
+ {
+  "word": "aproximado,",
+  "start": 27.246,
+  "end": 28.005
+ },
+ {
+  "word": "no",
+  "start": 28.312,
+  "end": 28.479
+ },
+ {
+  "word": "un",
+  "start": 28.479,
+  "end": 28.647
+ },
+ {
+  "word": "límite",
+  "start": 28.647,
+  "end": 29.149
+ },
+ {
+  "word": "exacto.",
+  "start": 29.149,
+  "end": 29.652
+ },
+ {
+  "word": "Si",
+  "start": 30.182,
+  "end": 30.355
+ },
+ {
+  "word": "pesas",
+  "start": 30.355,
+  "end": 30.7
+ },
+ {
+  "word": "70",
+  "start": 30.7,
+  "end": 31.218
+ },
+ {
+  "word": "kilos,",
+  "start": 31.218,
+  "end": 31.564
+ },
+ {
+  "word": "son",
+  "start": 31.872,
+  "end": 32.052
+ },
+ {
+  "word": "unos",
+  "start": 32.052,
+  "end": 32.412
+ },
+ {
+  "word": "112",
+  "start": 32.412,
+  "end": 33.132
+ },
+ {
+  "word": "gramos",
+  "start": 33.132,
+  "end": 33.492
+ },
+ {
+  "word": "al",
+  "start": 33.492,
+  "end": 33.672
+ },
+ {
+  "word": "día.",
+  "start": 33.672,
+  "end": 33.852
+ },
+ {
+  "word": "Envíaselo",
+  "start": 34.404,
+  "end": 34.973
+ },
+ {
+  "word": "a",
+  "start": 34.973,
+  "end": 35.115
+ },
+ {
+  "word": "ese",
+  "start": 35.115,
+  "end": 35.4
+ },
+ {
+  "word": "amigo",
+  "start": 35.4,
+  "end": 35.827
+ },
+ {
+  "word": "que",
+  "start": 35.827,
+  "end": 35.969
+ },
+ {
+  "word": "vive",
+  "start": 35.969,
+  "end": 36.254
+ },
+ {
+  "word": "a",
+  "start": 36.254,
+  "end": 36.397
+ },
+ {
+  "word": "base",
+  "start": 36.397,
+  "end": 36.681
+ },
+ {
+  "word": "de",
+  "start": 36.681,
+  "end": 36.824
+ },
+ {
+  "word": "batidos.",
+  "start": 36.824,
+  "end": 37.251
+ }
+]
