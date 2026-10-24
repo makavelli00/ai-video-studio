@@ -1188,6 +1188,103 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       }
     },
 
+    // Gráfico de líneas con cursor de edad. series[{label, pts[[x,y]], color?}] · x[min,max] · y[min,max]
+    // xTicks[] · yTicks[] · yLabel? · unit? · at[from,to] (el cursor va de from a to en sweep s)
+    // bands[{series, lo[[x,y]], hi[[x,y]]}]? · refs[{series, y, label}]? · focus? (índice de la serie que manda)
+    lines(v, lt, A, cont) {
+      const [x0, x1] = v.x, [y0, y1] = v.y;
+      const P = { l: A.x + 80, r: A.x + A.w - 170, t: A.y + 120, b: A.y + A.h - 60 };
+      const X = (x) => P.l + ((x - x0) / (x1 - x0)) * (P.r - P.l);
+      const Y = (y) => P.b - ((y - y0) / (y1 - y0)) * (P.b - P.t);
+      const at = (pts, x) => {
+        if (x <= pts[0][0]) return pts[0][1];
+        for (let k = 1; k < pts.length; k++) if (x <= pts[k][0]) {
+          const [a0, b0] = pts[k - 1], [a1, b1] = pts[k];
+          return b0 + (b1 - b0) * ((x - a0) / (a1 - a0 || 1));
+        }
+        return pts[pts.length - 1][1];
+      };
+      const [c0, c1] = v.at || [x1, x1];
+      const g = c0 === c1 ? 1 : easeInOut(clamp((lt - 0.3) / (v.sweep || 2.4)));
+      const cx = c0 + (c1 - c0) * g;
+      const fresh = !cont;
+      const fa = fresh ? clamp((lt - 0.05) / 0.3) : 1;
+      // ejes y rejilla
+      ctx.save(); ctx.globalAlpha *= fa;
+      if (v.yLabel) monoText(v.yLabel.toUpperCase(), A.x, A.y + 66, { size: 28, color: C.muted, label: "viz.ylabel", spacing: 1 });
+      (v.yTicks || []).forEach((y) => {
+        ctx.fillStyle = C.soft || "#E6E4DC"; ctx.fillRect(P.l, Y(y) - 1, P.r - P.l, 2);
+        monoText(fmtNum(y), P.l - 14, Y(y) - 16, { size: 30, color: C.muted, align: "right", label: `viz.y${y}` });
+      });
+      ctx.fillStyle = C.text; ctx.fillRect(P.l, P.b, P.r - P.l, 3);
+      (v.xTicks || []).forEach((x) => {
+        ctx.fillRect(X(x) - 1.5, P.b, 3, 12);
+        monoText(String(x), X(x), P.b + 18, { size: 30, align: "center", color: C.muted, label: `viz.x${x}` });
+      });
+      ctx.restore();
+      // bandas de percentiles (p. ej. del 10 al 90)
+      (v.bands || []).forEach((bd) => {
+        const ba = clamp((lt - (v.bandAt ?? 0.4)) / 0.4);
+        if (ba <= 0) return;
+        ctx.save(); ctx.globalAlpha *= ba;
+        ctx.beginPath();
+        bd.lo.forEach(([x, y], k) => (k ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y))));
+        [...bd.hi].reverse().forEach(([x, y]) => ctx.lineTo(X(x), Y(y)));
+        ctx.closePath();
+        ctx.fillStyle = hexA((v.series[bd.series] || {}).color || C.text, 0.13); ctx.fill();
+        ctx.restore();
+      });
+      // umbrales
+      (v.refs || []).forEach((r, k) => {
+        const ra = clamp((lt - 0.5 - k * 0.3) / 0.3);
+        if (ra <= 0) return;
+        const col = (v.series[r.series] || {}).color || C.text;
+        ctx.save(); ctx.globalAlpha *= ra;
+        ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.setLineDash([10, 10]);
+        ctx.beginPath(); ctx.moveTo(P.l, Y(r.y)); ctx.lineTo(P.r, Y(r.y)); ctx.stroke(); ctx.setLineDash([]);
+        if (r.label) monoText(r.label.toUpperCase(), P.l + 10, Y(r.y) + 8, { size: 26, weight: 700, color: col, label: `viz.ref${k + 1}` });
+        ctx.restore();
+      });
+      // líneas hasta el cursor
+      (v.series || []).forEach((s, i) => {
+        const col = s.color || C.text;
+        const dim = v.focus !== undefined && v.focus !== i;
+        ctx.save(); ctx.globalAlpha *= dim ? 0.3 : 1;
+        ctx.beginPath();
+        ctx.moveTo(X(s.pts[0][0]), Y(s.pts[0][1]));
+        for (const [x, y] of s.pts) { if (x >= cx) break; ctx.lineTo(X(x), Y(y)); }
+        ctx.lineTo(X(cx), Y(at(s.pts, cx)));
+        ctx.strokeStyle = col; ctx.lineWidth = 7; ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.stroke();
+        const yy = Y(at(s.pts, cx));
+        ctx.fillStyle = col; ctx.beginPath(); ctx.arc(X(cx), yy, 13, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = C.bg; ctx.beginPath(); ctx.arc(X(cx), yy, 5, 0, Math.PI * 2); ctx.fill();
+        // cifra y nombre junto al punto
+        const val = `${Math.round(at(s.pts, cx))}${v.unit ? " " + v.unit : ""}`;
+        const right = X(cx) + 26 + 170 <= A.x + A.w;
+        ctx.font = serif(900, 60);
+        ctx.fillStyle = col; ctx.textAlign = right ? "left" : "right"; ctx.textBaseline = "alphabetic";
+        const lx = right ? X(cx) + 26 : X(cx) - 26;
+        // fondo bajo la cifra: los umbrales discontinuos no la tachan
+        const bw = Math.max(ctx.measureText(val).width, 150) + 12;
+        if (v.refs?.length) { ctx.fillStyle = C.bg; ctx.fillRect(right ? lx - 6 : lx - bw + 6, yy - 46, bw, 96); }
+        ctx.fillStyle = col;
+        ctx.fillText(val, lx, yy + 4);
+        const vw = ctx.measureText(val).width;
+        reg(`viz.line${i + 1}.value`, right ? lx : lx - vw, yy - 44, vw, 52);
+        monoText(String(s.label).toUpperCase(), lx, yy + 16, { size: 26, weight: 700, color: col, align: right ? "left" : "right", label: `viz.line${i + 1}.label`, spacing: 1 });
+        ctx.restore();
+      });
+      // cursor y edad
+      ctx.fillStyle = C.text; ctx.fillRect(X(cx) - 1.5, P.t - 10, 3, P.b - P.t + 10);
+      const ageTxt = `${Math.round(cx)}`;
+      ctx.font = serif(900, 96);
+      ctx.fillStyle = C.text; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+      ctx.fillText(ageTxt, A.x + A.w - 330, A.y + 86);
+      const aw = ctx.measureText(ageTxt).width;
+      reg("viz.age", A.x + A.w - 330, A.y + 10, aw, 80);
+      monoText("AÑOS", A.x + A.w - 330 + aw + 14, A.y + 50, { size: 30, weight: 700, label: "viz.age.unit", spacing: 2 });
+    },
+
     // Barras verticales. items[{label, value, text?, sub?, hl?}] · max? · caption?
     bars(v, lt, A, cont) {
       const items = v.items || [];
