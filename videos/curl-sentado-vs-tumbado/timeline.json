@@ -22,7 +22,7 @@
   "scenes": [
     {
       "type": "ficha",
-      "duration": 9.4,
+      "duration": 9.45,
       "bar": "20 personas sin entrenar. Una pierna *sentada*, la otra *tumbada*.",
       "label": "5 × 10 al 70 % · 2 días por semana",
       "viz": {
@@ -45,7 +45,7 @@
     },
     {
       "type": "ficha",
-      "duration": 5.2,
+      "duration": 5.39,
       "bar": "En los isquios enteros, gana *sentado*.",
       "label": "volumen tras 12 semanas",
       "fig": [
@@ -81,7 +81,7 @@
     },
     {
       "type": "ficha",
-      "duration": 5.2,
+      "duration": 4.71,
       "bar": "Bíceps femoral largo: *más del doble*.",
       "label": "músculo por músculo",
       "fig": [
@@ -116,7 +116,7 @@
     },
     {
       "type": "ficha",
-      "duration": 5.8,
+      "duration": 6.06,
       "bar": "Semitendinoso y semimembranoso: también gana *sentado*.",
       "label": "músculo por músculo",
       "fig": [
@@ -158,7 +158,7 @@
     },
     {
       "type": "ficha",
-      "duration": 5.8,
+      "duration": 6.06,
       "bar": "Bíceps femoral corto: *empate*. Es el único que no cruza la cadera.",
       "label": "músculo por músculo",
       "fig": [
@@ -193,7 +193,7 @@
     },
     {
       "type": "ficha",
-      "duration": 6.6,
+      "duration": 6.73,
       "bar": "Sentado, la cadera doblada *estira* los isquios mientras trabajan.",
       "label": "músculos que crecieron más sentado",
       "fig": [
@@ -221,7 +221,7 @@
     {
       "type": "cta",
       "book": false,
-      "duration": 3.4,
+      "duration": 3.67,
       "text": "Guárdalo para tu próximo día de pierna.",
       "button": "Guardar"
     }

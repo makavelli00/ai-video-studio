@@ -1448,6 +1448,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         const gap = Math.min(40, (colW - 30) / cols, (A.h - 90) / rows), r = gap * 0.36;
         const x0 = A.x + colW * items.length + (colW - gap * cols) / 2, y0 = cy - (rows * gap) / 2 - 10;
         const t0 = 0.3 + items.length * 0.35;
+        ctx.save(); ctx.globalAlpha *= cont ? 1 : clamp((lt - t0 + 0.3) / 0.3);
         for (let k = 0; k < total; k++) {
           const px = x0 + gap / 2 + (k % cols) * gap, py = y0 + gap / 2 + Math.floor(k / cols) * gap;
           const on = cont || lt > t0 + k * (v.dotsStep || 0.06);
@@ -1455,6 +1456,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
           if (on) { ctx.fillStyle = C.accent; ctx.fill(); } else { ctx.strokeStyle = C.soft || "#E6E4DC"; ctx.lineWidth = 3; ctx.stroke(); }
         }
         if (v.dotsCaption) monoText(v.dotsCaption.toUpperCase(), x0 + (gap * cols) / 2, y0 + rows * gap + 14, { size: 24, weight: 700, color: C.muted, align: "center", label: "viz.dots.cap", spacing: 1 });
+        ctx.restore();
       }
     },
 
@@ -1519,8 +1521,8 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
           ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
           ctx.fillText(countUp(val, cont ? 1 : easeOutCubic(clamp((lt - d0 - 0.05) / 0.9))), cx, cy + size * 0.35 + (1 - e) * 24);
           reg(`viz.m${r + 1}.${k + 1}`, cx - vw / 2 - (win ? size * 0.18 : 0), cy - size * 0.51, vw + (win ? size * 0.36 : 0), size * 1.02);
-          if (st.name) wrapMono(st.name.toUpperCase(), colW, 24, 700).forEach((ln, j) =>
-            monoText(ln, cx, cy + size * 0.51 + 12 + j * 28, { size: 24, weight: 700, color: dim ? C.muted : C.text, align: "center", label: `viz.m${r + 1}.${k + 1}.cap${j}`, spacing: 1 }));
+          if (st.name) wrapMono(st.name.toUpperCase(), colW, 26, 700).forEach((ln, j) =>
+            monoText(ln, cx, cy + size * 0.51 + 12 + j * 30, { size: 26, weight: 700, color: dim ? C.muted : C.text, align: "center", label: `viz.m${r + 1}.${k + 1}.cap${j}`, spacing: 1 }));
           ctx.restore();
         });
       });
@@ -1596,7 +1598,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         const cx = x0 + colW / 2, cy = y0 + rowH / 2 + 22;
         if (r > 0) {
           ctx.fillStyle = C.soft || "#E6E4DC";
-          if (ED.band) ctx.fillRect(x0 - 1, ED.area.y, 3, ED.area.h); else ctx.fillRect(SAFE.left, y0, CW, 3);
+          if (ED.band) ctx.fillRect(x0 - 1, ED.area.y, 3, ED.band.h); else ctx.fillRect(SAFE.left, y0, CW, 3);
         }
         const hl = s.fig?.[r]?.hl ?? f.hl;
         drawFigure({ move: f.move, hl, cx, cy, boxW: colW - (ED.band ? 40 : 10), boxH: rowH - 66, p: repPhase(t - intro0 - 0.6 - r * 0.4, f.period),
