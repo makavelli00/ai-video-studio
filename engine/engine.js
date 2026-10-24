@@ -1496,7 +1496,7 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       // cifras: columna izquierda = primer dibujo, derecha = segundo
       const stats = v.stats || [];
       const colW = (A.w - mapW) / 2 - 20;
-      const rowH = A.h / Math.max(1, stats.length);
+      const rowH = (A.h - (v.verdict ? 60 : 0)) / Math.max(1, stats.length);
       let size = Math.min(v.size || 120, rowH * 0.5);
       ctx.font = serif(900, size);
       while (stats.some((st) => ctx.measureText(st.a).width + size * 0.36 > colW - 10 || ctx.measureText(st.b).width + size * 0.36 > colW - 10) && size > 44) { size -= 4; ctx.font = serif(900, size); }
@@ -1629,9 +1629,17 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
       ctx.restore();
     }
     if (S.brand.handle) {
+      // marca: cuadrado del logo (brand.mark, p. ej. "cd") y la cuenta
+      let hx = SAFE.left;
+      if (S.brand.mark) {
+        ctx.fillStyle = C.accent; ctx.fillRect(hx, ED.handleY - 2, 38, 38);
+        ctx.font = serif(900, 26); ctx.fillStyle = C.onAccent; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+        ctx.fillText(S.brand.mark, hx + 19, ED.handleY + 26);
+        hx += 50;
+      }
       ctx.font = font(600, 30); ctx.fillStyle = C.text; ctx.textAlign = "left"; ctx.textBaseline = "top";
-      ctx.fillText(S.brand.handle, SAFE.left, ED.handleY);
-      reg("handle", SAFE.left, ED.handleY, ctx.measureText(S.brand.handle).width, 34);
+      ctx.fillText(S.brand.handle, hx, ED.handleY);
+      reg("handle", SAFE.left, ED.handleY, hx - SAFE.left + ctx.measureText(S.brand.handle).width, 34);
     }
   }
 

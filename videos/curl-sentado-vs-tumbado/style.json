@@ -28,6 +28,7 @@
     "handle": false
   },
   "brand": {
-    "handle": ""
+    "handle": "@cuerpo.con.datos",
+    "mark": "cd"
   }
 }

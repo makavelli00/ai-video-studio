@@ -22,3 +22,9 @@ Además, la escena 6 pasó de 6,06 a 6,73 s tras el snap.
 ## Vuelta 2
 Arreglados los tres defectos. Móvil sube a 8. El esquema de isquios sigue pequeño (unos 110 px de ancho): se distingue el músculo rojo, pero no su forma. Mejorarlo exige más alto en la zona del dibujo.
 Veredicto: ✅ exportar.
+
+## Vuelta 3 (tras el ok de pablo)
+- Se añade la marca: cuadrado rojo "cd" + @cuerpo.con.datos bajo la línea DATA (`brand.mark`, `brand.handle` en style.json del vídeo).
+- Con menos alto, los nombres del bíceps femoral largo pisaban el veredicto: la tabla reserva su hueco.
+- "más del doble" salía en tres cajas separadas: espacios duros dentro de la frase (mismo arreglo que el 2026-10-19).
+Check 0 errores. Render 42,1 s.
