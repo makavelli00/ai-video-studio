@@ -217,7 +217,7 @@ export default async function (api) {
     s16 = lerp(s16, .62, back5); s16 = lerp(s16, .7, toOp);
     const opBack = smooth(prog(t, at('112') - .25, at('112') + .25));
     s16 *= lerp(1, .55, opBack) * out(t, T.s8, .3);
-    n16.position.set(lerp(p16[0], .45, opBack), p16[1] + opBack * .75, p16[2] - opBack * .6); n16.rotation.y = Math.sin(t * 1.1 + 1) * .18 * (1 - to2); setS(n16, s16);
+    n16.position.set(lerp(p16[0], .45, opBack), p16[1] + opBack * .5, p16[2] - opBack * .6); n16.rotation.y = Math.sin(t * 1.1 + 1) * .18 * (1 - to2); setS(n16, s16);
 
     // Báscula: aparece entre los dos números, crece en el tramo 2, se va y vuelve en el 7 con la figura encima.
     const sIn = pop(t, .9, 1.3) * .45, s2 = smooth(prog(t, T.s2, T.s2 + .6)), s3o = out(t, T.s3 + .1, .35);
@@ -276,8 +276,8 @@ export default async function (api) {
 
     // --- 7 · 70 × 1,6 = 112 g
     const o70 = pop(t, at('70') - .1, 1.3) * lerp(1, .55, opBack) * out(t, T.s8, .3);
-    n70.position.set(lerp(-.75, -.45, opBack), 2.35 + opBack * .75, -opBack * .6); setS(n70, o70);
-    times.position.set(0, 2.35 + opBack * .75, -opBack * .6); setS(times, pop(t, at('70') + .3, 1.3) * lerp(1, .55, opBack) * out(t, T.s8, .3));
+    n70.position.set(lerp(-.75, -.45, opBack), 2.35 + opBack * .5, -opBack * .6); setS(n70, o70);
+    times.position.set(0, 2.35 + opBack * .5, -opBack * .6); setS(times, pop(t, at('70') + .3, 1.3) * lerp(1, .55, opBack) * out(t, T.s8, .3));
     const b112 = pop(t, at('112') - .05, 1.1) * out(t, T.s8, .3);
     n112.position.set(0, 2.3, lerp(-1, 1.1, smooth(prog(t, at('112') - .05, at('112') + .35)))); setS(n112, b112 * 1.15);
     n112.rotation.y = Math.sin(t * 1.4) * .1;
@@ -331,7 +331,7 @@ export default async function (api) {
       ov.text('de proteína al día', 540, project([0, 2.3, 1.1])[1] + 150, { size: 48, weight: 700, color: WHITE, alpha: a });
       source(ov, 'Cálculo: 70 kg × 1,6 g/kg = 112 g', a);
     }
-    headline(ov, 'ENVÍASELO AL DEL BATIDO', 'Que haga sus cuentas.', prog(t, at('Envíaselo') - .1, at('Envíaselo') + .2), WHITE, CYAN, 70, 54);
+    headline(ov, 'ENVÍASELO AL DEL BATIDO', 'Que haga sus cuentas.', prog(t, T.s8 + .3, T.s8 + .55), WHITE, CYAN, 70, 54);
   } };
 
   return { shots: [shot] };

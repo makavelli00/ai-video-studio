@@ -5,3 +5,5 @@ Vuelta 2: «1.863 participantes» pisaba el muro → bajo «ESTUDIOS»; 70 y 1,6
 Borrador completo: 30,5 s, -13,8 LUFS. Fuente visible en EFSA, Morton (estudios, curva, IC) y el cálculo.
 
 Pendiente: voz de pablo (re-sincroniza solo con timeline.py --audio). Curva marcada como ilustrativa.
+
+Final con voz (ElevenLabs, 37,3 s alineada por pausas): 38,4 s, -14,1 LUFS. Ajustes: «70 × 1,6» más bajo para no rozar subtítulos; titular final entra cuando el 112 ya se ha ido.

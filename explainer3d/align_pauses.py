@@ -20,7 +20,7 @@ segs_t = [lead] + [x for s, e in sil for x in (s, e)] + [tail]
 segs = [(segs_t[i], segs_t[i + 1]) for i in range(0, len(segs_t), 2)]
 
 words = [w for w in open(a.script, encoding='utf8').read().replace('*', '').split() if w != '/']
-SPOKEN = {'5': 'cinco', '40': 'cuarenta', '55': 'cincuenta y cinco', 'tdah': 'te de a hache'}  # cómo se dice, para contar sílabas
+SPOKEN = {'5': 'cinco', '40': 'cuarenta', '55': 'cincuenta y cinco', 'tdah': 'te de a hache', '08': 'cero coma ocho', '16': 'uno coma seis', '49': 'cuarenta y nueve', '70': 'setenta', '112': 'ciento doce', '22': 'dos coma dos'}  # cómo se dice, para contar sílabas
 def syl(w):
     k = re.sub(r'[^0-9a-záéíóúüñ]', '', w.lower()); w = SPOKEN.get(k, w)
     return max(1, len(re.findall(r'[aeiouáéíóúü]+', w.lower())))
