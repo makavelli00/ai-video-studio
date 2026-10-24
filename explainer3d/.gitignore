@@ -1,0 +1,7 @@
+node_modules/
+projects/*/stills/
+projects/*/*.wav
+projects/*/.seg_*
+projects/*/.segs.txt
+projects/*/.video_noaudio.mp4
+projects/*/*.mp4

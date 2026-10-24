@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html,body{margin:0;padding:0;background:#0b0b0c;overflow:hidden}
+  #root{position:relative;width:1080px;height:1920px;overflow:hidden;background:#0b0b0c}
+  #frame{position:absolute;inset:0;transform-origin:50% 50%;overflow:hidden;background:#0d0d0e}
+  #bg,#gl,#ov{position:absolute;inset:0;width:1080px;height:1920px}
+  #cap{position:absolute;left:90px;right:90px;top:300px;text-align:center;
+       font-family:'Inter Display','Inter',sans-serif;font-size:50px;line-height:1.22;letter-spacing:-0.3px;text-shadow:0 2px 18px rgba(0,0,0,.55)}
+  #cap .w{display:inline-block;margin:0 .13em;color:#8d8d92;font-weight:400;position:relative}
+  #cap .w.on{color:#fff;font-weight:700}
+  #cap .w.hl{color:#fff;font-weight:700;padding:0 6px;background:rgba(28,56,110,.55);outline:2.5px solid #3d7bff;outline-offset:0}
+  #cap .w.hl::before,#cap .w.hl::after{content:'';position:absolute;width:11px;height:11px;border-radius:50%;
+       background:#0d0d0e;border:2.5px solid #3d7bff;box-sizing:border-box}
+  #cap .w.hl::before{left:-7px;top:-7px}
+  #cap .w.hl::after{right:-7px;bottom:-7px}
+  #phone{position:absolute;inset:0;pointer-events:none}
+</style>
+<script type="importmap">
+{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}
+</script>
+</head>
+<body>
+<div id="root">
+  <div id="frame">
+    <canvas id="bg" width="1080" height="1920"></canvas>
+    <canvas id="gl"></canvas>
+    <canvas id="ov" width="1080" height="1920"></canvas>
+    <div id="cap"></div>
+  </div>
+  <div id="phone"></div>
+</div>
+<script type="module">
+  import { boot } from '/engine/engine.js';
+  const p = new URLSearchParams(location.search);
+  boot(p.get('project') || 'examples/demo').then(info => { window.__info = info; window.__ready = true; })
+    .catch(e => { window.__error = String(e && e.stack || e); console.error(e); });
+</script>
+</body>
+</html>
