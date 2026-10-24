@@ -21,3 +21,6 @@
 
 ## Versión corta (2026-10-24)
 pablo pidió el vídeo más corto: 43.4 → 29.8 s. Beats 3+4 unidos (35→70, «Baja despacio hasta los 60 y desde ahí se acelera»), beats 5+6 unidos (70→80 con umbrales). Check a 0; avisos de lectura algo más justos, aceptados porque el titular es fijo.
+
+## Sonido (2026-10-24)
+`sound.py` genera `sound.wav` desde el timeline: acorde por beat, pulso a 100 BPM (bombo desde la aceleración), tic por año del cursor, golpe en cada corte y pop del botón. Render a -14 LUFS.
