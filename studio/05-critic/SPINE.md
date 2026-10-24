@@ -15,3 +15,4 @@ Cada fallo que encuentren los sensores, el crítico o el usuario va aquí. Si un
 | 2026-10-19 | prensa-vs-extensiones | Palabras destacadas en caja partidas entre líneas, con huecos entre ellas | Espacio duro dentro de la frase; `parseRich` no corta por U+00A0 | 1 | — |
 | 2026-10-20 | agarre-por-edad | Palabras destacadas partidas entre líneas en la barra («30 y los / 40», «19 / kg») | Espacio duro (U+00A0) dentro de los `*…*` | 2 | Sensor en `scripts/check.mjs`: error si un destacado del look editorial lleva espacios normales |
 | 2026-10-20 | agarre-por-edad | Textos del viz `lines` pequeños en móvil y tachados por umbrales | Tamaños 26–30 y fondo bajo las cifras (engine) | 1 | — |
+| 2026-10-24 | agarre-por-edad | Con la firma @ el gráfico encoge y las etiquetas de hombres y mujeres se pisaban a los 20 años | `lines` separa las etiquetas al menos 100 px | 1 | Ya cubierto por el check (solapes) |

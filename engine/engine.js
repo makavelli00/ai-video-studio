@@ -1245,6 +1245,13 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         if (r.label) monoText(r.label.toUpperCase(), P.l + 10, Y(r.y) + 8, { size: 26, weight: 700, color: col, label: `viz.ref${k + 1}` });
         ctx.restore();
       });
+      // altura de cada etiqueta: la del punto, separadas al menos 100 px para que no se pisen
+      const ly = (v.series || []).map((s) => Y(at(s.pts, cx)));
+      const ord = ly.map((y, i) => i).sort((a, b) => ly[a] - ly[b]);
+      for (let k = 1; k < ord.length; k++) {
+        const gap = ly[ord[k]] - ly[ord[k - 1]];
+        if (gap < 100) { ly[ord[k - 1]] -= (100 - gap) / 2; ly[ord[k]] += (100 - gap) / 2; }
+      }
       // líneas hasta el cursor
       (v.series || []).forEach((s, i) => {
         const col = s.color || C.text;
@@ -1266,12 +1273,12 @@ export function createStudio(canvas, timeline, styleIn, images = {}) {
         const lx = right ? X(cx) + 26 : X(cx) - 26;
         // fondo bajo la cifra: los umbrales discontinuos no la tachan
         const bw = Math.max(ctx.measureText(val).width, 150) + 12;
-        if (v.refs?.length) { ctx.fillStyle = C.bg; ctx.fillRect(right ? lx - 6 : lx - bw + 6, yy - 46, bw, 96); }
+        if (v.refs?.length) { ctx.fillStyle = C.bg; ctx.fillRect(right ? lx - 6 : lx - bw + 6, ly[i] - 46, bw, 96); }
         ctx.fillStyle = col;
-        ctx.fillText(val, lx, yy + 4);
+        ctx.fillText(val, lx, ly[i] + 4);
         const vw = ctx.measureText(val).width;
-        reg(`viz.line${i + 1}.value`, right ? lx : lx - vw, yy - 44, vw, 52);
-        monoText(String(s.label).toUpperCase(), lx, yy + 16, { size: 26, weight: 700, color: col, align: right ? "left" : "right", label: `viz.line${i + 1}.label`, spacing: 1 });
+        reg(`viz.line${i + 1}.value`, right ? lx : lx - vw, ly[i] - 44, vw, 52);
+        monoText(String(s.label).toUpperCase(), lx, ly[i] + 16, { size: 26, weight: 700, color: col, align: right ? "left" : "right", label: `viz.line${i + 1}.label`, spacing: 1 });
         ctx.restore();
       });
       // cursor y edad
