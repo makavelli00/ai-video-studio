@@ -19,11 +19,7 @@ def at(w, n=1):
 m = Mix(D)
 cuts = [at('La') - .2, at('Pero') - .2, at('metaanálisis') - .3, at('proteína', 2) - .3, at('Pero', 2) - .2, at('Si') - .15, at('Envíaselo') - .15]
 
-# base: pulso suave de bajo cada 0,5 s y acorde frío
-for i in range(int(D / .5)):
-    if i % 2 == 0: m.add(i * .5, bass_note(55, .2), .25)
-    m.add(i * .5 + .25, hat(.04), .12)
-m.music(0, pad([110, 164.8, 246.9, 329.6], D, attack=.8), .8)
+# sin fondo continuo (pablo lo pidió quitar): solo efectos puntuales
 
 # transiciones: whoosh corto antes de cada cambio
 for c in cuts: m.add(c - .3, whoosh(.34, 400, 5000), .4)
