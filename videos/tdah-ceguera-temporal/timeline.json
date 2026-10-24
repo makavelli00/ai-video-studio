@@ -1,0 +1,65 @@
+{
+  "title": "TDAH · ceguera temporal",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "scenes": [
+    {
+      "type": "hook",
+      "duration": 3.0,
+      "text": "¿Tus *5 minutos* acaban siendo 40?"
+    },
+    {
+      "type": "compare",
+      "duration": 4.8,
+      "title": "El mismo rato",
+      "left": {
+        "label": "Tu cabeza",
+        "text": "5 minutos"
+      },
+      "right": {
+        "label": "El reloj",
+        "text": "40 minutos"
+      }
+    },
+    {
+      "type": "number",
+      "duration": 4.6,
+      "value": 55,
+      "suffix": " estudios",
+      "label": "comparan cómo calculan el tiempo personas con y sin TDAH",
+      "source": "Marx, Cortese y otros · J Am Acad Child Adolesc Psychiatry, 2021"
+    },
+    {
+      "type": "statement",
+      "duration": 6.0,
+      "kicker": "Resultado",
+      "text": "Con TDAH se falla *más* al calcular cuánto dura algo",
+      "note": "Sobre todo al repetir una duración"
+    },
+    {
+      "type": "statement",
+      "duration": 3.4,
+      "kicker": "Ojo",
+      "text": "No es *pereza*. Es tu reloj interno."
+    },
+    {
+      "type": "list",
+      "duration": 6.6,
+      "title": "Saca el tiempo de tu cabeza",
+      "items": [
+        "Un reloj a la vista",
+        "Un temporizador por tarea",
+        "Alarma antes de salir"
+      ]
+    },
+    {
+      "type": "cta",
+      "duration": 4.4,
+      "book": false,
+      "text": "¿Cuánto te duran a ti *5 minutos*?",
+      "button": "Comenta",
+      "sub": "Sígueme para más"
+    }
+  ]
+}

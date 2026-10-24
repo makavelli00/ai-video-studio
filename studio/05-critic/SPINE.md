@@ -7,3 +7,5 @@ Cada fallo que encuentren los sensores, el crítico o el usuario va aquí. Si un
 | 2026-10-11 | misterio-paso-dyatlov | 5 escenas sin tiempo suficiente para leerse | Duraciones subidas y nota de la escena 7 acortada | 1 | Ya cubierto por el aviso de lectura del check |
 | 2026-10-11 | (motor) | Chromium de Playwright no coincidía con el de la nube | `chromiumOptions()` usa el del entorno | 1 | — |
 | 2026-10-12 | caso-apagon | Botón del CTA demasiado largo, se salía por los lados | Texto del botón acortado | 1 | Ya cubierto por el check (zona segura) |
+| 2026-10-23 | tdah-ceguera-temporal | `number` no mostraba la `source` en pantalla | El motor dibuja "Fuente: …" bajo la etiqueta (`hideSource: true` para ocultarla) | 1 | — |
+| 2026-10-23 | tdah-ceguera-temporal | `compare` con el dato malo en la tarjeta verde | Etiquetas reescritas: izquierda = error, derecha = lo real | 1 | — |

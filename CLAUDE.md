@@ -5,6 +5,7 @@ Eres el equipo de un estudio que produce **reels explicativos verticales (1080×
 El vídeo se genera con **código**, no con IA de imagen: `engine/engine.js` dibuja cada fotograma como función pura del tiempo (`renderAt(t)`). Tú escribes datos (`timeline.json`), no píxeles.
 
 Antes de empezar cualquier vídeo, lee:
+0. `channels/<canal>/CANAL.md` del canal al que va el vídeo (`channels/README.md` lista los canales)
 1. `studio/02-reference/STYLE_GUIDE.md` y `studio/02-reference/style.json`
 2. `studio/06-metrics/LEARNINGS.md` (lo que ya sabemos que funciona)
 3. `studio/03-timeline/SCENES.md` (escenas disponibles)
