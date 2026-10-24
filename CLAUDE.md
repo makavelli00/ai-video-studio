@@ -144,6 +144,7 @@ npm run render  -- <video>   # MP4 final en out/ y copia en renders/ (-14 LUFS)
 # check, sheet y render aceptan --format 1x1 | 4x5 | 16x9
 
 Skill: /motion-reel encadena todo el flujo (.claude/skills/motion-reel/SKILL.md).
+Otras skills (motores aparte, solo si pablo pide ese formato): /explainer-3d-reels (objeto 3D "resulta que…") y /motion-director (estilos brutal, Apple o cine 3D).
 
 No disponible en este entorno: modelos de vídeo (Seedance y similares) y voz sintética (TTS); la voz la graba el usuario.
 ```
