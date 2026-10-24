@@ -10,5 +10,5 @@
 - **CTA:** seguir / guardar / comentar su caso.
 - **Fuentes:** guías clínicas (NICE, DSM-5-TR), metaanálisis, asociaciones (CHADD, FEAADAH). Distinguir lo probado de lo que "se cree".
 - **Línea roja:** no es consejo médico. No hablar de medicación más allá de lo que digan las guías. Cuando toque, "habla con un profesional".
-- **Nombre:** TDAH con datos (elegido 2026-10-24). Lema: «tu cabeza, explicada». Logo y avatar en `brand/` (reloj de arena blanco y dorado sobre negro). Handle: **@tdah.con.datos** (Instagram, creado 2026-10-24).
+- **Nombre:** TDAH con datos (elegido 2026-10-24). Lema: «tu cabeza, explicada». Logo y avatar en `brand/`: perfil de cabeza con 3 barras de datos (dorado y cian sobre negro). Handle: **@tdah.con.datos** (Instagram, creado 2026-10-24).
 - **Formato probado:** reel 3D «resulta que» con `explainer3d/` (piloto: tdah-ceguera-temporal) con voz de ElevenLabs.
