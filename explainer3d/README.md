@@ -15,3 +15,6 @@ node render.mjs projects/<v> --out projects/<v>/<v>.mp4 --workers 3
 Proyecto: `projects/<v>/` con `script.txt` (`*clave*`), `timeline.json`, `scene.js`, `sound.py`.
 Con voz: `"audio": "voz.mp3"` y los efectos como `"music": "sfx.wav", "musicVolume": 0.5`.
 Mismas reglas que el estudio: datos con fuente visible, sin emojis, texto entre y=250 y y=1650.
+
+Personajes de Mixamo: deja los `.fbx` en `projects/<v>/assets/` (fuera de git), cárgalos con `FBXLoader` en `scene.js`
+y muestrea la animación con `mixer.setTime(t % clip.duration)` para que cada fotograma siga siendo puro. Ejemplo: `projects/rutina-3d-prueba`.

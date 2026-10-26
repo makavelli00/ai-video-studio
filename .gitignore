@@ -1,3 +1,4 @@
 node_modules/
 videos/*/out/
 .env
+explainer3d/projects/*/assets/*.fbx
